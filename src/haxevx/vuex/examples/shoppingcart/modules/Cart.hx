@@ -41,7 +41,7 @@ class Cart extends VModule<CartState>
 	@mutator var action:CartDispatcher<CartState>;
 	
 	// Mutators
-	@mutator var mutator:CartMutator<CartState>;
+	@mutator var mutator:CartMutator;
 }
 
 typedef CartState =  {	//eg. typedef style store module state
@@ -52,7 +52,7 @@ typedef CartState =  {	//eg. typedef style store module state
 
 class CartDispatcher<S:CartState> {
 	
-	@mutator var mutator:CartMutator<S>;
+	@mutator var mutator:CartMutator;
 	
 	 public function checkout<P:Array<ProductInCart>>(payload:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {
@@ -73,10 +73,10 @@ class CartDispatcher<S:CartState> {
 	 }
 }
 
-class CartMutator<S:CartState> extends AppMutator<Dynamic> {
-	override public function addToCart<P:ProductIdentifier>(payload:P):S->P->Void {
+class CartMutator extends AppMutator<CartState> {
+	override public function addToCart<P:ProductIdentifier>(payload:P):CartState->P->Void {
 		
-		return function(state:S, payload:P):Void {
+		return function(state:CartState, payload:P):Void {
 			state.lastCheckout = null;
 			
 			//todo
@@ -93,22 +93,22 @@ class CartMutator<S:CartState> extends AppMutator<Dynamic> {
 		}
 	}
 		
-	override public function checkoutRequest():S->Void {
-		return function(state:S):Void {
+	override public function checkoutRequest():CartState-> Void {
+		return function(state:CartState):Void {
 			state.added = [];
 			state.checkoutStatus = null;
 		}
 	}
 	
-	override public function checkoutSuccess():S->Void {
-		return function(state:S):Void {
+	override public function checkoutSuccess():CartState->Void {
+		return function(state:CartState):Void {
 			state.added = [];
 			state.checkoutStatus = 'successful';
 		}
 	}
 	
-	override public function checkoutFailure<P:ProductHistory>(payload:P):S->P->Void {
-		return function(state:S, payload:P):Void {
+	override public function checkoutFailure<P:ProductHistory>(payload:P):CartState->P->Void {
+		return function(state:CartState, payload:P):Void {
 			state.added = payload.savedCartItems;
 			state.checkoutStatus  =  'failed';
 		}

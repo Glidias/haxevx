@@ -10,7 +10,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
 @:rtti
 class AppActions<S>
 {
-	@mutator public var mutator:AppMutator<Dynamic>;
+	@mutator static var mutator:AppMutator<Dynamic>;
 	
 	 public function checkout<P:ProductInStore>(product:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {

@@ -43,6 +43,11 @@ class VComponent<D, P>
 		return null;
 	}
 	
+	// override this register components locally
+	function Components():Dynamic<VComponent<Dynamic,Dynamic>>  {
+		return null;
+	}
+
 	
 	
 	// internal method to convert VxComponent to native VueJS Component or any native environment
@@ -50,6 +55,7 @@ class VComponent<D, P>
 		// todo: create VUEJS component from this component!
 		return null;
 	}
+	
 	
 
 	

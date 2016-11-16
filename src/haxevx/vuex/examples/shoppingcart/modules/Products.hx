@@ -1,4 +1,5 @@
 package haxevx.vuex.examples.shoppingcart.modules;
+import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.core.VModule;
 import haxevx.vuex.examples.shoppingcart.store.AppMutator;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
@@ -9,7 +10,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * @author Glidias
  */
 @:rtti
-class ProductList extends VModule<ProductListModel>
+class Products extends VModule<ProductListModel>
 {
 	// Initial State
 	public function new() 
@@ -21,12 +22,12 @@ class ProductList extends VModule<ProductListModel>
 	
 	// eg. A single store/module getter implementation defined as a paragraph of 3 declarations.
 	//  Admittingly, rather verbose to ensure compile type strict typing and code-hinting.
-	public var allProducts(get, null):Array<Dynamic>;	// 1. helper haxe getter property for module reference instance
-	function get_allProducts():Array<Dynamic> 		// 2. Haxe+JS proxy function to link to VueJS getter function via simple return statement
+	public var allProducts(get, null):Array<ProductInStore>;	// 1. helper haxe getter property for module reference instance
+	function get_allProducts():Array<ProductInStore> 		// 2. Haxe+JS proxy function to link to VueJS getter function via simple return statement
 	{
 		return getAllProducts(state);
 	}
-	static function getAllProducts(state:ProductListModel):Array<Dynamic> {  // 3. Static getter function to be registered under Vuex store under current class's namespace
+	static function getAllProducts(state:ProductListModel):Array<ProductInStore> {  // 3. Static getter function to be registered under Vuex store under current class's namespace
 		return state.all;
 	}  
 
@@ -41,8 +42,20 @@ class ProductList extends VModule<ProductListModel>
 	
 	
 	// Mutations
-	@mutator var mutator:ProductListMutator<ProductListModel>; 
+	@mutator var mutator:ProductListMutator; 
 	
+}
+
+class ProductListDispatcher {
+	
+	@mutator static var mutator:ProductListMutator;
+	
+	public function getAllProducts():IVxStoreContext<ProductListModel>->Void {  
+		return function(context:IVxStoreContext<ProductListModel>) {
+			//mutator.receiveProducts();
+			//mutator.receiveProducts(payload);
+		}
+	}
 }
 
 class ProductListModel {  //eg. class style store module state
@@ -55,15 +68,15 @@ class ProductListModel {  //eg. class style store module state
 	}
 }
 
-class ProductListMutator<S:ProductListModel> extends AppMutator<Dynamic> {
-	override public function receiveProducts<P:Array<ProductInStore>>(payload:P):S->P->Void {
-		return function(state:S, payload:P):Void {
+class ProductListMutator extends AppMutator<ProductListModel> {
+	override public function receiveProducts<P:Array<ProductInStore>>(payload:P):ProductListModel->P->Void {
+		return function(state:ProductListModel, payload:P):Void {
 			state.all = payload;
 		};
 	}
 	
-	override public function addToCart<P:ProductIdentifier>(payload:P):S->P->Void {
-		return function(state:S, payload:P):Void {
+	override public function addToCart<P:ProductIdentifier>(payload:P):ProductListModel->P->Void {
+		return function(state:ProductListModel, payload:P):Void {
 			var filtered = state.all.filter( function(p) { return p.id == payload.id;  } );
 			if (filtered.length > 0) {
 				filtered[0].inventory--;

@@ -2,7 +2,7 @@ package haxevx.vuex.examples.shoppingcart.store;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxStore;
 import haxevx.vuex.examples.shoppingcart.modules.Cart;
-import haxevx.vuex.examples.shoppingcart.modules.ProductList;
+import haxevx.vuex.examples.shoppingcart.modules.Products;
 
 /**
  * port of store/index.js
@@ -20,7 +20,7 @@ class AppStore extends VxStore<AppState>
 	
 	// Modules
 	@module public var cart:Cart;
-	@module public var products:ProductList;
+	@module public var products:Products;
 	
 	public function new() {
 		state = new AppState();

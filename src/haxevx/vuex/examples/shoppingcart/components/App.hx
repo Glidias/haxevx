@@ -1,10 +1,13 @@
 package haxevx.vuex.examples.shoppingcart.components;
 import haxevx.vuex.core.NoneT;
+import haxevx.vuex.core.VComponent;
 import haxevx.vuex.core.VxComponent;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 
 /**
- * Root application component implementation
+ * components/App.vue port
+ * 
+ * Root application vue component implementation
  * @author Glidias
  */
 @:rtti
@@ -13,7 +16,14 @@ class App extends VxComponent<AppStore, NoneT, NoneT>
 
 	public function new() 
 	{
-
+		
+	}
+	
+	override function Components():Dynamic<VComponent<Dynamic,Dynamic>> {
+		return {
+			"product-list": new ProductListVue(),
+			"cart": new CartVue()
+		};
 	}
 	
 	override public function Template():String {
