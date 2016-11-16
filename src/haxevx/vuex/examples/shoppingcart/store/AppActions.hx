@@ -8,7 +8,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * @author Glidias
  */
 @:rtti
-class AppActions<S>
+class AppActions<S:AppState>
 {
 	@mutator static var mutator:AppMutator<Dynamic>;
 	

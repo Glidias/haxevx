@@ -17,7 +17,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 
 	public function new() 
 	{
-		
+	
 	}
 	
 	// typed static inject helpers (consider, singleton getInstance() implementation?)

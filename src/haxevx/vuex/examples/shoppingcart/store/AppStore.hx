@@ -17,7 +17,7 @@ class AppStore extends VxStore<AppState>
 	
 	
 	// Getters
-	@getter public var getters:AppGetters<AppState>;
+	@getter public var getters:AppGetters;
 	
 	// Modules
 	@module public var cart:Cart;
