@@ -1,6 +1,7 @@
 # haxevx
 
 ## HaxeVX - Haxe-powered VueJS/Vuex development (WIP Draft Stage ) 
+
 ### Type-safe coding to target Vuex/VueJS environments using Haxe RTTI (runtime-type information) and Reflection/Metadata
 
 Still in early draft stage, but some ideas i've been tossing around with regards to developing in Haxe to target/construct a VueJS/VueX 2.0 application. With it, you get the benefit of massive type-hinting/type-checking/safety, etc. inherant within Haxe.
@@ -31,3 +32,6 @@ VueJS - https://vuejs.org/
 Vuex - https://vuex.vuejs.org/en
 Haxe - http://haxe.org
 	
+Related Links:
+	
+Haxe vs Typescript -  https://blog.onthewings.net/2015/08/05/typescript-vs-haxe/
