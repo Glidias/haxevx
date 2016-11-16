@@ -8,10 +8,11 @@
     <movie fps="0" />
     <movie width="0" />
     <movie height="0" />
-    <movie version="1" />
+    <movie version="0" />
     <movie minorVersion="0" />
     <movie platform="JavaScript" />
     <movie background="#FFFFFF" />
+    <movie preferredSDK="Haxe 3.3.0;3.3.0;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>

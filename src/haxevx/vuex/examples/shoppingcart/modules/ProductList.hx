@@ -48,10 +48,10 @@ class ProductList extends VModule<ProductListModel>
 class ProductListModel {  //eg. class style store module state
 	
 	// ensure class's reactive states have all their properties initialized beforehand (even null references "=null"), in order to be reactive to VueJS.
-	public var all:Array<ProductInStore>;
+	public var all:Array<ProductInStore> = [];
 	
 	public function new() {
-		all = [];
+		
 	}
 }
 
