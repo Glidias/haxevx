@@ -29,14 +29,13 @@ class Cart extends VModule<CartState>
 	
 	// Getters
 	public var checkoutStatus(get, null):String;
-    static function getCheckoutStatus(state:CartState):String {
-		return state.checkoutStatus;
-	}
 	function get_checkoutStatus():String 
 	{
 		return getCheckoutStatus(state);
 	}
-	
+    static function getCheckoutStatus(state:CartState):String {
+		return state.checkoutStatus;
+	}
 	
 	// Actions
 	@mutator var action:CartDispatcher<CartState>;
