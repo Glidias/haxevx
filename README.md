@@ -5,7 +5,9 @@
 
 Still in early draft stage, but some ideas i've been tossing around with regards to developing in Haxe to target/construct a VueJS/VueX 2.0 application. With it, you get the benefit of massive type-hinting/type-checking/safety, etc. inherant within Haxe.
 
-Even though Vuex boilerplate is avoided (via Haxe reflection api), since there's a way to declare and use mutator/actions methods without managing/matching strings with Babel/ES6 helpers and such, the caveat is that in order to have full-on editor type hinting/completion, and a combination of compile-time & runtime initialization type-safety when deploying from Haxe to Vuex , some extra boilerplate (typical within Haxe or any strict-typing style of langauges) is still required. In some cases, it may be less code than the BabelJS style of coding, and in some cases, more code due to the need for type completion/validation.
+Even though Vuex boilerplate is avoided (via Haxe reflection api), since there's a way to declare and use mutator/actions methods without managing/matching strings with Babel/ES6 helpers and such, the caveat is that in order to have full-on editor type hinting/completion, and a combination of compile-time & runtime initialization type-safety when deploying from Haxe to Vuex , some extra boilerplate (typical within Haxe or any strict/static-typed languages) is still required. In some cases, it may be less code than the BabelJS style of coding, and in some cases, more code due to the need for type completion/validation (eg. Even though there's no magic "mapGetters/mapActions/mapMutators" helper methods, there are other means I'm toying around with, such as static mutator/action/getter class field reference calls, etc.) to perform necessary actions through the global Store. 
+
+In short, this is HaxeVx, a Vuex implementation that avoids having to handle any strings. Instead, call strictly-typed functions with specific parameters/requirements. HaxeVX will convert these method calls to string-based commits/dispatches accordingly with automatic namespacing.
 
 As of now, this draft is working under Haxe 3.3.0.
 
@@ -20,3 +22,11 @@ _____
 Deployment info:
 	
 The current package is under haxevx.* namespace. Examples folder can be omitted for deployment.
+
+_____
+
+Related links:
+
+VueJS - https://vuejs.org/
+Vuex - https://vuex.vuejs.org/en
+	
