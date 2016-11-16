@@ -42,7 +42,7 @@ class Products extends VModule<ProductListModel>
 	
 	
 	// Mutations
-	@mutator var mutator:ProductListMutator; 
+	@mutator static var mutator:ProductListMutator; 
 	
 }
 

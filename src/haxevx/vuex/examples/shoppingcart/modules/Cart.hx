@@ -38,10 +38,10 @@ class Cart extends VModule<CartState>
 	}
 	
 	// Actions
-	@mutator var action:CartDispatcher<CartState>;
+	@mutator static var action:CartDispatcher<CartState>;
 	
 	// Mutators
-	@mutator var mutator:CartMutator;
+	@mutator static var mutator:CartMutator;
 }
 
 typedef CartState =  {	//eg. typedef style store module state
@@ -52,7 +52,7 @@ typedef CartState =  {	//eg. typedef style store module state
 
 class CartDispatcher<S:CartState> {
 	
-	@mutator var mutator:CartMutator;
+	@mutator static var mutator:CartMutator;
 	
 	 public function checkout<P:Array<ProductInCart>>(payload:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {

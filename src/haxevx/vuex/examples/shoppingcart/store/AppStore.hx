@@ -13,7 +13,8 @@ import haxevx.vuex.examples.shoppingcart.modules.Products;
 class AppStore extends VxStore<AppState>  
 {	
 	// Actions
-	@action public var actions:AppActions<AppState>;
+	@action static var actions:AppActions<AppState>;
+	
 	
 	// Getters
 	@getter public var getters:AppGetters<AppState>;
