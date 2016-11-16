@@ -25,8 +25,9 @@ The current package is under haxevx.* namespace. Examples folder can be omitted 
 
 _____
 
-Related links:
+Main links:
 
 VueJS - https://vuejs.org/
 Vuex - https://vuex.vuejs.org/en
+Haxe - http://haxe.org
 	
