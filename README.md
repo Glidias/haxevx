@@ -10,7 +10,7 @@ Still in early draft stage, but some ideas i've been tossing around with regards
 
 Even though Vuex boilerplate is avoided (via Haxe reflection api), this is a proposed a way to declare and use mutator/actions methods without managing/matching [constant] strings with Babel/ES6 helpers and such, the caveat is that in order to have full-on editor type hinting/completion, and a combination of compile-time & runtime initialization type-safety when deploying from Haxe to Vuex , some extra boilerplate (typical within Haxe or any strict/static-typed languages) is still required.
 
-In short, this is HaxeVx, a Vuex implementation that avoids having to handle any strings. Instead, call strictly-typed functions with specifically typed parameters/requirements. HaxeVX will convert these method calls to string-based commits/dispatches accordingly with automatic namespacing for Vuex or any other related Flux-oriented frameworks.
+In short, this is HaxeVx, a Vuex implementation that avoids having to handle any strings. Instead, call strictly-typed functions with specifically typed parameters/requirements. HaxeVX will convert these method calls to string-based commits/dispatches accordingly with automatic namespacing depending on which class they originated/extended from.
 
 As of now, this draft is working under Haxe 3.3.0.
 
