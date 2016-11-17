@@ -4,9 +4,9 @@
 
 ### Type-safe coding to target Vuex/VueJS environments using Haxe Reflection/Metadata and RTTI (runtime-type information) .
 
-Still in early draft stage, but some ideas i've been tossing around with regards to developing in Haxe to target/construct a VueJS/VueX 2.0 application. With it, you get the benefit of massive type-hinting/type-checking/safety, etc. inherant within Haxe. Examples (based off Vuex repository examples) can be found [here](https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples)
-	
+Still in early draft stage, but some ideas i've been tossing around with regards to developing in Haxe to target/construct a VueJS/VueX 2.0 application. With it, you get the benefit of massive type-hinting/type-checking/safety, etc. inherant within Haxe. 
 
+Examples (based off Vuex repository examples) can be found [here](https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples)
 
 Even though Vuex boilerplate is avoided (via Haxe reflection api), this is a proposed a way to declare and use mutator/actions methods without managing/matching [constant] strings with Babel/ES6 helpers and such, the caveat is that in order to have full-on editor type hinting/completion, and a combination of compile-time & runtime initialization type-safety when deploying from Haxe to Vuex , some extra boilerplate (typical within Haxe or any strict/static-typed languages) is still required.
 
