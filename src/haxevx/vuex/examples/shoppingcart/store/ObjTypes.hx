@@ -17,7 +17,6 @@ typedef Product = {
  
 typedef ProductInCart = {
 	> Product,
-	id:Int,
 	quantity:Int
 }
 
