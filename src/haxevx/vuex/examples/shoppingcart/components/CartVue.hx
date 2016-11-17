@@ -1,13 +1,17 @@
 package haxevx.vuex.examples.shoppingcart.components;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxComponent;
+import haxevx.vuex.examples.shoppingcart.modules.Cart.CartDispatcher;
+import haxevx.vuex.examples.shoppingcart.modules.Cart.CartMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
+import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
 
 /**
  * components/Cart.vue port
  * 
  * @author Glidias
  */
+using Lambda;
 @:rtti
 class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 {
@@ -17,8 +21,38 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 		
 	}
 	
+	@action static var action:CartDispatcher<Dynamic>; 
 	
-	override public function Template():String {
+	// Computed
+	
+	public var products(get, null):Array<ProductInCart>;
+	function get_products():Array<ProductInCart> 
+	{
+		return store.getters.cartProducts;
+	}
+	
+	public var checkoutStatus(get, null):String;
+	function get_checkoutStatus():String 
+	{
+		return store.cart.checkoutStatus;
+	}
+	
+	public var total(get, null):Float;
+	function get_total():Float 
+	{
+		return products.fold( function(p:ProductInCart, total:Float)  {
+			return total + p.price * p.quantity;
+		}, 0);
+	}
+	
+	
+	// Methods
+	public function checkout (products:Array<ProductInCart>) {
+		action.checkout(products);
+    }
+	
+	
+	override function Template():String {
 		return '<div class="cart">
 				<h2>Your Cart</h2>
 				<p v-show="!products.length"><i>Please add some products to cart.</i></p>
@@ -32,5 +66,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 				<p v-show="checkoutStatus">Checkout {{ checkoutStatus }}.</p>
 			  </div>';
 	}
+	
+
 	
 }

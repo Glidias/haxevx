@@ -19,11 +19,11 @@ class VComponent<D, P>
 	}
 	
 	// override this to determine starting default values for related data types if needed
-	public function getNewProps():P {
+	function getNewProps():P {
 		return null;
 	}
 	
-	public function getNewData():D {
+	function getNewData():D {
 		return null;
 	}
 	

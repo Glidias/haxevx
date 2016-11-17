@@ -10,14 +10,10 @@ import haxevx.vuex.examples.shoppingcart.modules.Products;
  * @author Glidias
  */
 @:rtti
-class AppStore extends VxStore<AppState>  
+class AppStore extends VxStore<AppState, AppGetters>  
 {	
 	// Actions
 	@action static var actions:AppActions<AppState>;
-	
-	
-	// Getters
-	@getter public var getters:AppGetters;
 	
 	// Modules
 	@module public var cart:Cart;

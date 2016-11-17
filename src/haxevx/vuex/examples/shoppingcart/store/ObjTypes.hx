@@ -1,5 +1,6 @@
 package haxevx.vuex.examples.shoppingcart.store;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes.Product;
+import haxevx.vuex.examples.shoppingcart.store.ObjTypes.ProductInCart;
 
 /**
  * Generic object/payload data types
@@ -9,15 +10,15 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes.Product;
  // Objects
  
 typedef Product = {
-	 id:String, 
-	 price:String,
+	 id:Int, 
+	 price:Float,
 	title:String
  }
  
 typedef ProductInCart = {
 	> Product,
-	quantity:Int,
-
+	id:Int,
+	quantity:Int
 }
 
 typedef ProductInStore = {
@@ -25,15 +26,13 @@ typedef ProductInStore = {
 	inventory:Int,
 	
 }
-
 typedef ProductHistory = {
 	savedCartItems:Array<ProductInCart>
- }
- 
+}
+
 
 // Payload
-
 typedef ProductIdentifier = {
-	id:String
+	id:Int
 }
 

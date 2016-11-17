@@ -27,7 +27,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	// Computed
 	
-	public var products(get, null):Array<ProductInStore>;
+	var products(get, null):Array<ProductInStore>;
 	function get_products():Array<ProductInStore>
 	{
 		return store.products.allProducts;
@@ -35,7 +35,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	
 	// Methods
-	public function addToCart(p:ProductInStore):Void {
+	function addToCart(p:ProductInStore):Void {
 		mutator.addToCart(p);
 		
 	}

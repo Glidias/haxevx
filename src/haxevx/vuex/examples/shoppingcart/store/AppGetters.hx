@@ -16,22 +16,34 @@ class AppGetters extends VModule<AppState>
 		return getCartProducts(state);
 	}
 	public static function getCartProducts<S:AppState>(state:S):Array<ProductInCart> {
-		state.cart.added.map( function( cp) {
-			var chk = state.products.all.filter( function(p) {
+		var exceptions:Array<String> = null;
+		var resultOfMap =  state.cart.added.map( function( cp:ProductInCart) {
+			var chk = state.products.all.filter( function(p:ProductInStore) {
 				return p.id == cp.id;
 			});
 			
 			if (chk.length > 0) {
 				var product = chk[0];
 				return {
+					id: product.id,
 					title: product.title,
 					price: product.price,
 					quantity: cp.quantity
 				};
 			}
-			else return null;
+			else {
+				
+				if (exceptions == null) {
+					exceptions = [];
+				}
+				exceptions.push(Std.string(cp.id));
+				return null;
+			}
 		});
-		return null;
+		if (exceptions!= null) {
+			throw "Null id link reference map exception detected!: " + exceptions;
+		}
+		return resultOfMap;
 	}
 	
 

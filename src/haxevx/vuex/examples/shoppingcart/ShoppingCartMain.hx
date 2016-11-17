@@ -1,4 +1,5 @@
 package haxevx.vuex.examples.shoppingcart;
+import haxevx.vuex.examples.shoppingcart.api.Shop;
 import haxevx.vuex.examples.shoppingcart.components.App;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 
@@ -14,6 +15,7 @@ class ShoppingCartMain
 		// todo: main entry initialisation and conversion utilities to native Vuex/VueJS app.
 		var store = new AppStore();
 		var rootComponent = new App();
+	
 		
 	}
 	

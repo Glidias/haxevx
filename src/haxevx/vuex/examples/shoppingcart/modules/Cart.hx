@@ -2,7 +2,9 @@ package haxevx.vuex.examples.shoppingcart.modules;
 import haxevx.vuex.core.IVxContext;
 import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.core.VModule;
+import haxevx.vuex.examples.shoppingcart.api.Shop;
 import haxevx.vuex.examples.shoppingcart.store.AppMutator;
+import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
 
 /**
@@ -54,23 +56,21 @@ class CartDispatcher<S:CartState> {
 	
 	@mutator static var mutator:CartMutator;
 	
+	static var shop:Shop = Shop.getInstance();
+	
+	
 	 public function checkout<P:Array<ProductInCart>>(payload:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {
 			var savedCartItems:Array<ProductInCart> = context.state.added.concat([]);  
 			mutator.checkoutRequest();
-			
+			shop.buyProducts( payload, function() { 
+				mutator.checkoutSuccess();
+			},
+			function() {
+				mutator.checkoutFailure({savedCartItems:savedCartItems});
+			});
 		}
-		
-		 /*
-		const savedCartItems = [...state.added]
-		commit(types.CHECKOUT_REQUEST)
-		shop.buyProducts(
-		  products,
-		  () => commit(types.CHECKOUT_SUCCESS),
-		  () => commit(types.CHECKOUT_FAILURE, { savedCartItems })
-		)
-		*/
-	 }
+	}
 }
 
 class CartMutator extends AppMutator<CartState> {
@@ -78,18 +78,22 @@ class CartMutator extends AppMutator<CartState> {
 		
 		return function(state:CartState, payload:P):Void {
 			state.lastCheckout = null;
+			var chk = state.added.filter( function(p) {
+				return p.id == payload.id;
+			});
 			
-			//todo
-			/*var record = state.added.find( p => p.id === payload.id)
-			if (!record) {
-			  state.added.push({
-				id,
-				quantity: 1
-			  })
-			} else {
-			  record.quantity++
+			if (chk.length > 0) {
+				state.added.push({
+					id:payload.id,
+					quantity:1,
+					title:"~unresolved",  // assumed AppGetters.cartProducts getter will re-trigger to resolve details
+					price:-1
+				});
 			}
-			*/
+			else {
+				var record = chk[0];  // increment resolved record quantity
+				record.quantity++;
+			}
 		}
 	}
 		
@@ -102,8 +106,7 @@ class CartMutator extends AppMutator<CartState> {
 	
 	override public function checkoutSuccess():CartState->Void {
 		return function(state:CartState):Void {
-			state.added = [];
-			state.checkoutStatus = 'successful';
+			 state.checkoutStatus = 'successful';
 		}
 	}
 	
