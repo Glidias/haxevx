@@ -1,6 +1,6 @@
 # haxevx
 
-## HaxeVX - Haxe-powered VueJS/Vuex development (WIP Draft Stage ) 
+## HaxeVX - Haxe-powered VueJS/Vuex development
 
 ### Type-safe coding to target Vuex/VueJS environments using Haxe Reflection/Metadata and RTTI (runtime-type information) .
 
