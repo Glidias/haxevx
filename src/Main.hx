@@ -13,6 +13,7 @@ class Main
 	static function main() 
 	{
 		new ShoppingCartMain();
+	//	Type.getInstanceFields(ShoppingCartMain)[
 	}
 	
 }

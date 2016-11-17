@@ -47,6 +47,7 @@ class Products extends VModule<ProductListModel>
 	
 }
 
+@:rtti
 class ProductListDispatcher {
 	
 	@mutator static var mutator:ProductListMutator;
@@ -61,7 +62,7 @@ class ProductListDispatcher {
 	}
 }
 
-
+@:rtti
 class ProductListMutator extends AppMutator<ProductListModel> {
 	override public function receiveProducts<P:Array<ProductInStore>>(payload:P):ProductListModel->P->Void {
 		return function(state:ProductListModel, payload:P):Void {
@@ -81,6 +82,7 @@ class ProductListMutator extends AppMutator<ProductListModel> {
 	
 }
 
+@:rtti
 class ProductListModel {  //eg. class style store module state
 	
 	// ensure class's reactive states have all their properties initialized beforehand (even null references "=null"), in order to be reactive to VueJS.
