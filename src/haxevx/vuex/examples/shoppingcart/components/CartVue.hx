@@ -25,19 +25,19 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	// Computed
 	
-	public var products(get, null):Array<ProductInCart>;
+	var products(get, null):Array<ProductInCart>;
 	function get_products():Array<ProductInCart> 
 	{
 		return store.getters.cartProducts;
 	}
 	
-	public var checkoutStatus(get, null):String;
+	var checkoutStatus(get, null):String;
 	function get_checkoutStatus():String 
 	{
 		return store.cart.checkoutStatus;
 	}
 	
-	public var total(get, null):Float;
+	var total(get, null):Float;
 	function get_total():Float 
 	{
 		return products.fold( function(p:ProductInCart, total:Float)  {
