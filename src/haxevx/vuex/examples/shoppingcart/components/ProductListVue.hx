@@ -20,7 +20,6 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	}
 	
-	// typed static inject helpers (consider, singleton getInstance() implementation?)
 	@mutator static var mutator:ProductListMutator;
 	@action static var dispatcher:ProductListDispatcher;
 	
