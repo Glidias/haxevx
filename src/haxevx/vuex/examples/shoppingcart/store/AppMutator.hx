@@ -5,7 +5,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * port of store/mutation-types.js
  * 
  * This implementation uses a barebones abstract+generic class approach to defining mutator types in VueX example.
- * Store module mutator classes can extend this class as AppMutator<Dynamic>, and override the base methods to mutate state data types
+ * Store module mutator classes can extend this class as AppMutator<TargetStateType>, and override the base methods to mutate state data types
  * specific to it's given module, or also define new mutators as fresh methods under that given extended mutator class's namespace.
  * 
  * @author Glidias
