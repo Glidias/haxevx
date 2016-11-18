@@ -15,18 +15,23 @@ typedef Product = {
 	title:String
  }
  
-typedef ProductInCart = {
+typedef ProductAdded = {	// products added to cart
+	id:Int,
+	quantity:Int
+}
+ 
+typedef ProductInCart = {  // computed display of products for cart
 	> Product,
 	quantity:Int
 }
 
-typedef ProductInStore = {
+typedef ProductInStore = {	// products in store
 	> Product,
 	inventory:Int,
 	
 }
 typedef ProductHistory = {
-	savedCartItems:Array<ProductInCart>
+	savedCartItems:Array<ProductAdded>
 }
 
 

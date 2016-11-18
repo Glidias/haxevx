@@ -47,7 +47,7 @@ class Cart extends VModule<CartState>
 }
 
 typedef CartState =  {	//eg. typedef style store module state
-	var added:Array<ProductInCart>;
+	var added:Array<ProductAdded>;
 	var checkoutStatus:String;
 	var lastCheckout:String;
 }
@@ -59,9 +59,9 @@ class CartDispatcher<S:CartState> {
 	static var shop:Shop = Shop.getInstance();
 	
 	
-	 public function checkout<P:Array<ProductInCart>>(payload:P):IVxStoreContext<S>->P->Void {  //
+	 public function checkout<P:Array<ProductAdded>>(payload:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {
-			var savedCartItems:Array<ProductInCart> = context.state.added.concat([]);  
+			var savedCartItems:Array<ProductAdded> = context.state.added.concat([]);  
 			mutator.checkoutRequest();
 			shop.buyProducts( payload, function() { 
 				mutator.checkoutSuccess();
@@ -82,12 +82,10 @@ class CartMutator extends AppMutator<CartState> {
 				return p.id == payload.id;
 			});
 			
-			if (chk.length > 0) {
+			if (chk.length == 0) {
 				state.added.push({
 					id:payload.id,
-					quantity:1,
-					title:"~unresolved",  // assumed AppGetters.cartProducts getter will re-trigger to resolve details
-					price:-1
+					quantity:1
 				});
 			}
 			else {

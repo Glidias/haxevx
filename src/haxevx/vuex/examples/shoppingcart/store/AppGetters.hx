@@ -17,7 +17,7 @@ class AppGetters extends VModule<AppState>
 	}
 	public static function getCartProducts<S:AppState>(state:S):Array<ProductInCart> {
 		var exceptions:Array<String> = null;
-		var resultOfMap =  state.cart.added.map( function( cp:ProductInCart) {
+		var resultOfMap =  state.cart.added.map( function( cp:ProductAdded) {
 			var chk = state.products.all.filter( function(p:ProductInStore) {
 				return p.id == cp.id;
 			});

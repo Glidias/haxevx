@@ -35,7 +35,7 @@ class Shop
 		Timer.delay( function() { cb(_products); } , 100);
 	}
 	
-	public function buyProducts(products:Array<ProductInCart>, cb:Void->Void, errorCb:Void->Void):Void {
+	public function buyProducts(products:Array<ProductAdded>, cb:Void->Void, errorCb:Void->Void):Void {
 		Timer.delay( function() { Math.random() > 0.5 ? cb() : errorCb(); } , 100);
 	}
 	
