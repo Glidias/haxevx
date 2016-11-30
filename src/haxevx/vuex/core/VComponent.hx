@@ -18,11 +18,15 @@ class VComponent<D, P>
 		return untyped __js__("this.$data");
 	}
 	
-	// override this to determine starting default values for related data types if needed
+	// override this to determine starting default values for props if needed, 
+	// else, P will be dynamicaly instantiated (from RTTI) if specified a given specific class outside of NoneT or Dynamic or Typedef
+	// to determine any default values (if available)
 	function getNewProps():P {
 		return null;
 	}
 	
+	// override this to determine starting values for any component data state, if needed 
+	// else, D will be dynamicaly instantiated (from RTTI) if specified a given specific class outside of NoneT or Dynamic or Typedef.
 	function getNewData():D {
 		return null;
 	}

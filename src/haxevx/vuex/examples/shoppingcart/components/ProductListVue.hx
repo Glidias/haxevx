@@ -18,7 +18,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListProps>
 
 	public function new() 
 	{
-	
+		
 	}
 	
 	@mutator static var mutator:ProductListMutator;
@@ -27,6 +27,8 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListProps>
 	
 	// Computed
 	/*  // depreciated moved to ProductListProps store binding (see below)...
+	 * haxevx.vuex.examples.shoppingcart.components.ProductListProps
+	 * haxevx.vuex.core.PropsBindedToStore
 	var products(get, null):Array<ProductInStore>;
 	function get_products():Array<ProductInStore>
 	{
@@ -78,5 +80,9 @@ class ProductListProps extends PropsBindedToStore<AppStore> {
 	{
 		return store.products.allProducts;
 	}
+	
+	
+	
+
 	
 }
