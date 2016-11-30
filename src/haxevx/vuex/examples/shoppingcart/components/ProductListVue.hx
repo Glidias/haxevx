@@ -80,9 +80,7 @@ class ProductListProps extends PropsBindedToStore<AppStore> {
 	{
 		return store.products.allProducts;
 	}
-	
-	
-	
+
 
 	
 }

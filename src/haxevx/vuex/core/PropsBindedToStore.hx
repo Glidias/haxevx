@@ -34,10 +34,12 @@ package haxevx.vuex.core;
 	}
 	
 	So that if you prefer to perform strict compile time checking first to ensure your computed getter types match with their handler functions,
-	you can enable the flag "compile_devstrict" to invoke a "get" compiling check! Your 2nd compile may exclude this variable once the initial compile-time type checks are done.
+	you can enable the flag "compile_strict" to invoke a "get" compiling check! Your 2nd compile may exclude this flag once the initial compile-time type checks are done.
+	
+	////////////////
 	
 	To define a property that is both read/write, ie. having  both a default implementation and something that can be overriden at runtime by overriding VxComponent.getProps(), 
-	// use the following format for compile time typecheckging: 	eg.
+	// you can use the following format for compile time typecheckging: 	eg.
 
 	@:isVar public var products(get, set):Array<ProductInStore>;  
 	function get_products()
@@ -57,21 +59,31 @@ package haxevx.vuex.core;
 		return store.products.allProducts;
 	}
 	
-	// OR support both options ( compile_strict first!):
-	
-	@:isVar public var products(#if compile_strict get,set #else default,default #end):Array<ProductInStore>;  
-	function get_products()
-	{
-		return store.products.allProducts;
-	}
-	inline function set_products(val:Array<ProductInStore>)
-	{
-		return (products = val);
-	}
-	
-	////////
-	Becareful that you don't overwrite properties while the app is running...(ie. only do so on a new instance of props when initializing props with VxComponent.getProps()). 
+	//////
+	However, the approach above is bad because you may overwrite properties within the component code itself.. which is against VueJS rules. 
 	(VueJS dev mode will provide runtime warnings if you mutate component props while the component is already running!).
+	
+	One way of avoiding the above case , is always stick to (default, null) or (get, null), as mentioned before,
+	and only provide a means of supplying property values as constructor parameters, for those parameters that can be overriden at runtime. 
+	This provides full type-safety at the expense of typical constructor boilerplate.
+	
+	eg.
+	
+	class MyProductsStoreProps extends PropsBindedToStore<AppStore> {
+	
+		@:isVar public var products(#if compile_strict get #else default #end, null):Array<ProductInStore>;  
+		function get_products():Array<ProductInStore
+		{
+			return store.products.allProducts;
+		}
+		
+		public function new(products:Array<ProductInStore>=null) 
+		{
+			if (products != null) this.products = products;
+		}
+	
+	}
+	
 	
  * 
  * 
