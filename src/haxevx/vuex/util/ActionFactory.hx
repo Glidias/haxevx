@@ -34,6 +34,8 @@ class ActionFactory
 		return str;
 	}
 	
+
+	
 	public static function getActionHandler(classe:Dynamic, funcName:String):Dynamic {
 		var str:String = Reflect.field(classe, funcName);
 		if (str == null) {

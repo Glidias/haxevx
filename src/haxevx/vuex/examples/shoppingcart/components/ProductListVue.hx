@@ -5,6 +5,7 @@ import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListDispatcher;
 import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
+import haxevx.vuex.core.PropsBindedToStore;
 
 /**
  * components/ProductList.vue port
@@ -12,7 +13,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * @author Glidias
  */
 @:rtti
-class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
+class ProductListVue extends VxComponent<AppStore, NoneT, ProductListProps>
 {
 
 	public function new() 
@@ -25,12 +26,13 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	
 	// Computed
-	
+	/*  // depreciated moved to ProductListProps store binding (see below)...
 	var products(get, null):Array<ProductInStore>;
 	function get_products():Array<ProductInStore>
 	{
 		return store.products.allProducts;
 	}
+	*/
 	
 	
 	// Methods
@@ -38,6 +40,8 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 		mutator.addToCart(p);
 		
 	}
+	
+
 	
 	// Hooks
 
@@ -63,5 +67,16 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	}
 	
 	
+	
+}
+
+@:rtti
+class ProductListProps extends PropsBindedToStore<AppStore> {
+	
+	public var products(default, null):Array<ProductInStore>;
+	function get_products():Array<ProductInStore>
+	{
+		return store.products.allProducts;
+	}
 	
 }

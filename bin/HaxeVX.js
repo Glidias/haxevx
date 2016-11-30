@@ -7,7 +7,26 @@ function $extend(from, fields) {
 	return proto;
 }
 var HxOverrides = function() { };
-HxOverrides.__name__ = true;
+HxOverrides.__name__ = ["HxOverrides"];
+HxOverrides.cca = function(s,index) {
+	var x = s.charCodeAt(index);
+	if(x != x) {
+		return undefined;
+	}
+	return x;
+};
+HxOverrides.substr = function(s,pos,len) {
+	if(len == null) {
+		len = s.length;
+	} else if(len < 0) {
+		if(pos == 0) {
+			len = s.length + len;
+		} else {
+			return "";
+		}
+	}
+	return s.substr(pos,len);
+};
 HxOverrides.iter = function(a) {
 	return { cur : 0, arr : a, hasNext : function() {
 		return this.cur < this.arr.length;
@@ -16,22 +35,74 @@ HxOverrides.iter = function(a) {
 	}};
 };
 var Lambda = function() { };
-Lambda.__name__ = true;
+Lambda.__name__ = ["Lambda"];
 Lambda.fold = function(it,f,first) {
 	var tmp = $iterator(it)();
 	while(tmp.hasNext()) first = f(tmp.next(),first);
 	return first;
 };
 var Main = function() { };
-Main.__name__ = true;
+Main.__name__ = ["Main"];
 Main.main = function() {
 	new haxevx_vuex_examples_shoppingcart_ShoppingCartMain();
+	console.log(haxe_rtti_Meta.getFields(Main));
 };
-Math.__name__ = true;
+Math.__name__ = ["Math"];
+var Reflect = function() { };
+Reflect.__name__ = ["Reflect"];
+Reflect.field = function(o,field) {
+	try {
+		return o[field];
+	} catch( e ) {
+		return null;
+	}
+};
 var Std = function() { };
-Std.__name__ = true;
+Std.__name__ = ["Std"];
 Std.string = function(s) {
 	return js_Boot.__string_rec(s,"");
+};
+var StringTools = function() { };
+StringTools.__name__ = ["StringTools"];
+StringTools.isSpace = function(s,pos) {
+	var c = HxOverrides.cca(s,pos);
+	if(!(c > 8 && c < 14)) {
+		return c == 32;
+	} else {
+		return true;
+	}
+};
+StringTools.ltrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,r)) ++r;
+	if(r > 0) {
+		return HxOverrides.substr(s,r,l - r);
+	} else {
+		return s;
+	}
+};
+StringTools.rtrim = function(s) {
+	var l = s.length;
+	var r = 0;
+	while(r < l && StringTools.isSpace(s,l - r - 1)) ++r;
+	if(r > 0) {
+		return HxOverrides.substr(s,0,l - r);
+	} else {
+		return s;
+	}
+};
+StringTools.trim = function(s) {
+	return StringTools.ltrim(StringTools.rtrim(s));
+};
+var Type = function() { };
+Type.__name__ = ["Type"];
+Type.getClassName = function(c) {
+	var a = c.__name__;
+	if(a == null) {
+		return null;
+	}
+	return a.join(".");
 };
 var haxe_Timer = function(time_ms) {
 	var me = this;
@@ -39,7 +110,7 @@ var haxe_Timer = function(time_ms) {
 		me.run();
 	},time_ms);
 };
-haxe_Timer.__name__ = true;
+haxe_Timer.__name__ = ["haxe","Timer"];
 haxe_Timer.delay = function(f,time_ms) {
 	var t = new haxe_Timer(time_ms);
 	t.run = function() {
@@ -59,15 +130,35 @@ haxe_Timer.prototype = {
 	,run: function() {
 	}
 };
+var haxe_rtti_Meta = function() { };
+haxe_rtti_Meta.__name__ = ["haxe","rtti","Meta"];
+haxe_rtti_Meta.getMeta = function(t) {
+	return t.__meta__;
+};
+haxe_rtti_Meta.getFields = function(t) {
+	var meta = haxe_rtti_Meta.getMeta(t);
+	if(meta == null || meta.fields == null) {
+		return { };
+	} else {
+		return meta.fields;
+	}
+};
 var haxevx_vuex_core_IVxContext = function() { };
-haxevx_vuex_core_IVxContext.__name__ = true;
+haxevx_vuex_core_IVxContext.__name__ = ["haxevx","vuex","core","IVxContext"];
 var haxevx_vuex_core_IVxStoreContext = function() { };
-haxevx_vuex_core_IVxStoreContext.__name__ = true;
+haxevx_vuex_core_IVxStoreContext.__name__ = ["haxevx","vuex","core","IVxStoreContext"];
 haxevx_vuex_core_IVxStoreContext.__interfaces__ = [haxevx_vuex_core_IVxContext];
 var haxevx_vuex_core_NoneT = function() { };
-haxevx_vuex_core_NoneT.__name__ = true;
+haxevx_vuex_core_NoneT.__name__ = ["haxevx","vuex","core","NoneT"];
+var haxevx_vuex_core_PropsBindedToStore = function() { };
+haxevx_vuex_core_PropsBindedToStore.__name__ = ["haxevx","vuex","core","PropsBindedToStore"];
+haxevx_vuex_core_PropsBindedToStore.prototype = {
+	get_store: function() {
+		return this.$store;
+	}
+};
 var haxevx_vuex_core_VComponent = function() { };
-haxevx_vuex_core_VComponent.__name__ = true;
+haxevx_vuex_core_VComponent.__name__ = ["haxevx","vuex","core","VComponent"];
 haxevx_vuex_core_VComponent.prototype = {
 	get_props: function() {
 		return this;
@@ -97,9 +188,9 @@ haxevx_vuex_core_VComponent.prototype = {
 	}
 };
 var haxevx_vuex_core_VModule = function() { };
-haxevx_vuex_core_VModule.__name__ = true;
+haxevx_vuex_core_VModule.__name__ = ["haxevx","vuex","core","VModule"];
 var haxevx_vuex_core_VxComponent = function() { };
-haxevx_vuex_core_VxComponent.__name__ = true;
+haxevx_vuex_core_VxComponent.__name__ = ["haxevx","vuex","core","VxComponent"];
 haxevx_vuex_core_VxComponent.__super__ = haxevx_vuex_core_VComponent;
 haxevx_vuex_core_VxComponent.prototype = $extend(haxevx_vuex_core_VComponent.prototype,{
 	get_store: function() {
@@ -109,7 +200,7 @@ haxevx_vuex_core_VxComponent.prototype = $extend(haxevx_vuex_core_VComponent.pro
 var haxevx_vuex_core_VxStore = function() {
 	this.strict = false;
 };
-haxevx_vuex_core_VxStore.__name__ = true;
+haxevx_vuex_core_VxStore.__name__ = ["haxevx","vuex","core","VxStore"];
 haxevx_vuex_core_VxStore.__interfaces__ = [haxevx_vuex_core_IVxStoreContext];
 haxevx_vuex_core_VxStore.prototype = {
 	dispatch: function(type,payload) {
@@ -130,11 +221,11 @@ var haxevx_vuex_examples_shoppingcart_ShoppingCartMain = function() {
 	new haxevx_vuex_examples_shoppingcart_store_AppStore();
 	new haxevx_vuex_examples_shoppingcart_components_App();
 };
-haxevx_vuex_examples_shoppingcart_ShoppingCartMain.__name__ = true;
+haxevx_vuex_examples_shoppingcart_ShoppingCartMain.__name__ = ["haxevx","vuex","examples","shoppingcart","ShoppingCartMain"];
 var haxevx_vuex_examples_shoppingcart_api_Shop = function() {
 	this._products = [{ 'id' : 1, 'title' : "iPad 4 Mini", 'price' : 500.01, 'inventory' : 2},{ 'id' : 2, 'title' : "H&M T-Shirt White", 'price' : 10.99, 'inventory' : 10},{ 'id' : 3, 'title' : "Charli XCX - Sucker CD", 'price' : 19.99, 'inventory' : 5}];
 };
-haxevx_vuex_examples_shoppingcart_api_Shop.__name__ = true;
+haxevx_vuex_examples_shoppingcart_api_Shop.__name__ = ["haxevx","vuex","examples","shoppingcart","api","Shop"];
 haxevx_vuex_examples_shoppingcart_api_Shop.getInstance = function() {
 	if(haxevx_vuex_examples_shoppingcart_api_Shop.INSTANCE != null) {
 		return haxevx_vuex_examples_shoppingcart_api_Shop.INSTANCE;
@@ -161,7 +252,7 @@ haxevx_vuex_examples_shoppingcart_api_Shop.prototype = {
 };
 var haxevx_vuex_examples_shoppingcart_components_App = function() {
 };
-haxevx_vuex_examples_shoppingcart_components_App.__name__ = true;
+haxevx_vuex_examples_shoppingcart_components_App.__name__ = ["haxevx","vuex","examples","shoppingcart","components","App"];
 haxevx_vuex_examples_shoppingcart_components_App.__super__ = haxevx_vuex_core_VxComponent;
 haxevx_vuex_examples_shoppingcart_components_App.prototype = $extend(haxevx_vuex_core_VxComponent.prototype,{
 	Components: function() {
@@ -173,7 +264,7 @@ haxevx_vuex_examples_shoppingcart_components_App.prototype = $extend(haxevx_vuex
 });
 var haxevx_vuex_examples_shoppingcart_components_CartVue = function() {
 };
-haxevx_vuex_examples_shoppingcart_components_CartVue.__name__ = true;
+haxevx_vuex_examples_shoppingcart_components_CartVue.__name__ = ["haxevx","vuex","examples","shoppingcart","components","CartVue"];
 haxevx_vuex_examples_shoppingcart_components_CartVue.__super__ = haxevx_vuex_core_VxComponent;
 haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_vuex_core_VxComponent.prototype,{
 	get_products: function() {
@@ -196,13 +287,10 @@ haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_
 });
 var haxevx_vuex_examples_shoppingcart_components_ProductListVue = function() {
 };
-haxevx_vuex_examples_shoppingcart_components_ProductListVue.__name__ = true;
+haxevx_vuex_examples_shoppingcart_components_ProductListVue.__name__ = ["haxevx","vuex","examples","shoppingcart","components","ProductListVue"];
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.__super__ = haxevx_vuex_core_VxComponent;
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.prototype = $extend(haxevx_vuex_core_VxComponent.prototype,{
-	get_products: function() {
-		return this.$store.products.get_allProducts();
-	}
-	,addToCart: function(p) {
+	addToCart: function(p) {
 		haxevx_vuex_examples_shoppingcart_components_ProductListVue.mutator.addToCart(p);
 	}
 	,Created: function() {
@@ -212,10 +300,18 @@ haxevx_vuex_examples_shoppingcart_components_ProductListVue.prototype = $extend(
 		return "<ul>\r\n\t\t\t<li v-for=\"p in products\">\r\n\t\t\t  {{ p.title }} - {{ p.price | currency }}\r\n\t\t\t  <br>\r\n\t\t\t  <button\r\n\t\t\t\t:disabled=\"!p.inventory\"\r\n\t\t\t\t@click=\"addToCart(p)\">\r\n\t\t\t\tAdd to cart\r\n\t\t\t  </button>\r\n\t\t\t</li>\r\n\t\t</ul>";
 	}
 });
+var haxevx_vuex_examples_shoppingcart_components_ProductListProps = function() { };
+haxevx_vuex_examples_shoppingcart_components_ProductListProps.__name__ = ["haxevx","vuex","examples","shoppingcart","components","ProductListProps"];
+haxevx_vuex_examples_shoppingcart_components_ProductListProps.__super__ = haxevx_vuex_core_PropsBindedToStore;
+haxevx_vuex_examples_shoppingcart_components_ProductListProps.prototype = $extend(haxevx_vuex_core_PropsBindedToStore.prototype,{
+	get_products: function() {
+		return this.$store.products.get_allProducts();
+	}
+});
 var haxevx_vuex_examples_shoppingcart_modules_Cart = function() {
 	this.state = { added : [], checkoutStatus : null, lastCheckout : null};
 };
-haxevx_vuex_examples_shoppingcart_modules_Cart.__name__ = true;
+haxevx_vuex_examples_shoppingcart_modules_Cart.__name__ = ["haxevx","vuex","examples","shoppingcart","modules","Cart"];
 haxevx_vuex_examples_shoppingcart_modules_Cart.getCheckoutStatus = function(state) {
 	return state.checkoutStatus;
 };
@@ -226,7 +322,7 @@ haxevx_vuex_examples_shoppingcart_modules_Cart.prototype = $extend(haxevx_vuex_c
 	}
 });
 var haxevx_vuex_examples_shoppingcart_modules_CartDispatcher = function() { };
-haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.__name__ = true;
+haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.__name__ = ["haxevx","vuex","examples","shoppingcart","modules","CartDispatcher"];
 haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.prototype = {
 	checkout: function(payload) {
 		return function(context,payload1) {
@@ -241,7 +337,7 @@ haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.prototype = {
 	}
 };
 var haxevx_vuex_examples_shoppingcart_store_AppMutator = function() { };
-haxevx_vuex_examples_shoppingcart_store_AppMutator.__name__ = true;
+haxevx_vuex_examples_shoppingcart_store_AppMutator.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppMutator"];
 haxevx_vuex_examples_shoppingcart_store_AppMutator.prototype = {
 	addToCart: function(payload) {
 		return null;
@@ -260,7 +356,7 @@ haxevx_vuex_examples_shoppingcart_store_AppMutator.prototype = {
 	}
 };
 var haxevx_vuex_examples_shoppingcart_modules_CartMutator = function() { };
-haxevx_vuex_examples_shoppingcart_modules_CartMutator.__name__ = true;
+haxevx_vuex_examples_shoppingcart_modules_CartMutator.__name__ = ["haxevx","vuex","examples","shoppingcart","modules","CartMutator"];
 haxevx_vuex_examples_shoppingcart_modules_CartMutator.__super__ = haxevx_vuex_examples_shoppingcart_store_AppMutator;
 haxevx_vuex_examples_shoppingcart_modules_CartMutator.prototype = $extend(haxevx_vuex_examples_shoppingcart_store_AppMutator.prototype,{
 	addToCart: function(payload) {
@@ -297,7 +393,7 @@ haxevx_vuex_examples_shoppingcart_modules_CartMutator.prototype = $extend(haxevx
 var haxevx_vuex_examples_shoppingcart_modules_Products = function() {
 	this.state = new haxevx_vuex_examples_shoppingcart_modules_ProductListModel();
 };
-haxevx_vuex_examples_shoppingcart_modules_Products.__name__ = true;
+haxevx_vuex_examples_shoppingcart_modules_Products.__name__ = ["haxevx","vuex","examples","shoppingcart","modules","Products"];
 haxevx_vuex_examples_shoppingcart_modules_Products.getAllProducts = function(state) {
 	return state.all;
 };
@@ -308,7 +404,7 @@ haxevx_vuex_examples_shoppingcart_modules_Products.prototype = $extend(haxevx_vu
 	}
 });
 var haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher = function() { };
-haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.__name__ = true;
+haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.__name__ = ["haxevx","vuex","examples","shoppingcart","modules","ProductListDispatcher"];
 haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.prototype = {
 	getAllProducts: function() {
 		return function(context) {
@@ -319,7 +415,7 @@ haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.prototype = {
 	}
 };
 var haxevx_vuex_examples_shoppingcart_modules_ProductListMutator = function() { };
-haxevx_vuex_examples_shoppingcart_modules_ProductListMutator.__name__ = true;
+haxevx_vuex_examples_shoppingcart_modules_ProductListMutator.__name__ = ["haxevx","vuex","examples","shoppingcart","modules","ProductListMutator"];
 haxevx_vuex_examples_shoppingcart_modules_ProductListMutator.__super__ = haxevx_vuex_examples_shoppingcart_store_AppMutator;
 haxevx_vuex_examples_shoppingcart_modules_ProductListMutator.prototype = $extend(haxevx_vuex_examples_shoppingcart_store_AppMutator.prototype,{
 	receiveProducts: function(payload) {
@@ -341,9 +437,9 @@ haxevx_vuex_examples_shoppingcart_modules_ProductListMutator.prototype = $extend
 var haxevx_vuex_examples_shoppingcart_modules_ProductListModel = function() {
 	this.all = [];
 };
-haxevx_vuex_examples_shoppingcart_modules_ProductListModel.__name__ = true;
+haxevx_vuex_examples_shoppingcart_modules_ProductListModel.__name__ = ["haxevx","vuex","examples","shoppingcart","modules","ProductListModel"];
 var haxevx_vuex_examples_shoppingcart_store_AppActions = function() { };
-haxevx_vuex_examples_shoppingcart_store_AppActions.__name__ = true;
+haxevx_vuex_examples_shoppingcart_store_AppActions.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppActions"];
 haxevx_vuex_examples_shoppingcart_store_AppActions.prototype = {
 	checkout: function(product) {
 		return function(context,payload) {
@@ -354,7 +450,7 @@ haxevx_vuex_examples_shoppingcart_store_AppActions.prototype = {
 	}
 };
 var haxevx_vuex_examples_shoppingcart_store_AppGetters = function() { };
-haxevx_vuex_examples_shoppingcart_store_AppGetters.__name__ = true;
+haxevx_vuex_examples_shoppingcart_store_AppGetters.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppGetters"];
 haxevx_vuex_examples_shoppingcart_store_AppGetters.getCartProducts = function(state) {
 	var exceptions = null;
 	var resultOfMap = state.cart.added.map(function(cp) {
@@ -388,13 +484,46 @@ var haxevx_vuex_examples_shoppingcart_store_AppStore = function() {
 	this.state = new haxevx_vuex_examples_shoppingcart_store_AppState();
 	this.strict = true;
 };
-haxevx_vuex_examples_shoppingcart_store_AppStore.__name__ = true;
+haxevx_vuex_examples_shoppingcart_store_AppStore.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppStore"];
 haxevx_vuex_examples_shoppingcart_store_AppStore.__super__ = haxevx_vuex_core_VxStore;
 haxevx_vuex_examples_shoppingcart_store_AppStore.prototype = $extend(haxevx_vuex_core_VxStore.prototype,{
 });
 var haxevx_vuex_examples_shoppingcart_store_AppState = function() {
 };
-haxevx_vuex_examples_shoppingcart_store_AppState.__name__ = true;
+haxevx_vuex_examples_shoppingcart_store_AppState.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppState"];
+var haxevx_vuex_util_ActionFactory = function() { };
+haxevx_vuex_util_ActionFactory.__name__ = ["haxevx","vuex","util","ActionFactory"];
+haxevx_vuex_util_ActionFactory.get_store = function() {
+	return this.$store;
+};
+haxevx_vuex_util_ActionFactory.getActionDispatch = function(type) {
+	return function(payload,context) {
+		(context != null?context:this.$store).dispatch(type,payload);
+	};
+};
+haxevx_vuex_util_ActionFactory.reflectFunctionCall = function(func) {
+	var str = func.toString();
+	str = str.split("return")[1];
+	if(str == null) {
+		throw new js__$Boot_HaxeError("Reflection failed:" + Std.string(func.toString()));
+	}
+	str = StringTools.trim(str.split("}")[0]);
+	str = str.split("(")[0];
+	str = str.split(".").pop();
+	return str;
+};
+haxevx_vuex_util_ActionFactory.getActionHandler = function(classe,funcName) {
+	var str = Reflect.field(classe,funcName);
+	if(str == null) {
+		throw new js__$Boot_HaxeError("Could not find funcName field:" + str + " on class:" + Type.getClassName(classe));
+	}
+	var handlerStr = haxevx_vuex_util_ActionFactory.reflectFunctionCall(str);
+	var handler = Reflect.field(classe,handlerStr);
+	if(handler == null) {
+		throw new js__$Boot_HaxeError("Could not find handler field:" + handlerStr + " on class:" + Type.getClassName(classe));
+	}
+	return handler;
+};
 var js__$Boot_HaxeError = function(val) {
 	Error.call(this);
 	this.val = val;
@@ -403,7 +532,7 @@ var js__$Boot_HaxeError = function(val) {
 		Error.captureStackTrace(this,js__$Boot_HaxeError);
 	}
 };
-js__$Boot_HaxeError.__name__ = true;
+js__$Boot_HaxeError.__name__ = ["js","_Boot","HaxeError"];
 js__$Boot_HaxeError.wrap = function(val) {
 	if((val instanceof Error)) {
 		return val;
@@ -415,7 +544,7 @@ js__$Boot_HaxeError.__super__ = Error;
 js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
 });
 var js_Boot = function() { };
-js_Boot.__name__ = true;
+js_Boot.__name__ = ["js","Boot"];
 js_Boot.__string_rec = function(o,s) {
 	if(o == null) {
 		return "null";
@@ -503,14 +632,16 @@ js_Boot.__string_rec = function(o,s) {
 function $iterator(o) { if( o instanceof Array ) return function() { return HxOverrides.iter(o); }; return typeof(o.iterator) == 'function' ? $bind(o,o.iterator) : o.iterator; }
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
-String.__name__ = true;
-Array.__name__ = true;
+String.__name__ = ["String"];
+Array.__name__ = ["Array"];
+Main.ABC = "AAA";
 haxevx_vuex_core_VxStore.__meta__ = { fields : { getters : { getter : null}}};
 haxevx_vuex_examples_shoppingcart_components_App.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.App\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<Components set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><d><c path=\"haxevx.vuex.core.VComponent\">\n\t<d/>\n\t<d/>\n</c></d></f></Components>\n\t<Template public=\"1\" set=\"method\" line=\"29\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_components_CartVue.__meta__ = { statics : { action : { action : null}}};
 haxevx_vuex_examples_shoppingcart_components_CartVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.CartVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<action static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartDispatcher\"><d/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</action>\n\t<products get=\"accessor\" set=\"null\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c></products>\n\t<get_products set=\"method\" line=\"29\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c></f></get_products>\n\t<checkoutStatus get=\"accessor\" set=\"null\"><c path=\"String\"/></checkoutStatus>\n\t<get_checkoutStatus set=\"method\" line=\"35\"><f a=\"\"><c path=\"String\"/></f></get_checkoutStatus>\n\t<total get=\"accessor\" set=\"null\"><x path=\"Float\"/></total>\n\t<get_total set=\"method\" line=\"41\"><f a=\"\"><x path=\"Float\"/></f></get_total>\n\t<checkout public=\"1\" set=\"method\" line=\"50\"><f a=\"products\">\n\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n\t<x path=\"Void\"/>\n</f></checkout>\n\t<Template set=\"method\" line=\"55\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"19\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.__meta__ = { statics : { mutator : { mutator : null}, dispatcher : { action : null}}};
-haxevx_vuex_examples_shoppingcart_components_ProductListVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.ProductListVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListMutator\"/>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<dispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher\"/>\n\t\t<meta><m n=\"action\"/></meta>\n\t</dispatcher>\n\t<products get=\"accessor\" set=\"null\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c></products>\n\t<get_products set=\"method\" line=\"30\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c></f></get_products>\n\t<addToCart set=\"method\" line=\"37\"><f a=\"p\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/>\n\t<x path=\"Void\"/>\n</f></addToCart>\n\t<Created public=\"1\" set=\"method\" line=\"45\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></Created>\n\t<Template public=\"1\" set=\"method\" line=\"50\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"18\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_components_ProductListVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.ProductListVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.components.ProductListProps\"/>\n\t</extends>\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListMutator\"/>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<dispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher\"/>\n\t\t<meta><m n=\"action\"/></meta>\n\t</dispatcher>\n\t<addToCart set=\"method\" line=\"39\"><f a=\"p\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/>\n\t<x path=\"Void\"/>\n</f></addToCart>\n\t<Created public=\"1\" set=\"method\" line=\"49\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></Created>\n\t<Template public=\"1\" set=\"method\" line=\"54\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"19\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_components_ProductListProps.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.ProductListProps\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.components.ProductListVue\">\n\t<extends path=\"haxevx.vuex.core.PropsBindedToStore\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/></extends>\n\t<products public=\"1\" set=\"null\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c></products>\n\t<get_products set=\"method\" line=\"77\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c></f></get_products>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_modules_Cart.__meta__ = { statics : { action : { mutator : null}, mutator : { mutator : null}}};
 haxevx_vuex_examples_shoppingcart_modules_Cart.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.Cart\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VModule\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></extends>\n\t<getCheckoutStatus set=\"method\" line=\"38\" static=\"1\"><f a=\"state\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/>\n\t<c path=\"String\"/>\n</f></getCheckoutStatus>\n\t<action static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartDispatcher\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></c>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</action>\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartMutator\"/>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<checkoutStatus public=\"1\" get=\"accessor\" set=\"null\"><c path=\"String\"/></checkoutStatus>\n\t<get_checkoutStatus set=\"method\" line=\"34\"><f a=\"\"><c path=\"String\"/></f></get_checkoutStatus>\n\t<new public=\"1\" set=\"method\" line=\"21\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.__meta__ = { statics : { mutator : { mutator : null}}};
