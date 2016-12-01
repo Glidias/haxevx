@@ -1,5 +1,6 @@
 package haxevx.vuex.core;
 
+import haxevx.vuex.core.NativeTypes;
 /**
  * ...
  * @author Glidias
@@ -54,9 +55,11 @@ class VComponent<D, P>
 
 	
 	
-	// internal method to convert VxComponent to native VueJS Component or any native environment
-    @:final public function _toNative():Dynamic {
-		// todo: create VUEJS component from this component!
+	// internal method to convert VxComponent to native VueJS Component type or any native environment
+    @:final public function _toNative():NativeComponent {
+		// todo: create VUEJS component options from this component!
+		
+		
 		return null;
 	}
 	

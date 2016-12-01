@@ -2,6 +2,7 @@ package haxevx.vuex.examples.shoppingcart.modules;
 import haxevx.vuex.core.IVxContext;
 import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.core.VModule;
+import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.api.Shop;
 import haxevx.vuex.examples.shoppingcart.store.AppMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;

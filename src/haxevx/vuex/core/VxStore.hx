@@ -1,4 +1,5 @@
 package haxevx.vuex.core;
+import haxevx.vuex.core.NativeTypes.NativeStore;
 
 /**
  *  Base generic class for Vuex Store instance helpers
@@ -22,7 +23,7 @@ class VxStore<T,G> implements IVxStoreContext<T>
 	}
 
 	
-	public function _toNative():Dynamic {
+	public function _toNative():NativeStore<T> {
 		return null;
 		// todo, convert to native VueX Store
 	}
