@@ -14,7 +14,7 @@ import haxevx.vuex.core.PropsBindedToStore;
  * @author Glidias
  */
 @:rtti
-class ProductListVue extends VxComponent<AppStore, NoneT, ProductListProps>
+class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 {
 
 	public function new() 
@@ -74,14 +74,19 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListProps>
 }
 
 @:rtti
-class ProductListProps extends PropsBindedToStore<AppStore> {
+class ProductListVueProps extends PropsBindedToStore<AppStore> {
 	
-	public var products(default, null):Array<ProductInStore>;
+	public var products(#if compile_strict get #else default #end, null):Array<ProductInStore>;
 	function get_products():Array<ProductInStore>
 	{
-		return store.products.allProducts;
+		return ProductListPropHelper.products(store);
 	}
 
 
-	
+}
+
+class ProductListPropHelper {
+	public static inline function products(store:AppStore) {
+		return store.products.allProducts;
+	}
 }

@@ -1,4 +1,5 @@
 package haxevx.vuex.examples.shoppingcart.components;
+import haxevx.vuex.core.PropsBindedToStore;
 import haxevx.vuex.examples.shoppingcart.modules.Cart;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxComponent;
@@ -14,7 +15,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  */
 using Lambda;
 @:rtti
-class CartVue extends VxComponent<AppStore, NoneT, NoneT>
+class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
 {
 
 	public function new() 
@@ -26,12 +27,6 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	// Computed
 	
-	var products(get, null):Array<ProductInCart>;
-	function get_products():Array<ProductInCart> 
-	{
-		return store.getters.cartProducts;
-	}
-	
 	var checkoutStatus(get, null):String;
 	function get_checkoutStatus():String 
 	{
@@ -41,7 +36,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	var total(get, null):Float;
 	function get_total():Float 
 	{
-		return products.fold( function(p:ProductInCart, total:Float)  {
+		return props.products.fold( function(p:ProductInCart, total:Float)  {
 			return total + p.price * p.quantity;
 		}, 0);
 	}
@@ -69,5 +64,21 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	}
 	
 
+	
+}
+
+class CartVueProps extends PropsBindedToStore<AppStore> {
+	public var products(#if compile_strict get #else default #end, null):Array<ProductInCart>;
+	function get_products():Array<ProductInCart>
+	{
+		return CartVuePropHelper.getCartProducts(store);
+	}
+}
+
+class CartVuePropHelper {
+	public static inline function getCartProducts(store:AppStore):Array<ProductInCart> {
+		return store.getters.cartProducts;
+	}
+		
 	
 }
