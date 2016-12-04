@@ -1,7 +1,5 @@
 package haxevx.vuex.core;
 
-
-
 import haxevx.vuex.native.Vue;
 import haxevx.vuex.native.Vuex;
 
@@ -11,4 +9,6 @@ import haxevx.vuex.native.Vuex;
  */
 
 typedef NativeComponent = ComponentOptions;
-typedef NativeStore<T> = Store<T>;
+typedef NativeStore<T> = StoreOptions<T>;
+typedef NativeModule<T,R> = Module<T,R>;
+typedef NativeGetters<T,R> = GetterTree<T,R>;

@@ -10,7 +10,7 @@ import haxevx.vuex.examples.shoppingcart.modules.Products;
  * @author Glidias
  */
 @:rtti
-class AppStore extends VxStore<AppState, AppGetters>  
+class AppStore extends VxStore<AppState>  
 {	
 	// Actions
 	@action static var actions:AppActions<AppState>;
@@ -19,8 +19,13 @@ class AppStore extends VxStore<AppState, AppGetters>
 	@module public var cart:Cart;
 	@module public var products:Products;
 	
+	// Getters
+	public var getters(default, null):AppGetters;
+	
+	
 	public function new() {
-		state = new AppState();
+		//state = new AppState();  // manual instantiation is optional if constructor has no parameters & RTTI is available
+		// getters = new Getters(); // manual instantiation is optional if constructor has no parameters & RTTI is available
 		
 		strict = true; // for demo purposes, use compile time flags to determine whether this should be false or true.
 	}

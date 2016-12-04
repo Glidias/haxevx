@@ -8,6 +8,6 @@ package haxevx.vuex.core;
  */
 class VModule<T>
 {
-	var state:T;
+	 var state:T;
 
 }

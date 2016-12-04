@@ -10,6 +10,9 @@ import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;
 @:rtti
 class AppGetters extends VModule<AppState>
 {
+
+	public function new() {	}
+	
 	public var cartProducts(get, null):Array<ProductInCart>;
 	function get_cartProducts():Array<ProductInCart> 
 	{

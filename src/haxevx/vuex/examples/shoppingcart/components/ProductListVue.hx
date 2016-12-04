@@ -27,15 +27,6 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 	
 	
 	// Computed
-	/*  // depreciated moved to ProductListProps store binding (see below)...
-	 * haxevx.vuex.examples.shoppingcart.components.ProductListProps
-	 * haxevx.vuex.core.PropsBindedToStore
-	var products(get, null):Array<ProductInStore>;
-	function get_products():Array<ProductInStore>
-	{
-		return store.products.allProducts;
-	}
-	*/
 	
 	
 	// Methods
@@ -79,14 +70,14 @@ class ProductListVueProps extends PropsBindedToStore<AppStore> {
 	public var products(#if compile_strict get #else default #end, null):Array<ProductInStore>;
 	function get_products():Array<ProductInStore>
 	{
-		return ProductListPropHelper.products(store);
+		return ProductListPropHelper.GetProducts(store);
 	}
 
 
 }
 
 class ProductListPropHelper {
-	public static inline function products(store:AppStore) {
+	public static inline function GetProducts(store:AppStore) {
 		return store.products.allProducts;
 	}
 }

@@ -6,5 +6,7 @@ package haxevx.vuex.core;
  */
 @:final class NoneT
 {
-
+	public function toString():String {
+		return "NoneT";
+	}
 }

@@ -27,12 +27,6 @@ class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
 	
 	// Computed
 	
-	var checkoutStatus(get, null):String;
-	function get_checkoutStatus():String 
-	{
-		return store.cart.checkoutStatus;
-	}
-	
 	var total(get, null):Float;
 	function get_total():Float 
 	{
@@ -71,13 +65,25 @@ class CartVueProps extends PropsBindedToStore<AppStore> {
 	public var products(#if compile_strict get #else default #end, null):Array<ProductInCart>;
 	function get_products():Array<ProductInCart>
 	{
-		return CartVuePropHelper.getCartProducts(store);
+		return CartVuePropHelper.GetCartProducts(store);
 	}
+	
+	
+	public var checkoutStatus(#if compile_strict get #else default #end, null):String;
+	function get_checkoutStatus():String 
+	{
+		return CartVuePropHelper.CheckOutStatus(store);
+	}
+	
+	
 }
 
 class CartVuePropHelper {
-	public static inline function getCartProducts(store:AppStore):Array<ProductInCart> {
+	public static inline function GetCartProducts(store:AppStore):Array<ProductInCart> {
 		return store.getters.cartProducts;
+	}
+	public static inline function CheckOutStatus(store:AppStore):String {
+		return store.cart.checkoutStatus;
 	}
 		
 	
