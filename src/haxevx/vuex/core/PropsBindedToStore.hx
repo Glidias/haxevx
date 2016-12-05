@@ -75,7 +75,7 @@ package haxevx.vuex.core;
 	
 	}
 	
-	For further full access safety, it is highly reccomended that you redirect all binding methods to a seperate helper class method to limit property access scope
+	For further full access safety, it is highly reccomended that you redirect all prop binding methods to a seperate helper class method to limit property access scope
 	to only the supplied global store parameter only. This is because it's generally buggy to accidentally access any other local properties within the current scope for default bindings to store, 
 	(those properties might not be initialized yet during resolution of bindings), thus, only the global store should be accessed to determine the value of the binding.
 	
@@ -88,7 +88,7 @@ package haxevx.vuex.core;
 	
 	// to..
 	
-	class HelperMethods { // class containing helper methods  to limit access scope to only available parameters within methods and other inline methods
+	class HelperMethods { // class containing helper methods  to limit access scope to only available parameters within methods and other similar inline methods
 	
 		public static inline function Products(store:AppStore):Array<ProductInStore> {
 			return store.products.allProducts;
