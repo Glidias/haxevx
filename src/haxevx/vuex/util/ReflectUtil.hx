@@ -2,6 +2,7 @@ package haxevx.vuex.util;
 import haxe.ds.ObjectMap;
 import haxe.ds.StringMap;
 import haxe.rtti.Meta;
+import haxe.rtti.Rtti;
 
 /**
  * Generic reflection utilities
@@ -183,6 +184,42 @@ class ReflectUtil
 	{
 		
 		Reflect.setField(o, field, value);
+	}
+	
+	static public function requiresInjection(dynInsMap:StringMap<Bool>, metaMap:StringMap<Bool>, moduleInstance:Dynamic) :Bool
+	{
+		var requireInject:Bool = false;
+		if (dynInsMap != null) {
+			for (f in dynInsMap.keys()) {
+				if ( dynInsMap.get(f) && Reflect.field(moduleInstance, f) == null) {
+					requireInject = true;
+					break;
+				}
+			}
+		}
+		if (requireInject  ) {
+			if (!Rtti.hasRtti(Type.getClass(moduleInstance))) throw "Requires injection but lacks RTTI!";
+			return true;
+		}
+		
+		if (metaMap != null) {
+			var cls = Type.getClass(moduleInstance);
+			for (t in metaMap.keys()) {
+				var props = getMetaDataFieldsWithTag( cls, t);
+				for (f in Reflect.fields(props)) {
+					if ( dynInsMap.get(f) && Reflect.field(moduleInstance, f) == null) {
+						requireInject = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (requireInject  ) {
+			if (!Rtti.hasRtti(Type.getClass(moduleInstance))) throw "Requires injection but lacks RTTI!";
+			return true;
+		}
+		return requireInject;
 	}
 	
 	static private function tagSetHasField(tagSet:StringMap<Bool>, fieldMeta:Dynamic):Bool

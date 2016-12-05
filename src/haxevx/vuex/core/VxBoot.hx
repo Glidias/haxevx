@@ -82,7 +82,9 @@ class VxBoot
 							Reflect.setField(md, "state", opts.storeParams.state);
 						}						
 						noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
-						GetterFactory.hookupGettersFromPropsOver2(noNamespaceGetterProps, md, storeGetters, moduleNameStack.join(ReflectUtil.MODULE_FRACTAL_SEP)+ReflectUtil.MODULES_SEPERATOR);
+						GetterFactory.hookupGettersFromPropsOver2(noNamespaceGetterProps, md, storeGetters, moduleNameStack.join(ReflectUtil.MODULE_FRACTAL_SEP) + ReflectUtil.MODULES_SEPERATOR);
+						
+
 					}
 					if (m.mutations != null) {
 						
@@ -101,7 +103,8 @@ class VxBoot
 			
 		}
 		
-		// inject store as singleton unto all static Mutator classes "store" field
+		// inject store  unto all static singleton classes "@store" field (look through all registered singletons cache for this)
+		// inject store's state unto all modules and nested modules tree
 		
 		return store;
 	}

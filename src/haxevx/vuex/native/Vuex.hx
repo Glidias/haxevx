@@ -19,7 +19,7 @@ package haxevx.vuex.native;
 
 typedef StoreOptions<S> = {
 	@:optional var state: S;
-  @:optional var getters: Null<GetterTree<S, S>>;
+  @:optional var getters: GetterTree<S, S>;
    @:optional var actions: ActionTree<S, S>;
    @:optional var mutations: MutationTree<S>;
   @:optional var  modules: ModuleTree<S>; //todo
