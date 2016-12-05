@@ -39,33 +39,24 @@ package haxevx.vuex.core;
 	////////////////
 	
 	To define a property that is both read/write, ie. having  both a default implementation and something that can be overriden at runtime by overriding VxComponent.getProps(), 
-	// you can use the following format for compile time typecheckging: 	eg.
-
-	@:isVar public var products(get, set):Array<ProductInStore>;  
+    you can use the following format to support compile time typechecking with "compile_strict" flag: 	eg.
+	
+	@:isVar public var products(#if compile_strict get #else default #end, null, set):Array<ProductInStore>;  
 	function get_products()
 	{
 		return store.products.allProducts;
 	}
-	inline function  set_products(val:Array<ProductInStore>)
+	inline function set_products(val:Array<ProductInStore>)
 	{
 		return (products = val);
 	}
-	
-	// OR without compile-time typechecking (only runtime initialization check..):
-	
-	public var products:Array<ProductInStore> 
-	function get_products():Array<ProductInStore>
-	{
-		return store.products.allProducts;
-	}
-	
-	//////
+
 	However, the approach above is bad because you may overwrite properties within the component code itself.. which is against VueJS rules. 
 	(VueJS dev mode will provide runtime warnings if you mutate component props while the component is already running!).
 	
 	One way of avoiding the above case , is always stick to (default, null) or (get, null), as mentioned before,
 	and only provide a means of supplying property values as constructor parameters, for those parameters that can be overriden at runtime. 
-	This provides full type-safety at the expense of typical constructor boilerplate.
+	This provides full property access-safety at the expense of typical constructor boilerplate.
 	
 	eg.
 	
@@ -83,6 +74,32 @@ package haxevx.vuex.core;
 		}
 	
 	}
+	
+	For further full access safety, it is highly reccomended that you redirect all binding methods to a seperate helper class method to limit property access scope
+	to only the supplied global store parameter only. This is because it's generally buggy to accidentally access any other local properties within the current scope for default bindings to store, 
+	(those properties might not be initialized yet during resolution of bindings), thus, only the global store should be accessed to determine the value of the binding.
+	
+	eg.  redirect to HelperMethods, outside of existing MyProductsStoreProps class
+	
+	function get_products():Array<ProductInStore>
+	{
+		return HelperMethods.Products(store);
+	}
+	
+	// to..
+	
+	class HelperMethods { // class containing helper methods  to limit access scope to only available parameters within methods and other inline methods
+	
+		public static inline function Products(store:AppStore):Array<ProductInStore> {
+			return store.products.allProducts;
+		}
+	}
+	
+	// By convention (disclaimer:: my personal taste), such helper classes have their method names capitalized to emphasise that they are inlining methods and/or exist within the context of 
+	the specialized helper Class. You can safety use other methods within the Helper class within the current processing method.
+	
+	Note that keeping the methods inline ensures code runtime-optimized to avoids additional function calls, though you may choose to not inline certain helper methods at your own discretion, if you
+	think it might bloat the codebase unnecessarily.
 	
 	
  * 
