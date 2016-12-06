@@ -54,9 +54,9 @@ class ActionFactory
 	
 	
 	
-	static var REGISTERED_INSTANCES:StringMap<Dynamic> = new StringMap<Dynamic>();
-	public static function getInstances() {
-		return REGISTERED_INSTANCES.iterator();
+	static var REGISTERED_CLASSES:StringMap<Class<Dynamic>> = new StringMap<Class<Dynamic>>();
+	public static function getClasses() {
+		return REGISTERED_CLASSES.iterator();
 	}
 	
 	static var META_INJECTIONS:StringMap<Bool> = {
@@ -70,11 +70,11 @@ class ActionFactory
 		var cls:Class<Dynamic> = Type.getClass(instance);
 		if (cls == null) throw "Couldn't resolve class of: " + instance;
 		
+		// todo: run up class hierachy instead
 		var clsName:String = Type.getClassName(cls);
-		if (!REGISTERED_INSTANCES.exists(clsName)) {
+		if (!REGISTERED_CLASSES.exists(clsName)) {
 			
-			// todo: 
-			REGISTERED_INSTANCES.set(clsName, instance);
+			REGISTERED_CLASSES.set(clsName, cls);
 		
 			// inject mutator singletons if required
 			if (ReflectUtil.requiresInjection(null, META_INJECTIONS, cls)) {
@@ -83,7 +83,7 @@ class ActionFactory
 		}
 			
 		// setup instance fields
-		var fields:Array<String> = Type.getInstanceFields(instance);
+		var fields:Array<String> = Type.getInstanceFields(cls);
 		for (f in fields) {
 			
 			var checkF =  Reflect.field(instance, f) ;
@@ -98,9 +98,9 @@ class ActionFactory
 					throw "Could not resolve handler for field: " + f;
 				}
 				
+				// todo: use basiest name in class hierachy
 				Reflect.setField(over, ReflectUtil.getNamespaceForClassName(clsName) + f, handler);
-				
-				//later on, will replace all getInstances() with action dispatches on post initizliation.
+				//later on, will replace all getClasses() prototype with action dispatches on post initizliation.
 			}
 			else {
 				trace("Warning!! Action classes should only contain function fields! Fieldname: " + f);

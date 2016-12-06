@@ -22,9 +22,9 @@ class MutatorFactory
 		};
 	}
 	
-	static var REGISTERED_INSTANCES:StringMap<Dynamic> = new StringMap<Dynamic>();
-	public static function getInstances() {
-		return REGISTERED_INSTANCES.iterator();
+	static var REGISTERED_CLASSES:StringMap<Class<Dynamic>> = new StringMap<Class<Dynamic>>();
+	public static function getClasses() {
+		return REGISTERED_CLASSES.iterator();
 	}
 	
 	
