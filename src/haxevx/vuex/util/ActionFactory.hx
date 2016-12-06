@@ -1,4 +1,6 @@
 package haxevx.vuex.util;
+import haxe.ds.StringMap;
+import haxe.rtti.Rtti;
 
 /**
  * ...
@@ -6,6 +8,7 @@ package haxevx.vuex.util;
  */
 class ActionFactory
 {
+
 	// inlining macro to allow for dollar sign 
 	static var store(get, null):Dynamic;
 	static inline function get_store():Dynamic 
@@ -47,6 +50,63 @@ class ActionFactory
 			throw "Could not find handler field:" + handlerStr + " on class:" + Type.getClassName(classe);
 		}
 		return handler;
+	}
+	
+	
+	
+	static var REGISTERED_INSTANCES:StringMap<Dynamic> = new StringMap<Dynamic>();
+	public static function getInstances() {
+		return REGISTERED_INSTANCES.iterator();
+	}
+	
+	static var META_INJECTIONS:StringMap<Bool> = {
+		var strMap = new StringMap<Bool>();
+		strMap.set("mutator", true);
+		return strMap;
+	}
+	
+	public static function setupActionsOfInstanceOver(instance:Dynamic, over:Dynamic):Void {
+		var handler:Dynamic;
+		var cls:Class<Dynamic> = Type.getClass(instance);
+		if (cls == null) throw "Couldn't resolve class of: " + instance;
+		
+		var clsName:String = Type.getClassName(cls);
+		if (!REGISTERED_INSTANCES.exists(clsName)) {
+			
+			// todo: 
+			REGISTERED_INSTANCES.set(clsName, instance);
+		
+			// inject mutator singletons if required
+			if (ReflectUtil.requiresInjection(null, META_INJECTIONS, cls)) {
+				RttiUtil.injectSingletonInstance(cls, Rtti.getRtti(cls), null, META_INJECTIONS);
+			}
+		}
+			
+		// setup instance fields
+		var fields:Array<String> = Type.getInstanceFields(instance);
+		for (f in fields) {
+			
+			var checkF =  Reflect.field(instance, f) ;
+			if  ( Reflect.isFunction(checkF)) {
+				
+				// todo: check from rtti or metadata, whether got specific return data type is  that is handler function or not.
+				
+				// Assumed function call will return handler
+				// javascript allows executing function without supplygng explicit parameters
+				handler = checkF();
+				if (!Reflect.isFunction(handler)) {
+					throw "Could not resolve handler for field: " + f;
+				}
+				
+				Reflect.setField(over, ReflectUtil.getNamespaceForClassName(clsName) + f, handler);
+				
+				//later on, will replace all getInstances() with action dispatches on post initizliation.
+			}
+			else {
+				trace("Warning!! Action classes should only contain function fields! Fieldname: " + f);
+			}
+		}
+		
 	}
 	
 	

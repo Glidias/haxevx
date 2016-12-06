@@ -32,7 +32,7 @@ class RttiUtil
 		
 	
 		
-		var isClassInstance:Bool = Std.is(instance, Class);
+		var isClassInstance:Bool = ReflectUtil.isClass(instance);
 		var metaFields = isClassInstance ?  Meta.getStatics(instance) :  Meta.getFields( Type.getClass(instance));
 
 		var cls:Class<Dynamic>;

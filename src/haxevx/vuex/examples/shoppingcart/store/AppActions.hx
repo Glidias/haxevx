@@ -15,6 +15,8 @@ class AppActions<S:AppState>
 	 public function checkout<P:ProductInStore>(product:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {
 			if (product.inventory > 0) {
+				
+				
 				mutator.addToCart({id:product.id});
 				
 			}

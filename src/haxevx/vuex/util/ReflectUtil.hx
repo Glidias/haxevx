@@ -186,28 +186,32 @@ class ReflectUtil
 		Reflect.setField(o, field, value);
 	}
 	
-	static public function requiresInjection(dynInsMap:StringMap<Bool>, metaMap:StringMap<Bool>, moduleInstance:Dynamic) :Bool
+	static public function requiresInjection(dynInsMap:StringMap<Bool>, metaMap:StringMap<Bool>, something:Dynamic) :Bool
 	{
 		var requireInject:Bool = false;
 		if (dynInsMap != null) {
 			for (f in dynInsMap.keys()) {
-				if ( dynInsMap.get(f) && Reflect.field(moduleInstance, f) == null) {
+				if ( dynInsMap.get(f) && Reflect.field(something, f) == null) {
 					requireInject = true;
 					break;
 				}
 			}
 		}
+		
+		var cls = isClass(something)  ? something : Type.getClass(something);
+		
 		if (requireInject  ) {
-			if (!Rtti.hasRtti(Type.getClass(moduleInstance))) throw "Requires injection but lacks RTTI!";
+			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI!";
 			return true;
 		}
 		
+		
+		
 		if (metaMap != null) {
-			var cls = Type.getClass(moduleInstance);
 			for (t in metaMap.keys()) {
 				var props = getMetaDataFieldsWithTag( cls, t);
 				for (f in Reflect.fields(props)) {
-					if ( dynInsMap.get(f) && Reflect.field(moduleInstance, f) == null) {
+					if (  Reflect.field(something, f) == null) {
 						requireInject = true;
 						break;
 					}
@@ -216,10 +220,15 @@ class ReflectUtil
 		}
 		
 		if (requireInject  ) {
-			if (!Rtti.hasRtti(Type.getClass(moduleInstance))) throw "Requires injection but lacks RTTI!";
+			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI!";
 			return true;
 		}
 		return requireInject;
+	}
+	
+	static public inline function isClass(instance:Dynamic):Bool
+	{
+		return Std.is(instance, Class);
 	}
 	
 	static private function tagSetHasField(tagSet:StringMap<Bool>, fieldMeta:Dynamic):Bool

@@ -1,4 +1,5 @@
 package haxevx.vuex.util;
+import haxe.ds.StringMap;
 
 /**
  * ...
@@ -19,6 +20,11 @@ class MutatorFactory
 		return function(payload:Dynamic=null, context:Dynamic = null) {		
 			(context != null ? context : store).commit(type, payload);
 		};
+	}
+	
+	static var REGISTERED_INSTANCES:StringMap<Dynamic> = new StringMap<Dynamic>();
+	public static function getInstances() {
+		return REGISTERED_INSTANCES.iterator();
 	}
 	
 	

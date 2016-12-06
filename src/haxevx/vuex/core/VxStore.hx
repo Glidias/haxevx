@@ -28,6 +28,7 @@ class VxStore<T> implements IVxStoreContext<T>
 	
 	public var strict:Bool = false;
 	
+	
 	public function _toNative():NativeStore<T> {
 		
 		var storeClass = Type.getClass(this);
@@ -162,15 +163,18 @@ class VxStore<T> implements IVxStoreContext<T>
 		dynStaticMap.set("mutator", true);
 		dynStaticMap.set("action", true);
 		
+		var moduleInstanceStack:Array<Dynamic> = [];
 		var moduleStack:Array<NativeModule<Dynamic,Dynamic>> = [];
+		
 		var moduleNameStack:Array<String> = moduleNamespace != "" ? [moduleNamespace] : [];
 		moduleStack.push(rootModule);
+		moduleInstanceStack.push(moduleInstance);
 		
 		var insta:Dynamic;
 
 	
 		while (moduleStack.length > 0) {
-			
+			var curModuleInstance:Dynamic = moduleInstanceStack.pop();
 			var curModule:NativeModule<Dynamic,Dynamic> = moduleStack.pop();
 			var curModuleName:String=moduleNameStack.pop();
 			
@@ -213,7 +217,7 @@ class VxStore<T> implements IVxStoreContext<T>
 			if (fields != null) {
 				curModule.mutations = {};
 				for ( f  in Reflect.fields(fields) ) {
-					insta = Reflect.field(fields, f);
+					insta = Reflect.field(curModuleInstance, f);
 					// todo:set up mutators via MutatorFactory
 				}
 			}
@@ -222,20 +226,20 @@ class VxStore<T> implements IVxStoreContext<T>
 			if (fields != null) {
 				curModule.actions = {};
 				for ( f  in Reflect.fields(fields) ) {
-					insta = Reflect.field(fields, f);
+					insta = Reflect.field(curModuleInstance, f);
 					// todo:set up mutators via ActionFactory
 				}
 			}
 			
 			// retrieve local getters under module namespace
 			var newModuleNamespace =  moduleNameStack.concat([curModuleName]).join(ReflectUtil.MODULE_FRACTAL_SEP) + ReflectUtil.MODULES_SEPERATOR;
-			curModule.getters = GetterFactory.setupGettersFromInstance(insta, null, newModuleNamespace);
+			curModule.getters = GetterFactory.setupGettersFromInstance(curModuleInstance, null, newModuleNamespace);
 			
 			// retrieve getter mixins under module+classed namespace
 			fields =  ReflectUtil.getMetaDataFieldsWithTag(cls, "getter"); 
 			if (fields != null) {
 				for ( f  in Reflect.fields(fields) ) {
-					insta = Reflect.field(fields, f);
+					insta = Reflect.field(curModuleInstance, f);
 					GetterFactory.setupGettersFromInstance( insta, curModule.getters, newModuleNamespace +  ReflectUtil.getNamespaceForClass(Type.getClass(insta) ) );
 				}
 			}
@@ -248,6 +252,8 @@ class VxStore<T> implements IVxStoreContext<T>
 					var newModule = {};
 					Reflect.setField(curModule.modules, f, newModule);
 					moduleStack.push(newModule);
+					moduleInstanceStack.push(Reflect.field(curModuleInstance, f));
+					moduleNameStack.push(f);
 				}
 			}
 		
