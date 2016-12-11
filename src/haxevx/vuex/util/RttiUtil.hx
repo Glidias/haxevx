@@ -25,6 +25,14 @@ class RttiUtil
 		}
 	}
 	
+	/**
+	 * Generic injection method
+	 * @param	instance	The object to inject into
+	 * @param	rtti	The class RTTI to faciliiate injecting into object. 
+	 * @param	forFields	(Optional) A Stringmap<require:true> set of property field names that require injections 
+	 * @param	forMeta		(Optional) A Stringmap<require:true> set of metadata tag names to mark fields that require injections 
+	 * @param	injectorRetrieveMethod	(Optional) Factory method, given class name string parameter, to supply given instance, else will always attempt to create a new instance via constructor.
+	 */
 	public static function injectNewInstance(instance:Dynamic,  rtti:Classdef, forFields:StringMap<Bool> = null, forMeta:StringMap<Bool> = null, injectorRetrieveMethod:String->Dynamic=null):Void {
 		if (injectorRetrieveMethod == null) injectorRetrieveMethod = ReflectUtil.getNewInstanceByClassName;
 		
@@ -83,7 +91,7 @@ class RttiUtil
 	
 	// lazy singleton mapping+injection on the fly?..may not be best practice here...
 	/**
-	 * 
+	 * Injects into singleton using built-in singleton registry under ReflectUtil.
 	 * @param	instance	The object to inject into
 	 * @param	rtti	The class RTTI to faciliiate injecting into object. 
 	 * @param	forFields	(Optional) A Stringmap<require:true> set of property field names that require injections 
