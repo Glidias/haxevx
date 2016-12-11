@@ -58,6 +58,7 @@ class VxStore<T> implements IVxStoreContext<T>
 			}
 		}
 		
+		// todo: staticalise for perf the following repeated mapped definitions
 		var lookupMap:StringMap<Bool> = new StringMap<Bool>();
 		var metaMap:StringMap<Bool> = new StringMap<Bool>();
 		metaMap.set("getter", true);
@@ -131,7 +132,7 @@ class VxStore<T> implements IVxStoreContext<T>
 		}
 
 
-		// plugins (todo)...should allow initilaization from outside as well...since plugins likely to be externalised, though you lose strict typing when externalised. Same with modules..??
+		// plugins (todo)...should allow initilaization from outside as well...since plugins likely to be externalised, though you lose strict typing when externalised. Same with modules..
 		
 		// strict
 		storeParams.strict = strict;
@@ -148,6 +149,7 @@ class VxStore<T> implements IVxStoreContext<T>
 		// todo: staticalise for perf the following repeated mapped definitions
 		var dynInsMap:StringMap<Bool> = new StringMap<Bool>();
 		dynInsMap.set("getter", true);
+		dynInsMap.set("module", true);
 		
 		var dynStaticMap:StringMap<Bool> = new StringMap<Bool>();
 		dynStaticMap.set("mutator", true);
