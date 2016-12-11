@@ -4,6 +4,7 @@ import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxComponent;
 import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListDispatcher;
 import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListMutator;
+import haxevx.vuex.examples.shoppingcart.store.AppActions;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
 import haxevx.vuex.core.PropsBindedToStore;
@@ -22,8 +23,9 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 		
 	}
 	
-	@mutator static var mutator:ProductListMutator;
+
 	@action static var dispatcher:ProductListDispatcher;
+	@action static var actionDispatcher:AppActions<Dynamic>;
 	
 	
 	// Computed
@@ -31,8 +33,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 	
 	// Methods
 	function addToCart(p:ProductInStore):Void {
-		mutator.addToCart(p);
-		
+		actionDispatcher.addToCart(p);
 	}
 	
 
