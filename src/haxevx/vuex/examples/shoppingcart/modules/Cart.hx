@@ -41,7 +41,7 @@ class Cart extends VModule<CartState>
 	}
 	
 	// Actions
-	@mutator static var action:CartDispatcher<CartState>;
+	@action static var action:CartDispatcher<CartState>;
 	
 	// Mutators
 	@mutator static var mutator:CartMutator;
@@ -53,6 +53,7 @@ typedef CartState =  {	//eg. typedef style store module state
 	var lastCheckout:String;
 }
 
+@:rtti
 class CartDispatcher<S:CartState> {
 	
 	@mutator static var mutator:CartMutator;

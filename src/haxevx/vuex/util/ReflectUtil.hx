@@ -33,6 +33,49 @@ class ReflectUtil
 		}
 		return rt;
 	}
+	
+	public static function reflectClassHierachyInto(child:Class<Dynamic>, map:StringMap<Class<Dynamic>>, callback:Class<Dynamic>->Void, earlyOut:Bool = true):Void {
+		var cls:Class<Dynamic> = child;
+		while (cls != null) {
+			var clsName:String = Type.getClassName(cls);
+			if (map.exists(clsName)) {
+				if (earlyOut) return;   // can safely return? assumed everything else further up hierachy is accounted for
+				cls = Type.getSuperClass(cls);
+				continue;
+			}
+			callback(cls);
+			map.set(clsName, cls);
+			cls = Type.getSuperClass(cls);
+		}
+	}
+	
+	public static inline function classHasInstanceField(cls:Class<Dynamic>, field:String):Bool {
+		#if js 
+			return untyped cls.prototype[field] != null;
+		#else
+			return Type.getInstanceFields(cls).indexOf(field) >= 0
+		#end
+	}
+	
+	public static  function classFieldIsInherited(cls:Class<Dynamic>, field:String):Bool {
+		cls = Type.getSuperClass(cls);
+		return cls != null ? classHasInstanceField(cls, field) : false;
+	}
+	
+	public static function getBaseClassForField(cls:Class<Dynamic>, field:String):Class<Dynamic> {
+		var c:Class<Dynamic> = Type.getSuperClass(cls);
+		while (c != null) {
+			if (!classHasInstanceField(c, field)) {
+				break;
+			}
+			cls = c;
+			c = Type.getSuperClass(c);
+		}
+		return cls;
+	}
+	
+	
+	
 
 	
 	public static function getMetaDataFieldsWithTag(cls:Class<Dynamic>, tag:String):Dynamic<Array<Dynamic>> {
@@ -172,6 +215,11 @@ class ReflectUtil
 		return Type.createInstance(cls, [] );
 	}
 	
+	#if js
+	public inline function jsOverwritePrototypeField(cls:Class<Dynamic>, fieldName:String, withValue:Dynamic):Void {
+		untyped cls.prototype[fieldName] = withValue;
+	}
+	#end
 	
 	
 	public static inline function hasMetaTag(fieldName:String, metaFields:Dynamic<Dynamic<Array<Dynamic>>>, tagSet:StringMap<Bool>):Bool {
@@ -189,27 +237,36 @@ class ReflectUtil
 	static public function requiresInjection(dynInsMap:StringMap<Bool>, metaMap:StringMap<Bool>, something:Dynamic) :Bool
 	{
 		var requireInject:Bool = false;
+			
+		var classBased:Bool = isClass(something);
+		var cls =classBased  ? something : Type.getClass(something);
+		if (cls == null) throw "COuld not resolve class of:" + something;
+		
+		
+		
 		if (dynInsMap != null) {
 			for (f in dynInsMap.keys()) {
+				
 				if ( dynInsMap.get(f) && Reflect.field(something, f) == null) {
 					requireInject = true;
 					break;
 				}
 			}
 		}
-		
-		var cls = isClass(something)  ? something : Type.getClass(something);
-		
+	
+			
 		if (requireInject  ) {
-			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI!";
+			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI!: For class"+Type.getClassName(cls);
 			return true;
 		}
 		
 		
 		
 		if (metaMap != null) {
+			var method = classBased ? getStaticMetaDataFieldsWithTag  : getMetaDataFieldsWithTag;
 			for (t in metaMap.keys()) {
-				var props = getMetaDataFieldsWithTag( cls, t);
+				
+				var props = method( cls, t);
 				for (f in Reflect.fields(props)) {
 					if (  Reflect.field(something, f) == null) {
 						requireInject = true;
@@ -220,7 +277,7 @@ class ReflectUtil
 		}
 		
 		if (requireInject  ) {
-			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI!";
+			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI! For class:"+ Type.getClassName(cls);
 			return true;
 		}
 		return requireInject;

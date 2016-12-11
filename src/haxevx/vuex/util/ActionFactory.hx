@@ -65,42 +65,45 @@ class ActionFactory
 		return strMap;
 	}
 	
+	static function injectSingletonInstanceCallback(cls:Class<Dynamic>):Void {
+		if (ReflectUtil.requiresInjection(null, META_INJECTIONS, cls)) {
+			RttiUtil.injectSingletonInstance(cls, Rtti.getRtti(cls), null, META_INJECTIONS);
+		}
+	}
+	
 	public static function setupActionsOfInstanceOver(instance:Dynamic, over:Dynamic):Void {
 		var handler:Dynamic;
 		var cls:Class<Dynamic> = Type.getClass(instance);
-		if (cls == null) throw "Couldn't resolve class of: " + instance;
+		if (cls == null) throw "Couldn't resolve action class of: " + instance;
 		
-		// todo: run up class hierachy instead
 		var clsName:String = Type.getClassName(cls);
-		if (!REGISTERED_CLASSES.exists(clsName)) {
-			
-			REGISTERED_CLASSES.set(clsName, cls);
-		
-			// inject mutator singletons if required
-			if (ReflectUtil.requiresInjection(null, META_INJECTIONS, cls)) {
-				RttiUtil.injectSingletonInstance(cls, Rtti.getRtti(cls), null, META_INJECTIONS);
-			}
-		}
+		ReflectUtil.reflectClassHierachyInto(cls, REGISTERED_CLASSES, injectSingletonInstanceCallback);
 			
 		// setup instance fields
-		var fields:Array<String> = Type.getInstanceFields(cls);
+		var fields:Array<String> = Type.getInstanceFields(cls);  // TODO: get all derived instnace fields as well as part of entire collection
+
 		for (f in fields) {
 			
 			var checkF =  Reflect.field(instance, f) ;
 			if  ( Reflect.isFunction(checkF)) {
 				
+				
+				// RESOLVE HANDLER
 				// todo: check from rtti or metadata, whether got specific return data type is  that is handler function or not.
 				
 				// Assumed function call will return handler
 				// javascript allows executing function without supplygng explicit parameters
 				handler = checkF();
+				if (handler == null) continue;
+				
 				if (!Reflect.isFunction(handler)) {
 					throw "Could not resolve handler for field: " + f;
 				}
 				
-				// todo: use basiest name in class hierachy
-				Reflect.setField(over, ReflectUtil.getNamespaceForClassName(clsName) + f, handler);
-				//later on, will replace all getClasses() prototype with action dispatches on post initizliation.
+				// Assign Handler to 
+				var fieldName:String = ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
+				if (Reflect.hasField(over, fieldName)) trace("Exception occured repeated field handler set");
+				Reflect.setField(over, fieldName, handler);
 			}
 			else {
 				trace("Warning!! Action classes should only contain function fields! Fieldname: " + f);
