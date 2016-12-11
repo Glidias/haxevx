@@ -234,6 +234,15 @@ class ReflectUtil
 		Reflect.setField(o, field, value);
 	}
 	
+	/**
+	 * Useful method for filtering out cases where class instances opted out of using RTTI, but instead manually instantiated it's own dependencies.
+	 * 
+	 * @param	dynInsMap	(Optional) A Stringmap<require:true> set of property field names that require injections 
+	 * @param	metaMap		(Optional) A Stringmap<require:true> set of metadata tag names to mark fields that require injections 
+	 * @param	something	The object to inspect to determine if need dependency injection or not
+	 * @return	Whether any one of the searched-for properties under the given object are null/undefined, and thus require injections.
+	 * @throws 	If the object requires injection, but no RTTI is available for the object's class to facilitate injections, it'll throw an error!
+	 */
 	static public function requiresInjection(dynInsMap:StringMap<Bool>, metaMap:StringMap<Bool>, something:Dynamic) :Bool
 	{
 		var requireInject:Bool = false;

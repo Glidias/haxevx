@@ -82,7 +82,13 @@ class RttiUtil
 	}
 	
 	// lazy singleton mapping+injection on the fly?..may not be best practice here...
-	
+	/**
+	 * 
+	 * @param	instance	The object to inject into
+	 * @param	rtti	The class RTTI to faciliiate injecting into object. 
+	 * @param	forFields	(Optional) A Stringmap<require:true> set of property field names that require injections 
+	 * @param	forMeta		(Optional) A Stringmap<require:true> set of metadata tag names to mark fields that require injections 
+	 */
 	public static  function injectSingletonInstance(instance:Dynamic,  rtti:Classdef, forFields:StringMap<Bool>=null, forMeta:StringMap<Bool>=null):Void  {
 		
 		injectNewInstance(instance, rtti, forFields, forMeta, ReflectUtil.getSingletonByClassName);
