@@ -27,5 +27,41 @@ class MutatorFactory
 		return REGISTERED_CLASSES.iterator();
 	}
 	
+	public static function setupMutatorsOfInstanceOver(instance:Dynamic, over:Dynamic):Void {
+		var handler:Dynamic;
+		var cls:Class<Dynamic> = Type.getClass(instance);
+		if (cls == null) throw "Couldn't resolve mutator class of: " + instance;
+			
+		// setup instance fields
+		var fields:Array<String> = Type.getInstanceFields(cls);  // TODO: get all derived instnace fields as well as part of entire collection
+			
+		for (f in fields) {
+			
+			var checkF =  Reflect.field(instance, f) ;
+			if  ( Reflect.isFunction(checkF)) {
+				
+				// RESOLVE HANDLER
+				// todo: check from rtti or metadata, whether got specific return data type is  that is handler function or not.
+				
+				// Assumed function call will return handler
+				// javascript allows executing function without supplygng explicit parameters
+				handler = checkF();
+				if (handler == null) continue;
+				
+				if (!Reflect.isFunction(handler)) {
+					throw "Could not resolve handler for field: " + f;
+				}
+				
+				var fieldName:String = ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
+				if (Reflect.hasField(over, fieldName)) trace("Exception occured repeated field handler set");
+				Reflect.setField(over, fieldName, handler);
+			}
+			else {
+				trace("Warning!! Mutator classes should only contain function fields! Fieldname: " + f);
+			}
+		}
+		
+	}
+	
 	
 }

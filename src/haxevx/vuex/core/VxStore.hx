@@ -9,7 +9,9 @@ import haxevx.vuex.core.NativeTypes.NativeGetters;
 import haxevx.vuex.core.NativeTypes.NativeModule;
 import haxevx.vuex.core.NativeTypes.NativeStore;
 import haxevx.vuex.native.Vuex.GetterTree;
+import haxevx.vuex.util.ActionFactory;
 import haxevx.vuex.util.GetterFactory;
+import haxevx.vuex.util.MutatorFactory;
 import haxevx.vuex.util.ReflectUtil;
 import haxevx.vuex.util.RttiUtil;
 
@@ -56,6 +58,7 @@ class VxStore<T> implements IVxStoreContext<T>
 			}
 		}
 		
+		// todo: staticalise for perf the following repeated mapped definitions
 		var lookupMap:StringMap<Bool> = new StringMap<Bool>();
 		var metaMap:StringMap<Bool> = new StringMap<Bool>();
 		metaMap.set("getter", true);
@@ -73,6 +76,7 @@ class VxStore<T> implements IVxStoreContext<T>
 		
 		if (state == null) throw "Store state failed to initialized for unknown reason...";
 		storeParams.state = state;
+
 		storeParams.mutations = mutators;
 		storeParams.actions = actions;
 		storeParams.getters = getters;
@@ -89,7 +93,7 @@ class VxStore<T> implements IVxStoreContext<T>
 				RttiUtil.injectNewInstance(this, storeRTTI, lookupMap);		
 				if (Reflect.field(this, "getters") == null) throw "Couldn't dynamically instantiate getters for unknown reason!";
 			}
-			getters = GetterFactory.setupGettersFromInstance( Reflect.field(this, "getters") );
+			GetterFactory.setupGettersFromInstance( Reflect.field(this, "getters"), getters );
 			
 		}
 		
@@ -105,44 +109,30 @@ class VxStore<T> implements IVxStoreContext<T>
 		
 		for (f in Reflect.fields(storeStaticMetas)) {
 			m = Reflect.field(storeStaticMetas, f);
-			if (Reflect.hasField(m, "mutator")) {
-				insta = Reflect.field(this, f);
-				if (insta == null) {
-					throw 'Field ${f} should not be undefined';
-				}
-				
-				// todo:set up mutators via MutatorFactory
-				
+			insta = Reflect.field(storeClass, f);
+			if (Reflect.hasField(m, "mutator")) {	
+				MutatorFactory.setupMutatorsOfInstanceOver(insta, mutators);
 			}
 			if (Reflect.hasField(m, "action")) {
-				insta = Reflect.field(this, f);
-				if (insta == null) {
-					throw 'Field ${f} should not be undefined';
-				}
-				// todo:set up actions via ActionFactory
+			
+				ActionFactory.setupActionsOfInstanceOver(insta, actions);
 			}
 		}
 	
 		for (f in Reflect.fields(storeInstanceMetas)) {
 			m = Reflect.field(storeInstanceMetas, f);
+			insta = Reflect.field(this, f);
 			if (Reflect.hasField(m, "getter")) {
-				insta = Reflect.field(this, f);
-				if (insta == null) {
-					throw 'Field ${f} should not be undefined';
-				}
 				GetterFactory.setupGettersFromInstance( insta, getters, ReflectUtil.getNamespaceForClass(Type.getClass(insta) ) );
 			}
-			if (Reflect.hasField(m, "modules")) {
-				insta = Reflect.field(this, f);
-				if (insta == null) {
-					throw 'Field ${f} should not be undefined';
-				}
+			if (Reflect.hasField(m, "module")) {
 				Reflect.setField(modules, f, getModuleTree(insta, f) );
+		
 			}
 		}
 
 
-		// plugins (todo)...should allow initilaization from outside as well...since plugins likely to be externalised, though you lose strict typing when externalised. Same with modules..??
+		// plugins (todo)...should allow initilaization from outside as well...since plugins likely to be externalised, though you lose strict typing when externalised. Same with modules..
 		
 		// strict
 		storeParams.strict = strict;
@@ -156,12 +146,16 @@ class VxStore<T> implements IVxStoreContext<T>
 		
 		var rootModule:NativeModule<Dynamic, Dynamic> = {};
 
+		// todo: staticalise for perf the following repeated mapped definitions
 		var dynInsMap:StringMap<Bool> = new StringMap<Bool>();
 		dynInsMap.set("getter", true);
+		dynInsMap.set("module", true);
 		
 		var dynStaticMap:StringMap<Bool> = new StringMap<Bool>();
 		dynStaticMap.set("mutator", true);
 		dynStaticMap.set("action", true);
+		
+		
 		
 		var moduleInstanceStack:Array<Dynamic> = [];
 		var moduleStack:Array<NativeModule<Dynamic,Dynamic>> = [];
@@ -181,11 +175,11 @@ class VxStore<T> implements IVxStoreContext<T>
 			var cls = Type.getClass(curModule);
 			var fields:Dynamic<Array<Dynamic>>;
 			
-			var state = Reflect.field(curModule, "state");
+			var state = Reflect.field(curModuleInstance, "state");
 			if ( state == null) {
 			
 				if (!Rtti.hasRtti(cls)) {
-					throw "Failed to initialize store's state! Need RTTI to dynamically instatiate state!";
+					throw "Failed to initialize store's state! Need RTTI to dynamically instatiate state! Class:" + Type.getClassName(cls);
 				}
 		
 				var moduleRTTI = Rtti.getRtti(cls);
@@ -200,25 +194,33 @@ class VxStore<T> implements IVxStoreContext<T>
 					}
 				}
 			}
-		
+				
+			cls = Type.getClass(curModuleInstance);
+			if (cls == null) throw "COuld not resolve class of module instance:" + curModuleInstance;
+			
 			// Dynamically instantiate any required getters, mutators, and actions
 			
-			if ( ReflectUtil.requiresInjection(null, dynInsMap, curModule) ) {
-				RttiUtil.injectNewInstance(curModule, Rtti.getRtti(cls), RttiUtil.NO_FIELDS, dynInsMap);
+			if ( ReflectUtil.requiresInjection(null, dynInsMap, curModuleInstance) ) {
+				
+				RttiUtil.injectNewInstance(curModuleInstance, Rtti.getRtti(cls), RttiUtil.NO_FIELDS, dynInsMap);
 			}
 			
 			if ( ReflectUtil.requiresInjection(null, dynStaticMap, cls) ) {
+				
 				RttiUtil.injectSingletonInstance(cls, Rtti.getRtti(cls), RttiUtil.NO_FIELDS, dynStaticMap);
 			}
-			
+			else {
+				trace("Doesn't require inejction:" + Type.getClassName(cls) );
+			}
 		
 			// retrieve mutator and action methods under classed namespace if haven't yet...
 			fields =  ReflectUtil.getStaticMetaDataFieldsWithTag(cls, "mutator"); 
 			if (fields != null) {
 				curModule.mutations = {};
 				for ( f  in Reflect.fields(fields) ) {
-					insta = Reflect.field(curModuleInstance, f);
-					// todo:set up mutators via MutatorFactory
+					insta = Reflect.field(cls, f);
+					
+					MutatorFactory.setupMutatorsOfInstanceOver(insta, curModule.mutations);
 				}
 			}
 			
@@ -226,8 +228,8 @@ class VxStore<T> implements IVxStoreContext<T>
 			if (fields != null) {
 				curModule.actions = {};
 				for ( f  in Reflect.fields(fields) ) {
-					insta = Reflect.field(curModuleInstance, f);
-					// todo:set up mutators via ActionFactory
+					insta = Reflect.field(cls, f);
+					ActionFactory.setupActionsOfInstanceOver(insta, curModule.actions);
 				}
 			}
 			

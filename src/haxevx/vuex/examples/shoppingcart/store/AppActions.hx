@@ -12,7 +12,7 @@ class AppActions<S:AppState>
 {
 	@mutator static var mutator:AppMutator<Dynamic>;
 	
-	 public function checkout<P:ProductInStore>(product:P):IVxStoreContext<S>->P->Void {  //
+	 public function addToCart<P:ProductInStore>(product:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {
 			if (product.inventory > 0) {
 				
