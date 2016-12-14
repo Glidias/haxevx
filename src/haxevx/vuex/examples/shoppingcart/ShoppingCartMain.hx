@@ -1,4 +1,5 @@
 package haxevx.vuex.examples.shoppingcart;
+import haxe.Json;
 import haxevx.vuex.core.VxBoot;
 import haxevx.vuex.examples.shoppingcart.api.Shop;
 import haxevx.vuex.examples.shoppingcart.components.App;
@@ -16,7 +17,7 @@ class ShoppingCartMain
 		ReflectUtil.NAMESPACE = ReflectUtil.getPackagePathForInstance(this);
 		
 		var params = VxBoot.startParams( new App(),  new AppStore());
-		trace(params);
+		trace(""+params.storeParams);
 	}
 	
 }

@@ -144,6 +144,15 @@ $hxClasses["Main"] = Main;
 Main.__name__ = ["Main"];
 Main.main = function() {
 	new haxevx_vuex_examples_shoppingcart_ShoppingCartMain();
+	var listItem = new haxevx_proxy_egoutput_ListItem();
+	listItem.set("title","AAB");
+	listItem.set("copy","bbb");
+	var value = new haxevx_proxy_egoutput_ListItem();
+	listItem._secondaryItem = value;
+	listItem.set("secondaryItem",value != null?value._m_:null);
+	listItem._secondaryItem._root_ = listItem._root_ != null?listItem._root_:null;
+	listItem._secondaryItem._path_ = listItem._path_ != null?listItem._path_.concat(["secondaryItem"]):["secondaryItem"];
+	listItem._secondaryItem.set("copy","aavvvvvv");
 };
 Math.__name__ = ["Math"];
 var Reflect = function() { };
@@ -1711,6 +1720,134 @@ haxe_xml_Printer.prototype = {
 	}
 	,__class__: haxe_xml_Printer
 };
+var haxevx_proxy_Proxied = function() { };
+$hxClasses["haxevx.proxy.Proxied"] = haxevx_proxy_Proxied;
+haxevx_proxy_Proxied.__name__ = ["haxevx","proxy","Proxied"];
+haxevx_proxy_Proxied.prototype = {
+	set: null
+	,get: null
+	,__class__: haxevx_proxy_Proxied
+};
+var haxevx_proxy_ProxyGenerator = function() { };
+$hxClasses["haxevx.proxy.ProxyGenerator"] = haxevx_proxy_ProxyGenerator;
+haxevx_proxy_ProxyGenerator.__name__ = ["haxevx","proxy","ProxyGenerator"];
+haxevx_proxy_ProxyGenerator.formatName = function(name) {
+	return name.charAt(0).toUpperCase() + HxOverrides.substr(name,1,null);
+};
+var haxevx_proxy_ProxyRecord = function() {
+	this.map = new haxe_ds_StringMap();
+};
+$hxClasses["haxevx.proxy.ProxyRecord"] = haxevx_proxy_ProxyRecord;
+haxevx_proxy_ProxyRecord.__name__ = ["haxevx","proxy","ProxyRecord"];
+haxevx_proxy_ProxyRecord.prototype = {
+	map: null
+	,set: function(prop,val) {
+		var _this = this.map;
+		if(__map_reserved[prop] != null) {
+			_this.setReserved(prop,val);
+		} else {
+			_this.h[prop] = val;
+		}
+		return val;
+	}
+	,get: function(prop) {
+		var _this = this.map;
+		if(__map_reserved[prop] != null) {
+			return _this.getReserved(prop);
+		} else {
+			return _this.h[prop];
+		}
+	}
+	,__class__: haxevx_proxy_ProxyRecord
+};
+var haxevx_proxy_egoutput_ImmutableRoot = function() { };
+$hxClasses["haxevx.proxy.egoutput.ImmutableRoot"] = haxevx_proxy_egoutput_ImmutableRoot;
+haxevx_proxy_egoutput_ImmutableRoot.__name__ = ["haxevx","proxy","egoutput","ImmutableRoot"];
+haxevx_proxy_egoutput_ImmutableRoot.prototype = {
+	setIn: null
+	,set: null
+	,get: null
+	,__class__: haxevx_proxy_egoutput_ImmutableRoot
+};
+var haxevx_proxy_egoutput_ImmutableSetIn = function() { };
+$hxClasses["haxevx.proxy.egoutput.ImmutableSetIn"] = haxevx_proxy_egoutput_ImmutableSetIn;
+haxevx_proxy_egoutput_ImmutableSetIn.__name__ = ["haxevx","proxy","egoutput","ImmutableSetIn"];
+haxevx_proxy_egoutput_ImmutableSetIn.prototype = {
+	_root_: null
+	,_path_: null
+	,set: null
+	,get: null
+	,__class__: haxevx_proxy_egoutput_ImmutableSetIn
+};
+var haxevx_proxy_egoutput_ListItem = function() {
+	this._m_ = new haxe_ds_StringMap();
+};
+$hxClasses["haxevx.proxy.egoutput.ListItem"] = haxevx_proxy_egoutput_ListItem;
+haxevx_proxy_egoutput_ListItem.__name__ = ["haxevx","proxy","egoutput","ListItem"];
+haxevx_proxy_egoutput_ListItem.__interfaces__ = [haxevx_proxy_egoutput_ImmutableSetIn,haxevx_proxy_egoutput_ImmutableRoot];
+haxevx_proxy_egoutput_ListItem.prototype = {
+	get_title: function() {
+		var _this = this._m_;
+		if(__map_reserved.title != null) {
+			return _this.getReserved("title");
+		} else {
+			return _this.h["title"];
+		}
+	}
+	,set_title: function(value) {
+		this.set("title",value);
+		return value;
+	}
+	,get_copy: function() {
+		var _this = this._m_;
+		if(__map_reserved.copy != null) {
+			return _this.getReserved("copy");
+		} else {
+			return _this.h["copy"];
+		}
+	}
+	,set_copy: function(value) {
+		this.set("copy",value);
+		return value;
+	}
+	,get_secondaryItem: function() {
+		this._secondaryItem._root_ = this._root_ != null?this._root_:null;
+		this._secondaryItem._path_ = this._path_ != null?this._path_.concat(["secondaryItem"]):["secondaryItem"];
+		return this._secondaryItem;
+	}
+	,set_secondaryItem: function(value) {
+		this._secondaryItem = value;
+		this.set("secondaryItem",value != null?value._m_:null);
+		return value;
+	}
+	,_secondaryItem: null
+	,_m_: null
+	,set: function(prop,val) {
+		if(this._root_ != null) {
+			this._root_.setIn(this._path_,val);
+		} else {
+			var _this = this._m_;
+			if(__map_reserved[prop] != null) {
+				_this.setReserved(prop,val);
+			} else {
+				_this.h[prop] = val;
+			}
+		}
+	}
+	,get: function(prop) {
+		var _this = this._m_;
+		if(__map_reserved[prop] != null) {
+			return _this.getReserved(prop);
+		} else {
+			return _this.h[prop];
+		}
+	}
+	,setIn: function(path,value) {
+	}
+	,_root_: null
+	,_path_: null
+	,__class__: haxevx_proxy_egoutput_ListItem
+};
 var haxevx_vuex_core_IVxContext = function() { };
 $hxClasses["haxevx.vuex.core.IVxContext"] = haxevx_vuex_core_IVxContext;
 haxevx_vuex_core_IVxContext.__name__ = ["haxevx","vuex","core","IVxContext"];
@@ -2135,7 +2272,7 @@ haxevx_vuex_core_VxStore.prototype = {
 };
 var haxevx_vuex_examples_shoppingcart_ShoppingCartMain = function() {
 	haxevx_vuex_util_ReflectUtil.set_NAMESPACE(haxevx_vuex_util_ReflectUtil.getPackagePathForInstance(this));
-	console.log(haxevx_vuex_core_VxBoot.startParams(new haxevx_vuex_examples_shoppingcart_components_App(),new haxevx_vuex_examples_shoppingcart_store_AppStore()));
+	console.log("" + Std.string(haxevx_vuex_core_VxBoot.startParams(new haxevx_vuex_examples_shoppingcart_components_App(),new haxevx_vuex_examples_shoppingcart_store_AppStore()).storeParams));
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.ShoppingCartMain"] = haxevx_vuex_examples_shoppingcart_ShoppingCartMain;
 haxevx_vuex_examples_shoppingcart_ShoppingCartMain.__name__ = ["haxevx","vuex","examples","shoppingcart","ShoppingCartMain"];
