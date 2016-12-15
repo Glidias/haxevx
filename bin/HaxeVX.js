@@ -1849,21 +1849,21 @@ haxevx_proxy_egoutput_ListItem.prototype = {
 		}
 	}
 	,setIn: function(path,value) {
-		var lastRef = this;
+		var parentRef = this;
 		var ref;
 		var _g1 = 0;
 		var _g = path.length;
 		while(_g1 < _g) {
 			var i = _g1++;
-			ref = lastRef["_" + path[i]];
+			ref = parentRef["_" + path[i]];
 			if(ref == null) {
 				if(i < path.length - 1) {
 					console.log("EXCEPTION :: Unxpected null reference path detected..exiting..");
 				}
 				return;
 			}
-			ref._m_ = lastRef._m_.get(path[i]);
-			lastRef = ref;
+			ref._m_ = parentRef._m_.get(path[i]);
+			parentRef = ref;
 		}
 	}
 	,_root_: null

@@ -91,12 +91,12 @@ class ListItem implements ImmutableRoot implements ImmutableSetIn
 		// just an example, can't do it unless you're using an immutable data strcture class
 		//_m_ =_m_.setIn(path, value);
 		
-		var lastRef:Dynamic = this;
+		var parentRef:Dynamic = this;
 		var ref:Dynamic;
 		
-		// update any nested items along chain
+		// update any nested item references along chain monkey-patch
 		for (i in 0...path.length) {
-			ref = untyped lastRef[ "_" + path[i]];
+			ref = untyped parentRef[ "_" + path[i]];
 			if (ref == null) {  // assuming that under _underscored references only refer to obj properties, 
 				// might either yield leaf value (to  result in null) or nesting object that requires updating,
 				// , bleh, problematic.. 
@@ -105,8 +105,8 @@ class ListItem implements ImmutableRoot implements ImmutableSetIn
 				 if (i < path.length - 1) trace("EXCEPTION :: Unxpected null reference path detected..exiting..");
 				return;			
 			}
-			ref._m_ = lastRef._m_.get(path[i]);  // syncronise outdated reference along path
-			lastRef = ref;
+			ref._m_ = parentRef._m_.get(path[i]);  // syncronise outdated reference along path
+			parentRef = ref;
 			
 		}
 	
