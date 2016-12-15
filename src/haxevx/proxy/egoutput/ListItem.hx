@@ -73,7 +73,7 @@ class ListItem implements ImmutableRoot implements ImmutableSetIn
 	
 	public function set(prop:String, val:Dynamic):Void {
 		if (_root_ != null) {	// need to set value from root state atom and designated path
-			_root_.setIn(_path_, val);
+			_root_.setIn(_path_.concat([prop]), val);
 		}
 		else {  // this is the root, so can just set up it's property like a root state atom
 			_m_.set(prop, val);  // note: will need to reset to new _m_ reference from immutable data structure (ie. _m_ = _m_.set(prop,value) )
@@ -86,10 +86,30 @@ class ListItem implements ImmutableRoot implements ImmutableSetIn
 	
 	/* INTERFACE haxevx.proxy.egoutput.ImmutableRoot */
 	
-	public inline function setIn(path:Array<String>, value:Dynamic):Void 
+	public function setIn(path:Array<String>, value:Dynamic):Void 
 	{
 		// just an example, can't do it unless you're using an immutable data strcture class
 		//_m_ =_m_.setIn(path, value);
+		
+		var lastRef:Dynamic = this;
+		var ref:Dynamic;
+		
+		// update any nested items along chain
+		for (i in 0...path.length) {
+			ref = untyped lastRef[ "_" + path[i]];
+			if (ref == null) {  // assuming that under _underscored references only refer to obj properties, 
+				// might either yield leaf value (to  result in null) or nesting object that requires updating,
+				// , bleh, problematic.. 
+				
+				// predictive check to detect for outdated null-pointer paths
+				 if (i < path.length - 1) trace("EXCEPTION :: Unxpected null reference path detected..exiting..");
+				return;			
+			}
+			ref._m_ = lastRef._m_.get(path[i]);  // syncronise outdated reference along path
+			lastRef = ref;
+			
+		}
+	
 	}
 	
 	

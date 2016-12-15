@@ -1821,10 +1821,16 @@ haxevx_proxy_egoutput_ListItem.prototype = {
 		return value;
 	}
 	,_secondaryItem: null
+	,getCombinedText: function() {
+		var _this = this._m_;
+		var tmp = (__map_reserved.title != null?_this.getReserved("title"):_this.h["title"]) + " :: ";
+		var _this1 = this._m_;
+		return tmp + (__map_reserved.copy != null?_this1.getReserved("copy"):_this1.h["copy"]);
+	}
 	,_m_: null
 	,set: function(prop,val) {
 		if(this._root_ != null) {
-			this._root_.setIn(this._path_,val);
+			this._root_.setIn(this._path_.concat([prop]),val);
 		} else {
 			var _this = this._m_;
 			if(__map_reserved[prop] != null) {
@@ -1843,6 +1849,22 @@ haxevx_proxy_egoutput_ListItem.prototype = {
 		}
 	}
 	,setIn: function(path,value) {
+		var lastRef = this;
+		var ref;
+		var _g1 = 0;
+		var _g = path.length;
+		while(_g1 < _g) {
+			var i = _g1++;
+			ref = lastRef["_" + path[i]];
+			if(ref == null) {
+				if(i < path.length - 1) {
+					console.log("EXCEPTION :: Unxpected null reference path detected..exiting..");
+				}
+				return;
+			}
+			ref._m_ = lastRef._m_.get(path[i]);
+			lastRef = ref;
+		}
 	}
 	,_root_: null
 	,_path_: null
