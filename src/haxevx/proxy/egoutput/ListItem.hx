@@ -109,7 +109,20 @@ class ListItem implements ImmutableRoot implements ImmutableSetIn
 			parentRef = ref;
 			
 		}
-	
+		
+		// instead of the above hackish patch approach, why not handle setting nested properties manually from the bottom up withint he regular set(property, value) method.
+		// eg. From bottom up instance 
+		/*
+		this._m_ = this._m_.set(property, value);
+		if (root != null) {  // use a kind of this.setFrom(path, parentStack, property, value);  bottom up approach to update references across all parents upwards.
+			var i = path.length;
+			var cVal = this._m_;
+			while( --i > -1 ) {
+				var parenter = parentStack[i];
+				parenter._m_ = cVal = parenter._m_.set(path[i], cVal);
+			}
+		}
+		*/  // This means there's no need to use Immutable.setIn method anymore
 	}
 	
 	
