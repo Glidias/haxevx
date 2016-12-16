@@ -36,7 +36,7 @@ class ListItem implements ImmutableRoot implements ImmutableSetIn
 	
 	public var secondaryItem(get, set):ListItem;
 	public inline function get_secondaryItem():ListItem {
-		_secondaryItem._root_ = _root_ != null ? _root_ : null;
+		_secondaryItem._root_ = _root_ != null ? _root_ : this;
 		_secondaryItem._path_ = _path_ != null ? _path_.concat(["secondaryItem"]) : ["secondaryItem"];
 		return _secondaryItem;
 	}
