@@ -12,7 +12,7 @@ import haxevx.proxy.Proxied;
  * 
  * @author Glidias
  */
-class ProxyRecord implements Proxied {
+class ProxyRecord  {
 
 	var map:StringMap<Dynamic> = new StringMap<Dynamic>();
 	
