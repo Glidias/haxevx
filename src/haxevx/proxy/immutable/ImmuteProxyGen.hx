@@ -99,7 +99,7 @@ class ImmuteProxyGen
 			access: [Access.APublic, Access.AInline],
 			kind: FieldType.FFun({ 
 				args: [{ name:'prop', type:null } ], 
-				expr: macro return untyped this.get(prop), 
+				expr: macro return  this.get(prop), 
 				ret: null 
 			}),
 			pos: Context.currentPos()
@@ -112,7 +112,7 @@ class ImmuteProxyGen
 			access: [Access.APublic, Access.AInline],
 			kind: FieldType.FFun({ 
 				args: [{ name:'prop', type: (macro:String)  }, { name:'val', type: (macro:Dynamic) } ], 
-				expr: macro return untyped this.set(prop, val), 
+				expr: macro return  this.set(prop, val), 
 				ret:  retMe //TypeTools.toComplexType(Context.getLocalType()) 
 			}),
 			pos: Context.currentPos()

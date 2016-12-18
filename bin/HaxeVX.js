@@ -1865,12 +1865,12 @@ haxevx_proxy_egoutput_ListItem.prototype = {
 var haxevx_proxy_immutable_ImmDoodleMain = function() {
 	var this1 = Type.createInstance(haxevx_proxy_immutable__$ImmuteRecordAbstract_ImmuteRecordAbstract_$Impl_$.RECORD,[{ }]);
 	var imm = this1;
-	var newImmRecord = imm.set("copy","Awrwa").set("copy","BBB").set("copy","vaxvxvx");
+	var newImmRecord = imm.set("copy","blahblah Awrwa").set("copy","blahblah BBB").set("copy","vaxvxvx");
 	console.log("AValid?:" + imm.get("copy"));
 	console.log("Valid?:" + haxevx_proxy_immutable__$ImmuteRecordAbstract_ImmuteRecordAbstract_$Impl_$.copyTestGet(newImmRecord));
 	var this2 = Immutable.fromJS(new haxevx_proxy_immutable_ImmuteClassDef());
 	var imm2 = this2;
-	var newImm = imm2.set("copy","BB" + "....");
+	var newImm = imm2.set("copy","ignore this").set("copy","BB" + "....");
 	newImm = newImm.set("copy2","BBBBAA");
 	console.log(imm2.get("copy") + ", " + newImm.get("copy") + " >>>" + newImm.get("copy2"));
 };
