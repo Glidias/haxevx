@@ -1868,10 +1868,11 @@ var haxevx_proxy_immutable_ImmDoodleMain = function() {
 	var newImmRecord = imm.set("copy","Awrwa").set("copy","BBB").set("copy","vaxvxvx");
 	console.log("AValid?:" + imm.get("copy"));
 	console.log("Valid?:" + haxevx_proxy_immutable__$ImmuteRecordAbstract_ImmuteRecordAbstract_$Impl_$.copyTestGet(newImmRecord));
-	var this2 = Immutable.fromJS({ copy : null});
+	var this2 = Immutable.fromJS(new haxevx_proxy_immutable_ImmuteClassDef());
 	var imm2 = this2;
 	var newImm = imm2.set("copy","BB" + "....");
-	console.log(imm2.get("copy") + ", " + newImm.get("copy"));
+	newImm = newImm.set("copy2","BBBBAA");
+	console.log(imm2.get("copy") + ", " + newImm.get("copy") + " >>>" + newImm.get("copy2"));
 };
 $hxClasses["haxevx.proxy.immutable.ImmDoodleMain"] = haxevx_proxy_immutable_ImmDoodleMain;
 haxevx_proxy_immutable_ImmDoodleMain.__name__ = ["haxevx","proxy","immutable","ImmDoodleMain"];
@@ -1879,12 +1880,14 @@ haxevx_proxy_immutable_ImmDoodleMain.prototype = {
 	__class__: haxevx_proxy_immutable_ImmDoodleMain
 };
 var haxevx_proxy_immutable_ImmuteClassDef = function() {
+	this.copy2 = "AABB";
 	this.copy = "BLAHBLAH";
 };
 $hxClasses["haxevx.proxy.immutable.ImmuteClassDef"] = haxevx_proxy_immutable_ImmuteClassDef;
 haxevx_proxy_immutable_ImmuteClassDef.__name__ = ["haxevx","proxy","immutable","ImmuteClassDef"];
 haxevx_proxy_immutable_ImmuteClassDef.prototype = {
 	copy: null
+	,copy2: null
 	,__class__: haxevx_proxy_immutable_ImmuteClassDef
 };
 var haxevx_proxy_immutable__$ImmuteMapAbstract_ImmuteMapAbstract_$Impl_$ = {};
@@ -1907,6 +1910,12 @@ haxevx_proxy_immutable__$ImmuteMapAbstract_ImmuteMapAbstract_$Impl_$.get_copy = 
 };
 haxevx_proxy_immutable__$ImmuteMapAbstract_ImmuteMapAbstract_$Impl_$.setCopy = function(this1,value) {
 	return this1.set("copy",value);
+};
+haxevx_proxy_immutable__$ImmuteMapAbstract_ImmuteMapAbstract_$Impl_$.get_copy2 = function(this1) {
+	return this1.get("copy2");
+};
+haxevx_proxy_immutable__$ImmuteMapAbstract_ImmuteMapAbstract_$Impl_$.setCopy2 = function(this1,value) {
+	return this1.set("copy2",value);
 };
 haxevx_proxy_immutable__$ImmuteMapAbstract_ImmuteMapAbstract_$Impl_$.get = function(this1,prop) {
 	return this1.get(prop);

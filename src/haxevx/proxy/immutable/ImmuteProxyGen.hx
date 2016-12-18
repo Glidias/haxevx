@@ -29,13 +29,21 @@ class ImmuteProxyGen
 
 		var fieldsToAdd:Array<String> = [];
 		var fieldTypesToAdd:Array<ComplexType> = [];
-		switch( TypeTools.follow(sniffDataType) ) {
+		var rrr = TypeTools.follow(sniffDataType);
+		switch(  rrr) {
 			case Type.TAnonymous(a):
 				for (f in a.get().fields) {
 					fieldsToAdd.push(f.name);
 					fieldTypesToAdd.push(TypeTools.toComplexType(f.type));
 				}
+			case Type.TInst(a, params):
+
+				for (f in a.get().fields.get() ) {
+					fieldsToAdd.push(f.name);
+					fieldTypesToAdd.push(TypeTools.toComplexType(f.type));
+				}
 			default:
+				trace("TODO: need to support:" + rrr);
 		}
 		
 		for (i in 0...fieldsToAdd.length) {

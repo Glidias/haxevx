@@ -1,7 +1,7 @@
 package haxevx.proxy.immutable;
 
 /**
- * Testing ImmutableJS map/record externs with Haxe abstract classes
+ * Testing ImmutableJS map/record externs with Haxe abstract classes and compile-time strict-typing and typehinting
  * @author Glidias
  */
 class ImmDoodleMain
@@ -18,10 +18,10 @@ class ImmDoodleMain
 		trace("Valid?:" + newImmRecord.copyTestGet());
 		
 	// Map implementation using fromJS setup
-		var imm2 = new ImmuteMapAbstract({ copy:null }  );
+		var imm2 = new ImmuteMapAbstract( new ImmuteClassDef()  );  // testing Map to proxy to class definition plain data
 		var newImm = imm2.setCoolCopy("BB");
-		trace(imm2.copy + ", " + newImm.copy);
-	
+		newImm = newImm.setCopy2("BBBBAA");
+		trace(imm2.copy + ", " + newImm.copy + " >>>"+newImm.copy2);
 	}
 	
 }

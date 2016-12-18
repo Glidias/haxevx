@@ -7,10 +7,10 @@ import haxevx.proxy.immutable.Immutable;
  * @author Glidias
  */
 @:build(haxevx.proxy.immutable.ImmuteProxyGen.build())
-abstract ImmuteMapAbstract(ImmutableMap<ImmutableTypeDef>)
+abstract ImmuteMapAbstract(ImmutableMap<ImmuteClassDef>)
 {
 
-	public inline function new(values:ImmutableTypeDef):Void {
+	public inline function new(values:ImmuteClassDef):Void {
 		
 		this = Immutable.fromJS(values);
 	}
