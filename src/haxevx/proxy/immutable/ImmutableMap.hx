@@ -1,7 +1,7 @@
 package haxevx.proxy.immutable;
 
 /**
- * ...
+ * 
  * @author Glidias
  */
 @:native("Immutable.Map") extern class  ImmutableMap<T>

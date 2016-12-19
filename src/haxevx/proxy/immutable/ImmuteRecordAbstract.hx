@@ -2,7 +2,14 @@ package haxevx.proxy.immutable;
 import haxevx.proxy.immutable.Immutable;
 
 /**
- * Strictly-typed immutable record proxy example using Abstracts in Haxe
+ * TODO ImmutableRecord
+ * - For ImmutableRecord, ensure NO extra class immutable properties outside of underlying Immutable Type Param are defined.
+ * @compare ImmuteMapAbstract
+ * 
+ * TODO STANDARD:
+ * @see ImmuteProxyGen
+ * 
+ * 
  * @author Glidias
  */
 @:build(haxevx.proxy.immutable.ImmuteProxyGen.build())
