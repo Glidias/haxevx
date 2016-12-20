@@ -49,7 +49,7 @@ extern class VNode
 }
 
 
-extern typedef CreateElement = Dynamic->?Dynamic->?Dynamic->Void;
+extern typedef CreateElement = Dynamic->?Dynamic->?Dynamic->VNode;
 
 typedef Component = Dynamic;
 

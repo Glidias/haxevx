@@ -25,6 +25,15 @@ class RttiUtil
 		}
 	}
 	
+	public static function getInstanceFieldsUnderClass(cls:Class<Dynamic>):Array<String> {
+		var arr:Array<String> = [];
+		for (f in Rtti.getRtti(cls).fields){
+			arr.push(f.name);
+		}
+		return arr;
+		
+	}
+	
 	/**
 	 * Generic injection method
 	 * @param	instance	The object to inject into

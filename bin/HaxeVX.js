@@ -1991,15 +1991,39 @@ haxevx_vuex_core_VComponent.prototype = {
 	,get_data: function() {
 		return this.$data;
 	}
-	,getNewProps: function() {
+	,GetProps: function() {
 		return null;
 	}
-	,getNewData: function() {
+	,GetPropsData: function() {
+		return null;
+	}
+	,GetData: function() {
 		return null;
 	}
 	,Created: function() {
 	}
-	,Render: function() {
+	,BeforeCreate: function() {
+	}
+	,BeforeDestroy: function() {
+	}
+	,Destroy: function() {
+	}
+	,BeforeMount: function() {
+	}
+	,Mounted: function() {
+	}
+	,BeforeUpdate: function() {
+	}
+	,Updated: function() {
+	}
+	,Activated: function() {
+	}
+	,Deactivated: function() {
+	}
+	,El: function() {
+		return null;
+	}
+	,Render: function(c) {
 		return null;
 	}
 	,Template: function() {
@@ -2009,7 +2033,121 @@ haxevx_vuex_core_VComponent.prototype = {
 		return null;
 	}
 	,_toNative: function() {
-		return null;
+		var comp = { };
+		var componentsToAdd = null;
+		var nativeChildComponents = { };
+		var cls = js_Boot.getClass(this);
+		var useRtti = haxe_rtti_Rtti.hasRtti(cls);
+		var baseClass = haxevx_vuex_core_VComponent;
+		var fields = useRtti?haxevx_vuex_util_RttiUtil.getInstanceFieldsUnderClass(cls):Type.getInstanceFields(cls);
+		var _g = 0;
+		while(_g < fields.length) {
+			var f = fields[_g];
+			++_g;
+			switch(f) {
+			case "Activated":
+				if(useRtti || $bind(this,this.Activated) != baseClass.prototype.Activated) {
+					comp.activated = $bind(this,this.Activated);
+				}
+				break;
+			case "BeforeCreate":
+				if(useRtti || $bind(this,this.BeforeCreate) != baseClass.prototype.BeforeCreate) {
+					comp.beforeCreate = $bind(this,this.BeforeCreate);
+				}
+				break;
+			case "BeforeDestroy":
+				if(useRtti || $bind(this,this.BeforeDestroy) != baseClass.prototype.BeforeDestroy) {
+					comp.beforeDestroy = $bind(this,this.BeforeDestroy);
+				}
+				break;
+			case "BeforeMount":
+				if(useRtti || $bind(this,this.BeforeMount) != baseClass.prototype.BeforeMount) {
+					comp.beforeMount = $bind(this,this.BeforeMount);
+				}
+				break;
+			case "BeforeUpdate":
+				if(useRtti || $bind(this,this.BeforeUpdate) != baseClass.prototype.BeforeUpdate) {
+					comp.beforeUpdate = $bind(this,this.BeforeUpdate);
+				}
+				break;
+			case "Components":
+				if(useRtti || $bind(this,this.Components) != baseClass.prototype.Components) {
+					componentsToAdd = this.Components();
+					comp.components = nativeChildComponents;
+				}
+				break;
+			case "Created":
+				if(useRtti || $bind(this,this.Created) != baseClass.prototype.Created) {
+					comp.created = $bind(this,this.Created);
+				}
+				break;
+			case "Deactivated":
+				if(useRtti || $bind(this,this.Deactivated) != baseClass.prototype.Deactivated) {
+					comp.deactivated = $bind(this,this.Deactivated);
+				}
+				break;
+			case "Destroy":
+				if(useRtti || $bind(this,this.Destroy) != baseClass.prototype.Destroy) {
+					comp.destroy = $bind(this,this.Destroy);
+				}
+				break;
+			case "El":
+				if(useRtti || $bind(this,this.El) != baseClass.prototype.El) {
+					comp.el = this.El();
+				}
+				break;
+			case "GetData":
+				if(useRtti || $bind(this,this.GetData) != baseClass.prototype.GetData) {
+					comp.data = this.GetData();
+				}
+				break;
+			case "GetProps":
+				if(useRtti || $bind(this,this.GetProps) != baseClass.prototype.GetProps) {
+					comp.props = this._reflectPropsInstanceToNative(this.GetProps());
+				}
+				break;
+			case "GetPropsData":
+				if(useRtti || $bind(this,this.GetPropsData) != baseClass.prototype.GetPropsData) {
+					comp.propsData = this.GetPropsData();
+				}
+				break;
+			case "Mounted":
+				if(useRtti || $bind(this,this.Mounted) != baseClass.prototype.Mounted) {
+					comp.mounted = $bind(this,this.Mounted);
+				}
+				break;
+			case "Render":
+				if(useRtti || $bind(this,this.Render) != baseClass.prototype.Render) {
+					comp.render = $bind(this,this.Render);
+				}
+				break;
+			case "Template":
+				if(useRtti || $bind(this,this.Template) != baseClass.prototype.Template) {
+					comp.template = this.Template();
+				}
+				break;
+			case "Updated":
+				if(useRtti || $bind(this,this.Updated) != baseClass.prototype.Updated) {
+					comp.updated = $bind(this,this.Updated);
+				}
+				break;
+			default:
+			}
+		}
+		if(componentsToAdd != null) {
+			var _g1 = 0;
+			var _g11 = Reflect.fields(componentsToAdd);
+			while(_g1 < _g11.length) {
+				var f1 = _g11[_g1];
+				++_g1;
+				var c = Reflect.field(componentsToAdd,f1);
+				nativeChildComponents[f1] = c._toNative();
+			}
+		}
+		return comp;
+	}
+	,_reflectPropsInstanceToNative: function(props) {
+		return props;
 	}
 	,__class__: haxevx_vuex_core_VComponent
 };
@@ -2091,8 +2229,20 @@ haxevx_vuex_core_VxBoot.startStore = function(opts) {
 	}
 	return store;
 };
-haxevx_vuex_core_VxBoot.startVue = function(opts) {
-	return new Vue(opts.vueParams);
+haxevx_vuex_core_VxBoot.startVue = function(opts,store) {
+	var bootVueParams = { };
+	bootVueParams.el = "#app";
+	var vueParams = opts.vueParams;
+	if(store != null) {
+		bootVueParams.store = store;
+	}
+	bootVueParams.render = haxevx_vuex_core_VxBoot.getRenderComponentMethod(vueParams);
+	return new Vue(bootVueParams);
+};
+haxevx_vuex_core_VxBoot.getRenderComponentMethod = function(nativeComp) {
+	return function(h) {
+		return h(nativeComp,null,null);
+	};
 };
 haxevx_vuex_core_VxBoot.registerGlobalHxComponents = function(otherComponents) {
 	var _g = 0;
@@ -2371,7 +2521,10 @@ haxevx_vuex_core_VxStore.prototype = {
 };
 var haxevx_vuex_examples_shoppingcart_ShoppingCartMain = function() {
 	haxevx_vuex_util_ReflectUtil.set_NAMESPACE(haxevx_vuex_util_ReflectUtil.getPackagePathForInstance(this));
-	haxevx_vuex_core_VxBoot.startParams(new haxevx_vuex_examples_shoppingcart_components_App(),new haxevx_vuex_examples_shoppingcart_store_AppStore());
+	var params = haxevx_vuex_core_VxBoot.startParams(new haxevx_vuex_examples_shoppingcart_components_App(),new haxevx_vuex_examples_shoppingcart_store_AppStore());
+	console.log(params.vueParams);
+	haxevx_vuex_core_VxBoot.startStore(params);
+	haxevx_vuex_core_VxBoot.startVue(params);
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.ShoppingCartMain"] = haxevx_vuex_examples_shoppingcart_ShoppingCartMain;
 haxevx_vuex_examples_shoppingcart_ShoppingCartMain.__name__ = ["haxevx","vuex","examples","shoppingcart","ShoppingCartMain"];
@@ -2948,6 +3101,9 @@ haxevx_vuex_util_ReflectUtil.getStaticMetaFieldsOfClass = function(cls) {
 	}
 	return rt;
 };
+haxevx_vuex_util_ReflectUtil.getPrototypeField = function(cls,fieldName) {
+	return cls.prototype[fieldName];
+};
 haxevx_vuex_util_ReflectUtil.reflectClassHierachyInto = function(child,map,callback,earlyOut) {
 	if(earlyOut == null) {
 		earlyOut = true;
@@ -3266,6 +3422,16 @@ haxevx_vuex_util_RttiUtil.resetFieldSet = function(fields) {
 			fields.h[s] = false;
 		}
 	}
+};
+haxevx_vuex_util_RttiUtil.getInstanceFieldsUnderClass = function(cls) {
+	var arr = [];
+	var _g_head = haxe_rtti_Rtti.getRtti(cls).fields.h;
+	while(_g_head != null) {
+		var val = _g_head.item;
+		_g_head = _g_head.next;
+		arr.push(val.name);
+	}
+	return arr;
 };
 haxevx_vuex_util_RttiUtil.injectNewInstance = function(instance,rtti,forFields,forMeta,injectorRetrieveMethod) {
 	if(injectorRetrieveMethod == null) {

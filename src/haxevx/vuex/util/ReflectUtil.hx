@@ -34,6 +34,10 @@ class ReflectUtil
 		return rt;
 	}
 	
+	public static inline function getPrototypeField(cls:Class<Dynamic>, fieldName:String):Dynamic {
+		return  untyped cls.prototype[fieldName];
+	}
+	
 	public static function reflectClassHierachyInto(child:Class<Dynamic>, map:StringMap<Class<Dynamic>>, callback:Class<Dynamic>->Void, earlyOut:Bool = true):Void {
 		var cls:Class<Dynamic> = child;
 		while (cls != null) {
