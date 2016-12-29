@@ -15,11 +15,14 @@ import haxevx.vuex.util.RttiUtil;
 @:autoBuild(haxevx.vuex.core.VxMacros.buildComponent())
 class VComponent<D, P>
 {
+	#if !remove_props_accessor
 	var props(get, null):P;
 	inline function get_props():P 
 	{
 		return untyped this;
 	}
+	#end
+
 
 	var data(get, null):D;
 	inline function get_data():D 
@@ -153,7 +156,8 @@ class VComponent<D, P>
 				if (Std.is(propMetaInfo, Array) ) {
 					if ( propMetaInfo.length > 0 ) {
 						propMetaInfo = _reflectPropsMetadataToNative(propMetaInfo, f, cls);
-						trace("propMetaInfo found");
+						//trace(f);
+						//trace( propMetaInfo);
 					}
 					else  {
 						propMetaInfo = {};
@@ -197,7 +201,7 @@ class VComponent<D, P>
 		var newProps:Dynamic = {};
 		var referProps:Dynamic = props[0];
 		if (referProps != null) {
-		
+			
 			for (p in Reflect.fields(referProps)) {
 				Reflect.setField(newProps, p, Reflect.field(referProps, p));
 			}

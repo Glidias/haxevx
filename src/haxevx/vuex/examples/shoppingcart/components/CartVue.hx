@@ -30,7 +30,8 @@ class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
 	var total(get, never):Float;
 	function get_total():Float 
 	{
-		return props.products.fold( function(p:ProductInCart, total:Float)  {
+	
+		return products.fold( function(p:ProductInCart, total:Float)  {
 			return total + p.price * p.quantity;
 		}, 0);
 	}
@@ -75,13 +76,5 @@ class CartVueProps  {
 	@propBinding public static inline function Get_checkOutStatus(store:AppStore):String {
 		return store.cart.checkoutStatus;
 	}
-	
-	
-}
 
-class CartVuePropHelper {
-	
-	
-		
-	
 }

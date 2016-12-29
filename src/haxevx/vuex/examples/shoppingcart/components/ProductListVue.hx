@@ -14,7 +14,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * @author Glidias
  */
 @:rtti
-class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
+class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 {
 
 	public function new() 
@@ -43,6 +43,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 	override public function Created():Void {
 		
 		dispatcher.getAllProducts();
+		
 	}
 	
 
@@ -65,21 +66,10 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 	
 	
 	
-	
-	
-}
-
-@:rtti
-class ProductListVueProps  {
-	
-	public var products(default, never):Array<ProductInStore>;
 	@propBinding static inline function Get_products(store:AppStore):Array<ProductInStore> {
 		return store.products.allProducts;
 	}
+	
 }
 
 
-
-typedef BlahBlah = {
-	public var blah:String;
-}
