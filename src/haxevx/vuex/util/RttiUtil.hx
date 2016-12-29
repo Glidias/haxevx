@@ -112,6 +112,12 @@ class RttiUtil
 		
 	}
 	
+	public static  function injectFoundSingletonInstances(instance:Dynamic,  rtti:Classdef, forFields:StringMap<Bool>=null, forMeta:StringMap<Bool>=null):Void  {
+		
+		injectNewInstance(instance, rtti, forFields, forMeta, ReflectUtil.findSingletonByClassName);
+		
+	}
+	
 	public static inline function getRttiOfInstance(instance:Dynamic):Classdef {
 		return Rtti.getRtti( Type.getClass(instance) );
 	}

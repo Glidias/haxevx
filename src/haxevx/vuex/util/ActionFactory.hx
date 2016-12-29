@@ -1,6 +1,7 @@
 package haxevx.vuex.util;
 import haxe.ds.StringMap;
 import haxe.rtti.Rtti;
+import haxevx.vuex.core.VComponent;
 
 /**
  * ...
@@ -71,6 +72,8 @@ class ActionFactory
 		}
 	}
 	
+
+	
 	public static function setupActionsOfInstanceOver(instance:Dynamic, over:Dynamic):Void {
 		var handler:Dynamic;
 		var cls:Class<Dynamic> = Type.getClass(instance);
@@ -102,8 +105,10 @@ class ActionFactory
 				
 				// Assign Handler to 
 				var fieldName:String = ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
-				if (Reflect.hasField(over, fieldName)) trace("Exception occured repeated field handler set");
-				Reflect.setField(over, fieldName, handler);
+				if (!Reflect.hasField(over, fieldName)) 
+					Reflect.setField(over, fieldName, handler);
+				else	
+					trace("Exception occured repeated field handler set");
 			}
 			else {
 				trace("Warning!! Action classes should only contain function fields! Fieldname: " + f);

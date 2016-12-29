@@ -108,13 +108,14 @@ class VxBoot
 		
 		return store;
 	}
-	public static function startVue<T>(opts:VxBootParams<T>, store:Store<Dynamic> = null):Vue {
+	public static function startVue<T>(opts:VxBootParams<T>):Vue {
 		var bootVueParams:Dynamic = {};
 		bootVueParams.el = "#app";
 		
 		var vueParams = opts.vueParams;
-		if (store != null) {
-			Reflect.setField(bootVueParams, "store", store);
+		if (opts.storeParams != null) {
+			Reflect.setField(bootVueParams, "store", opts.storeParams);
+			
 		}
 		bootVueParams.render = getRenderComponentMethod(vueParams);
 		var vm =  new Vue(bootVueParams);

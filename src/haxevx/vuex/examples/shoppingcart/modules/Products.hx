@@ -23,6 +23,8 @@ class Products extends VModule<ProductListModel>
 	
 	// eg. A single store/module getter implementation defined as a paragraph of 3 declarations.
 	//  Admittingly, rather verbose to ensure compile type strict typing and code-hinting.
+	
+	// Consider using macro generation compile with static function Get_allProducts(state)... to define getter implementations
 	public var allProducts(get, null):Array<ProductInStore>;	// 1. helper haxe getter property for module reference instance
 	function get_allProducts():Array<ProductInStore> 		// 2. Haxe+JS proxy function to link to VueJS getter function via simple return statement
 	{

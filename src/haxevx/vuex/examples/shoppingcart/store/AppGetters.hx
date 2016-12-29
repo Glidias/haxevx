@@ -13,7 +13,7 @@ class AppGetters extends VModule<AppState>
 
 	public function new() {	}
 	
-	public var cartProducts(get, null):Array<ProductInCart>;
+	public var cartProducts(get, never):Array<ProductInCart>;
 	function get_cartProducts():Array<ProductInCart> 
 	{
 		return getCartProducts(state);

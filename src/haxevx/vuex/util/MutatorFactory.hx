@@ -53,8 +53,10 @@ class MutatorFactory
 				}
 				
 				var fieldName:String = ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
-				if (Reflect.hasField(over, fieldName)) trace("Exception occured repeated field handler set");
-				Reflect.setField(over, fieldName, handler);
+				if (!Reflect.hasField(over, fieldName)) 
+					Reflect.setField(over, fieldName, handler);
+				else
+					trace("Exception occured repeated field handler set");
 			}
 			else {
 				trace("Warning!! Mutator classes should only contain function fields! Fieldname: " + f);

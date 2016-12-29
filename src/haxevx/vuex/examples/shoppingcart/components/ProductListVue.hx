@@ -7,7 +7,6 @@ import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppActions;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
-import haxevx.vuex.core.PropsBindedToStore;
 
 /**
  * components/ProductList.vue port
@@ -36,14 +35,17 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 		actionDispatcher.addToCart(p);
 	}
 	
-
+	
 	
 	// Hooks
 
 	
 	override public function Created():Void {
+		
 		dispatcher.getAllProducts();
 	}
+	
+
 	
 	
 	override public function Template():String {
@@ -63,22 +65,21 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 	
 	
 	
+	
+	
 }
 
 @:rtti
-class ProductListVueProps extends PropsBindedToStore<AppStore> {
+class ProductListVueProps  {
 	
-	public var products(#if compile_strict get #else default #end, null):Array<ProductInStore>;
-	function get_products():Array<ProductInStore>
-	{
-		return ProductListPropHelper.GetProducts(store);
-	}
-
-
-}
-
-class ProductListPropHelper {
-	public static inline function GetProducts(store:AppStore) {
+	public var products(default, never):Array<ProductInStore>;
+	@propBinding static inline function Get_products(store:AppStore):Array<ProductInStore> {
 		return store.products.allProducts;
 	}
+}
+
+
+
+typedef BlahBlah = {
+	public var blah:String;
 }

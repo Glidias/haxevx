@@ -1,5 +1,4 @@
 package haxevx.vuex.examples.shoppingcart.components;
-import haxevx.vuex.core.PropsBindedToStore;
 import haxevx.vuex.examples.shoppingcart.modules.Cart;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxComponent;
@@ -20,14 +19,15 @@ class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
 
 	public function new() 
 	{
-		
+	
 	}
 	
 	@action static var action:CartDispatcher<Dynamic>; 
 	
+
 	// Computed
 	
-	var total(get, null):Float;
+	var total(get, never):Float;
 	function get_total():Float 
 	{
 		return props.products.fold( function(p:ProductInCart, total:Float)  {
@@ -57,34 +57,31 @@ class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
 			  </div>';
 	}
 	
+	
+	
 
 	
 }
 
-class CartVueProps extends PropsBindedToStore<AppStore> {
-	public var products(#if compile_strict get #else default #end, null):Array<ProductInCart>;
-	function get_products():Array<ProductInCart>
-	{
-		return CartVuePropHelper.GetCartProducts(store);
+
+
+class CartVueProps  {
+	public var products(default, never):Array<ProductInCart>;
+	@propBinding public static inline function Get_products(store:AppStore):Array<ProductInCart> {
+		return store.getters.cartProducts;
 	}
 	
-	
-	public var checkoutStatus(#if compile_strict get #else default #end, null):String;
-	function get_checkoutStatus():String 
-	{
-		return CartVuePropHelper.CheckOutStatus(store);
+	public var checkoutStatus(default, never):String;
+	@propBinding public static inline function Get_checkOutStatus(store:AppStore):String {
+		return store.cart.checkoutStatus;
 	}
 	
 	
 }
 
 class CartVuePropHelper {
-	public static inline function GetCartProducts(store:AppStore):Array<ProductInCart> {
-		return store.getters.cartProducts;
-	}
-	public static inline function CheckOutStatus(store:AppStore):String {
-		return store.cart.checkoutStatus;
-	}
+	
+	
 		
 	
 }
