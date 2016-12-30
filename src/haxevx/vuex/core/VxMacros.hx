@@ -41,8 +41,6 @@ class VxMacros
 	//  static @propBinding support for VxStore  or within PropsOfVxStore
 	
 	// TODO:
-	//  - var @mapGetterProp support for VxStore 
-	// ....
 	//  ensure supplied default types with given default values! Type checking for prop default metadata!!
 	// prop validator support
 	
@@ -89,7 +87,7 @@ class VxMacros
 		var propFieldsToAdd:StringMap<ClassField> = null;
 		var dataFieldsToAdd:Array<ClassField> = null;
 	
-		var propStoreBindings:StringMap<PropBinding> =  new StringMap<PropBinding>();
+
 		//var data
 		
 		switch ( fg=TypeTools.follow(typeParamData) ) {
@@ -110,12 +108,7 @@ class VxMacros
 				
 				if (requireProps) {
 					propFieldsToAdd = classFieldArrayToStrMap( t.get().fields.get() );
-					var tryStatics = t.get().statics.get();
-					if (tryStatics.length != 0) {
-						//propStoreBindings =;
-						// not future proof? ClassType+""
-						addPropBindingClassField(propStoreBindings, getStaticFunctionMap(tryStatics), retTypeStore, t+"");
-					}
+					
 
 				}
 				
@@ -155,10 +148,7 @@ class VxMacros
 		{
 			var field = fields[i];
 			if (  field.access.indexOf( Access.AStatic) >= 0 ) {
-				if ( hasMetaTag( field.meta, "propBinding") ) {
-					// not future proof getLocalClass()+"" approach
-					addPropBindingBuildField(propStoreBindings, field, retTypeStore, Context.getLocalClass()+"");
-				}
+				
 				continue;
 			}
 			switch (field.kind)
@@ -269,34 +259,7 @@ class VxMacros
 		
 		// @mapGetterProp
 		
-		if (propStoreBindings !=  null) {
-			for (propName in propStoreBindings.keys()) {
-				var f = propStoreBindings.get(propName);
-				var p = Context.currentPos();
-				//fields.push()
-				
-				if (propFieldsToAdd==null || !propFieldsToAdd.exists(propName)) {  // will create new prop directly with default store binding
-				
-					fields.push({
-						name: propName,
-						access: [Access.APrivate],
-						pos: p ,
-						kind:  FieldType.FProp("null", "never",   f.ret ),
-				meta: [ {name:"_prop", pos:p, params:[  getPropMetadata(null,  ComplexTypeTools.toType( f.ret), f.methodPos, p) , macro $v{true} ] } ] // only add relavant metatag _prop and relavant metadata
-					});
-					
-				}
-				else {  //validate against existing property declaration
-					if ( !isEqualComplexTypes(f.ret, TypeTools.toComplexType( propFieldsToAdd.get(propName).type) ) ) {
-						Context.fatalError("@propBinding method needs matching return type with prop ", f.methodPos );
-					}
-					
-				}
-				
-				fields.push(f.field);
-			}
-		
-		}
+
 	
 		if (propFieldsToAdd != null) {
 
@@ -320,7 +283,7 @@ class VxMacros
 							access: [Access.APrivate],
 							pos: p ,
 							kind:  FieldType.FProp("null", "never",  TypeTools.toComplexType( f.type) ),
-						meta: [ {name:"_prop", pos:p, params:[  getPropMetadata(f.meta.get(), f.type, f.pos, p),  macro $v{propStoreBindings != null && propStoreBindings.exists(f.name)} ] } ] // only add relavant metatag _prop and relavant metadata
+						meta: [ {name:"_prop", pos:p, params:[  getPropMetadata(f.meta.get(), f.type, f.pos, p) ] } ] // only add relavant metatag _prop and relavant metadata
 						});
 					default:
 						// suppress?
@@ -330,10 +293,7 @@ class VxMacros
 			
 			
 		}
-	
-		
-		
-		
+
 		return fields;
 	}
 	
@@ -402,130 +362,7 @@ class VxMacros
 		return strMap;
 	}
 	
-	static private function addPropBindingBuildField(fieldsToAdd:StringMap<PropBinding>, f:Field, typeStore:ComplexType, module:String ):Void {
-		if (f.name.indexOf("Get_") != 0) {
-			Context.fatalError("@propBinding method name should start with 'Get_'", f.pos);
-			
-		}
-		var propName:String =  f.name.substr(4);
-				
-		switch( f.kind ) {
-			case FieldType.FFun(k):
-				var c;
-				var ret = k.ret;
-				var args = k.args;
-				
-				
-				if (args.length != 1) {
-					Context.fatalError("@propBinding method should accept 1 parameter as store: "+c, f.pos);
-				}
-		
-				//	!EnumValueTools.equals(retTypeStore, args[0]   //this won't work...hmm
-			//	trace( typeStore,  args[0].type);
-			
-				if (  !isEqualComplexTypes( typeStore, args[0].type)  ) {
-					//trace(retTypeStore);
-					//trace(args[0]);
-					//if 
-				
-					Context.fatalError("@propBinding method parameter type doesn't match with store", f.pos);
-				}
-				
-				//haxevx.vuex.examples.shoppingcart.components.CartVueProps.Get_products(store);
-				//var funcRefName:String = module != "" ?  module+"."+f.name : "";
 
-				fieldsToAdd.set(propName, { field: {
-					name: "get_"+propName,
-					access: [Access.APrivate],
-					pos: Context.currentPos(),
-					kind:  FieldType.FFun({
-						args:[], 
-					
-						//"return " + module+f.name+"(store);"
-						// haxe hack for javascript only .. may not be future proof. Also, inlining is lost!!
-						
-				expr: macro  { return untyped $i{module.split(".").join("_") + "." + f.name}(store);  } ,
-						ret: ret
-						})
-				}, ret:ret, methodPos:f.pos});
-				
-				
-	
-				
-				
-				/*
-				
-				*/
-			default:
-				Context.fatalError("@propBinding requires static function! " + f.kind, f.pos);
-		}
-		
-	}
-	
-	static private function addPropBindingClassField(fieldsToAdd:StringMap<PropBinding>, staticFuncMap:StringMap<ClassField>, typeStore:ComplexType, module:String ):Void {
-		//if (module != "") module += ".";
-		
-		for (f in staticFuncMap) {
-			if (hasMetaTag(f.meta.get(), "propBinding")) {
-				if (f.name.indexOf("Get_") != 0) {
-					Context.fatalError("@propBinding method name should start with 'Get_'", f.pos);
-					
-				}
-				
-				var propName:String =  f.name.substr(4);
-				
-				switch( f.kind ) {
-					case FieldKind.FMethod(k):
-						var c;
-						switch( c= TypeTools.toComplexType(f.type) ) {
-							case ComplexType.TFunction(args, ret):
-								
-								if (args.length != 1) {
-									Context.fatalError("@propBinding method should accept 1 parameter as store: "+c, f.pos);
-								}
-						
-								//	!EnumValueTools.equals(retTypeStore, args[0]   //this won't work...hmm
-								if ( !isEqualComplexTypes( typeStore, args[0]) ) {
-									//trace(retTypeStore);
-									//trace(args[0]);
-									Context.fatalError("@propBinding method parameter type doesn't match with store", f.pos);
-								}
-								
-								//haxevx.vuex.examples.shoppingcart.components.CartVueProps.Get_products(store);
-								//var funcRefName:String = module != "" ?  module+"."+f.name : "";
-
-								fieldsToAdd.set(propName, { field: {
-									name: "get_"+propName,
-									access: [Access.APrivate],
-									pos: Context.currentPos(),
-									kind:  FieldType.FFun({
-										args:[], 
-									
-										//"return " + module+f.name+"(store);"
-										// haxe hack for javascript only .. may not be future proof
-										
-								expr: macro  { return untyped $i{module.split(".").join("_") + "." + f.name}(store);  } ,
-										ret: ret
-										})
-								}, ret:ret, methodPos:f.pos});
-								
-								
-							default:
-								Context.fatalError("Couldn't resolve complex type error: "+c, f.pos);
-						}
-					
-						
-						
-						/*
-						
-						*/
-					default:
-						Context.fatalError("@propBinding requires static function! " + f.kind, f.pos);
-				}
-			}
-		}
-	}
-	
 	
 	
 	static private function getStaticFunctionMap(staticFields:Array<ClassField>):StringMap<ClassField>
