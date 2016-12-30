@@ -41,7 +41,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 
 	
 	override public function Created():Void {
-		
+	
 		dispatcher.getAllProducts();
 		
 	}
@@ -67,7 +67,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	
 	@propBinding static inline function Get_products(store:AppStore):Array<ProductInStore> {
-		return store.products.allProducts;
+		return  store.products.allProducts;
 	}
 	
 }

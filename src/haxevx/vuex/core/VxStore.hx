@@ -136,6 +136,7 @@ class VxStore<T> implements IVxStoreContext<T>
 		
 		// strict
 		storeParams.strict = strict;
+
 		
 		return storeParams;
 	}
@@ -177,7 +178,7 @@ class VxStore<T> implements IVxStoreContext<T>
 			
 			var state = Reflect.field(curModuleInstance, "state");
 			if ( state == null) {
-			
+				
 				if (!Rtti.hasRtti(cls)) {
 					throw "Failed to initialize store's state! Need RTTI to dynamically instatiate state! Class:" + Type.getClassName(cls);
 				}
@@ -194,7 +195,9 @@ class VxStore<T> implements IVxStoreContext<T>
 					}
 				}
 			}
-				
+			
+			curModule.state = state;
+			
 			cls = Type.getClass(curModuleInstance);
 			if (cls == null) throw "COuld not resolve class of module instance:" + curModuleInstance;
 			

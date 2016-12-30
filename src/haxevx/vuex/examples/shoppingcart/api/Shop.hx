@@ -32,6 +32,7 @@ class Shop
 	
 	
 	public function getProducts(cb:Array<ProductInStore>->Void):Void {
+
 		Timer.delay( function() { cb(_products); } , 100);
 	}
 	

@@ -17,9 +17,9 @@ class ActionFactory
 		return untyped __js__("this.$store");
 	}
 	
-	public static function getActionDispatch(type:String):?Dynamic->Dynamic->Void {
-		return function(payload:Dynamic=null, context:Dynamic=null) {		
-			(context != null ? context : store).dispatch(type, payload);
+	public static function getActionDispatch(type:String):?Dynamic->Void {
+		return function(payload:Dynamic=null) {		
+			store.dispatch(type, payload);
 		};
 	}
 	

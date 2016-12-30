@@ -15,10 +15,11 @@ class MutatorFactory
 		return untyped __js__("this.$store");
 	}
 	
-	public static function getMutatorCommit(type:String):?Dynamic->Dynamic->Void {
+	// consider, non-static store variable within getMutatorCommit parameter
+	public static function getMutatorCommit(type:String):?Dynamic->Void {
 		// to test: possible to precompute context out of here??
-		return function(payload:Dynamic=null, context:Dynamic = null) {		
-			(context != null ? context : store).commit(type, payload);
+		return function(payload:Dynamic=null) {		
+			store.commit(type, payload);
 		};
 	}
 	

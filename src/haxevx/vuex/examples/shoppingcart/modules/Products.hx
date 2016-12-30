@@ -57,6 +57,7 @@ class ProductListDispatcher {
 	
 	public function getAllProducts():IVxStoreContext<ProductListModel>->Void {  
 		return function(context:IVxStoreContext<ProductListModel>) {
+			
 			shop.getProducts( function(products) {
 				mutator.receiveProducts(products);
 			});

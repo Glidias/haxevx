@@ -17,6 +17,13 @@ package haxevx.vuex.native;
 }
 
 
+@:native("Vuex") extern class Vuex
+{
+
+	
+}
+
+
 typedef StoreOptions<S> = {
 	@:optional var state: S;
   @:optional var getters: GetterTree<S, S>;

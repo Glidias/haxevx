@@ -14,6 +14,8 @@ package haxevx.vuex.native;
 		
 	}
 	
+	public static function use(dyn:Dynamic):Void;
+	
 	// we only bother with static definitions for now (should be good enough)
 	
 	// instance $ char definitions have problems in haxe because $ is reserved.

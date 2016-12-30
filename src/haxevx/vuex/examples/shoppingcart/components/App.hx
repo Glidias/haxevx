@@ -26,6 +26,8 @@ class App extends VxComponent<AppStore, NoneT, NoneT>
 		};
 	}
 	
+	
+	
 	override public function Template():String {
 		return '<div id="app">
 				<h1>Shopping Cart Example</h1>
