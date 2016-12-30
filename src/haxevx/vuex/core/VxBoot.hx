@@ -117,9 +117,6 @@ class VxBoot
 			
 		}
 		
-		// todo: inject store  unto all static singleton classes "@store" field (look through all registered singletons cache for this)
-	
-		
 		var sg:Dynamic;
 		
 		// finalise singleton initializations from Mutators and Actions accordingly, and re-rout their methods
