@@ -12,12 +12,12 @@ class AppActions<S:AppState>
 {
 	@mutator static var mutator:AppMutator<Dynamic>;
 	
-	 public function addToCart<P:ProductInStore>(product:P):IVxStoreContext<S>->P->Void {  //
+	 public function addToCart<P:ProductInStore>(payload:P):IVxStoreContext<S>->P->Void {  //
 		return function(context:IVxStoreContext<S>, payload:P):Void {
-			if (product.inventory > 0) {
+			if (payload.inventory > 0) {
 				
 				
-				mutator.addToCart({id:product.id});
+				mutator.addToCart({id:payload.id});
 				
 			}
 		}

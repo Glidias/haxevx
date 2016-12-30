@@ -1,7 +1,11 @@
 package haxevx.vuex.core;
+import haxe.rtti.Rtti;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue;
 import haxevx.vuex.native.Vuex;
+import haxevx.vuex.util.ActionFactory;
+import haxevx.vuex.util.MutatorFactory;
+import haxevx.vuex.util.RttiUtil;
 
 import haxevx.vuex.native.Vuex.Store;
 import haxevx.vuex.util.GetterFactory;
@@ -81,7 +85,7 @@ class VxBoot
 					md = Reflect.field(STORE, p); //VModule<Dynamic>
 						ReflectUtil.setHiddenField(store,  p,  md );
 				
-						/*
+						/*  // why i included this;.. i dunno.
 						if ( Reflect.field(md, "state") == null ) {
 							trace("Setting state on native module:"+p);
 							Reflect.setField(md, "state", opts.storeParams.state);
@@ -114,7 +118,34 @@ class VxBoot
 		}
 		
 		// todo: inject store  unto all static singleton classes "@store" field (look through all registered singletons cache for this)
-		// todo: action and mutator dispathc/method permanent replacements!
+	
+		
+		var sg:Dynamic;
+		
+		// finalise singleton initializations from Mutators and Actions accordingly, and re-rout their methods
+		
+		for (c in  MutatorFactory.getClasses()) {
+			// check that all mutator singletons in factory  can be found
+			sg = ReflectUtil.findSingletonByClassName(Type.getClassName(c));
+			if (sg == null) throw "Fatal exception occured could not find mutator singleton by class name:" + Type.getClassName(c);
+			
+			MutatorFactory.finaliseClass(c, store);
+			
+		}
+		
+		for (c in  ActionFactory.getClasses()) {
+			// check that all action signletons in factory can be found
+			sg = ReflectUtil.findSingletonByClassName(Type.getClassName(c));
+			if (sg == null) throw "Fatal exception occured could not find action singleton by class name:" + Type.getClassName(c);
+			
+			// inject mutators into action singletons 
+			if (ReflectUtil.requiresInjection(null, ActionFactory.get_META_INJECTIONS(), c)) {
+			
+				RttiUtil.injectFoundSingletonInstances(c, Rtti.getRtti(c), null, ActionFactory.get_META_INJECTIONS());
+			}
+			
+			ActionFactory.finaliseClass(c, store);
+		}
 		
 		return store;
 	}
@@ -134,7 +165,7 @@ class VxBoot
 			Reflect.setField(bootVueParams, "store", store);
 			
 		}
-		
+
 		bootVueParams.render = getRenderComponentMethod(vueParams);
 		var vm =  new Vue(bootVueParams);
 		

@@ -37,6 +37,9 @@ class ReflectUtil
 	public static inline function getPrototypeField(cls:Class<Dynamic>, fieldName:String):Dynamic {
 		return  untyped cls.prototype[fieldName];
 	}
+	public static inline function setPrototypeField(cls:Class<Dynamic>, fieldName:String, val:Dynamic):Void {
+		 untyped cls.prototype[fieldName] = val;
+	}
 	
 	public static function reflectClassHierachyInto(child:Class<Dynamic>, map:StringMap<Class<Dynamic>>, callback:Class<Dynamic>->Void, earlyOut:Bool = true):Void {
 		var cls:Class<Dynamic> = child;
@@ -48,6 +51,7 @@ class ReflectUtil
 				continue;
 			}
 			callback(cls);
+		
 			map.set(clsName, cls);
 			cls = Type.getSuperClass(cls);
 		}

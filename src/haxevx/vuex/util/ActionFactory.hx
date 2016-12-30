@@ -17,11 +17,21 @@ class ActionFactory
 		return untyped __js__("this.$store");
 	}
 	
-	public static function getActionDispatch(type:String):?Dynamic->Void {
+	static function getActionDispatch(type:String):?Dynamic->Void {
 		return function(payload:Dynamic=null) {		
 			store.dispatch(type, payload);
 		};
 	}
+	
+	public static function finaliseClass(cls:Class<Dynamic>, store:Dynamic):Void {
+		var fields:Array<String> = Type.getInstanceFields(cls); 
+		for (f in fields) {
+			ReflectUtil.setPrototypeField(cls, f, getActionDispatch(getDispatchString(cls, f)));
+		}
+		ReflectUtil.setPrototypeField(cls, "$store", store);
+	
+	}
+	
 	
 	public static function reflectFunctionCall(func:Dynamic):String {
 		
@@ -56,7 +66,7 @@ class ActionFactory
 	
 	
 	static var REGISTERED_CLASSES:StringMap<Class<Dynamic>> = new StringMap<Class<Dynamic>>();
-	public static function getClasses() {
+	public static function getClasses():Iterator<Class<Dynamic>> {
 		return REGISTERED_CLASSES.iterator();
 	}
 	
@@ -65,13 +75,20 @@ class ActionFactory
 		strMap.set("mutator", true);
 		return strMap;
 	}
-	
-	static function injectSingletonInstanceCallback(cls:Class<Dynamic>):Void {
-		if (ReflectUtil.requiresInjection(null, META_INJECTIONS, cls)) {
-			RttiUtil.injectSingletonInstance(cls, Rtti.getRtti(cls), null, META_INJECTIONS);
-		}
+	public static function get_META_INJECTIONS():StringMap<Bool> {
+		return META_INJECTIONS;
 	}
 	
+	static inline function getDispatchString(cls:Class<Dynamic>, f:String):String {
+		return ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
+	}
+	
+	
+
+	
+	static function nothing(cls:Class<Dynamic>):Void {
+		
+	}
 
 	
 	public static function setupActionsOfInstanceOver(instance:Dynamic, over:Dynamic):Void {
@@ -80,7 +97,8 @@ class ActionFactory
 		if (cls == null) throw "Couldn't resolve action class of: " + instance;
 		
 		var clsName:String = Type.getClassName(cls);
-		ReflectUtil.reflectClassHierachyInto(cls, REGISTERED_CLASSES, injectSingletonInstanceCallback);
+		
+		ReflectUtil.reflectClassHierachyInto(cls, REGISTERED_CLASSES, nothing);
 			
 		// setup instance fields
 		var fields:Array<String> = Type.getInstanceFields(cls);  // TODO: get all derived instnace fields as well as part of entire collection
@@ -104,7 +122,7 @@ class ActionFactory
 				}
 				
 				// Assign Handler to 
-				var fieldName:String = ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
+				var fieldName:String = getDispatchString(cls, f);
 				if (!Reflect.hasField(over, fieldName)) 
 					Reflect.setField(over, fieldName, handler);
 				else	

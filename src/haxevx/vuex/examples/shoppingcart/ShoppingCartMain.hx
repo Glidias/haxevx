@@ -17,6 +17,8 @@ class ShoppingCartMain
 		ReflectUtil.NAMESPACE = ReflectUtil.getPackagePathForInstance(this);
 		
 		var params = VxBoot.startParams( new App(),  new AppStore());
+		
+
 		VxBoot.startVue(params,  VxBoot.startStore(params));
 	}
 	

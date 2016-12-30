@@ -7,6 +7,7 @@ import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppActions;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
+import haxevx.vuex.util.ReflectUtil;
 
 /**
  * components/ProductList.vue port
@@ -40,20 +41,17 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	// Hooks
 
 	
-	override public function Created():Void {
-	
+	override public function Created():Void {	
+		//trace(ReflectUtil.getSingletonByClassName(Type.getClassName(Type.getClass(dispatcher))) == dispatcher);
 		dispatcher.getAllProducts();
-		
 	}
-	
 
-	
 	
 	override public function Template():String {
 		return 
 		'<ul>
 			<li v-for="p in products">
-			  {{ p.title }} - {{ p.price | currency }}
+			  {{ p.title }} - {{ p.price }} - ({{p.inventory}})
 			  <br>
 			  <button
 				:disabled="!p.inventory"
@@ -64,11 +62,19 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 		</ul>';
 	}
 	
+	///*
+	 var products(get, never):Array<ProductInStore>;
+	public function get_products():Array<ProductInStore> {
+		return store.products.allProducts;
+	}
+	//*/
 	
-	
+	/*
 	@propBinding static inline function Get_products(store:AppStore):Array<ProductInStore> {
+			
 		return  store.products.allProducts;
 	}
+	*/
 	
 }
 

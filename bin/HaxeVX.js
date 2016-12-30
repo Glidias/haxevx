@@ -2281,6 +2281,28 @@ haxevx_vuex_core_VxBoot.startStore = function(opts) {
 			}
 		}
 	}
+	var sg;
+	var tmp = haxevx_vuex_util_MutatorFactory.getClasses();
+	while(tmp.hasNext()) {
+		var c = tmp.next();
+		sg = haxevx_vuex_util_ReflectUtil.findSingletonByClassName(Type.getClassName(c));
+		if(sg == null) {
+			throw new js__$Boot_HaxeError("Fatal exception occured could not find mutator singleton by class name:" + Type.getClassName(c));
+		}
+		haxevx_vuex_util_MutatorFactory.finaliseClass(c,store);
+	}
+	var tmp1 = haxevx_vuex_util_ActionFactory.getClasses();
+	while(tmp1.hasNext()) {
+		var c1 = tmp1.next();
+		sg = haxevx_vuex_util_ReflectUtil.findSingletonByClassName(Type.getClassName(c1));
+		if(sg == null) {
+			throw new js__$Boot_HaxeError("Fatal exception occured could not find action singleton by class name:" + Type.getClassName(c1));
+		}
+		if(haxevx_vuex_util_ReflectUtil.requiresInjection(null,haxevx_vuex_util_ActionFactory.get_META_INJECTIONS(),c1)) {
+			haxevx_vuex_util_RttiUtil.injectFoundSingletonInstances(c1,haxe_rtti_Rtti.getRtti(c1),null,haxevx_vuex_util_ActionFactory.get_META_INJECTIONS());
+		}
+		haxevx_vuex_util_ActionFactory.finaliseClass(c1,store);
+	}
 	return store;
 };
 haxevx_vuex_core_VxBoot.startVue = function(opts,store) {
@@ -2646,21 +2668,20 @@ haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_
 			return total + p.price * p.quantity;
 		},0);
 	}
+	,products: null
+	,get_products: function() {
+		return this.$store.getters.get_cartProducts();
+	}
+	,checkoutStatus: null
+	,get_checkoutStatus: function() {
+		return this.$store.cart.get_checkoutStatus();
+	}
 	,checkout: function(products) {
 		haxevx_vuex_examples_shoppingcart_components_CartVue.action.checkout(products);
 	}
 	,Template: function() {
-		return "<div class=\"cart\">\r\n\t\t\t\t<h2>Your Cart</h2>\r\n\t\t\t\t<p v-show=\"!products.length\"><i>Please add some products to cart.</i></p>\r\n\t\t\t\t<ul>\r\n\t\t\t\t  <li v-for=\"p in products\">\r\n\t\t\t\t\t{{ p.title }} - {{ p.price | currency }} x {{ p.quantity }}\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<p>Total: {{ total | currency }}</p>\r\n\t\t\t\t<p><button :disabled=\"!products.length\" @click=\"checkout(products)\">Checkout</button></p>\r\n\t\t\t\t<p v-show=\"checkoutStatus\">Checkout {{ checkoutStatus }}.</p>\r\n\t\t\t  </div>";
+		return "<div class=\"cart\">\r\n\t\t\t\t<h2>Your Cart</h2>\r\n\t\t\t\t<p v-show=\"!products.length\"><i>Please add some products to cart.</i></p>\r\n\t\t\t\t<ul>\r\n\t\t\t\t  <li v-for=\"p in products\">\r\n\t\t\t\t\t{{ p.title }} - {{ p.price  }}  (x{{ p.quantity }})\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<p>Total: {{ total  }}</p>\r\n\t\t\t\t<p><button :disabled=\"!products.length\" @click=\"checkout(products)\">Checkout</button></p>\r\n\t\t\t\t<p v-show=\"checkoutStatus\">Checkout {{ checkoutStatus }}.</p>\r\n\t\t\t  </div>";
 	}
-	,get_products: function() {
-		return haxevx_vuex_examples_shoppingcart_components_CartVueProps.Get_products(this.$store);
-	}
-	,checkOutStatus: null
-	,get_checkOutStatus: function() {
-		return haxevx_vuex_examples_shoppingcart_components_CartVueProps.Get_checkOutStatus(this.$store);
-	}
-	,products: null
-	,checkoutStatus: null
 	,__class__: haxevx_vuex_examples_shoppingcart_components_CartVue
 });
 var haxevx_vuex_examples_shoppingcart_components_CartVueProps = function() { };
@@ -2669,7 +2690,7 @@ haxevx_vuex_examples_shoppingcart_components_CartVueProps.__name__ = ["haxevx","
 haxevx_vuex_examples_shoppingcart_components_CartVueProps.Get_products = function(store) {
 	return store.getters.get_cartProducts();
 };
-haxevx_vuex_examples_shoppingcart_components_CartVueProps.Get_checkOutStatus = function(store) {
+haxevx_vuex_examples_shoppingcart_components_CartVueProps.Get_checkoutStatus = function(store) {
 	return store.cart.get_checkoutStatus();
 };
 haxevx_vuex_examples_shoppingcart_components_CartVueProps.prototype = {
@@ -2683,9 +2704,6 @@ $hxClasses["haxevx.vuex.examples.shoppingcart.components.ProductListVue"] = haxe
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.__name__ = ["haxevx","vuex","examples","shoppingcart","components","ProductListVue"];
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.dispatcher = null;
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.actionDispatcher = null;
-haxevx_vuex_examples_shoppingcart_components_ProductListVue.Get_products = function(store) {
-	return store.products.get_allProducts();
-};
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.__super__ = haxevx_vuex_core_VxComponent;
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.prototype = $extend(haxevx_vuex_core_VxComponent.prototype,{
 	addToCart: function(p) {
@@ -2695,11 +2713,11 @@ haxevx_vuex_examples_shoppingcart_components_ProductListVue.prototype = $extend(
 		haxevx_vuex_examples_shoppingcart_components_ProductListVue.dispatcher.getAllProducts();
 	}
 	,Template: function() {
-		return "<ul>\r\n\t\t\t<li v-for=\"p in products\">\r\n\t\t\t  {{ p.title }} - {{ p.price | currency }}\r\n\t\t\t  <br>\r\n\t\t\t  <button\r\n\t\t\t\t:disabled=\"!p.inventory\"\r\n\t\t\t\t@click=\"addToCart(p)\">\r\n\t\t\t\tAdd to cart\r\n\t\t\t  </button>\r\n\t\t\t</li>\r\n\t\t</ul>";
+		return "<ul>\r\n\t\t\t<li v-for=\"p in products\">\r\n\t\t\t  {{ p.title }} - {{ p.price }} - ({{p.inventory}})\r\n\t\t\t  <br>\r\n\t\t\t  <button\r\n\t\t\t\t:disabled=\"!p.inventory\"\r\n\t\t\t\t@click=\"addToCart(p)\">\r\n\t\t\t\tAdd to cart\r\n\t\t\t  </button>\r\n\t\t\t</li>\r\n\t\t</ul>";
 	}
 	,products: null
 	,get_products: function() {
-		return haxevx_vuex_examples_shoppingcart_components_ProductListVue.Get_products(this.$store);
+		return this.$store.products.get_allProducts();
 	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_ProductListVue
 });
@@ -2865,10 +2883,10 @@ $hxClasses["haxevx.vuex.examples.shoppingcart.store.AppActions"] = haxevx_vuex_e
 haxevx_vuex_examples_shoppingcart_store_AppActions.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppActions"];
 haxevx_vuex_examples_shoppingcart_store_AppActions.mutator = null;
 haxevx_vuex_examples_shoppingcart_store_AppActions.prototype = {
-	addToCart: function(product) {
-		return function(context,payload) {
-			if(product.inventory > 0) {
-				haxevx_vuex_examples_shoppingcart_store_AppActions.mutator.addToCart({ id : product.id});
+	addToCart: function(payload) {
+		return function(context,payload1) {
+			if(payload1.inventory > 0) {
+				haxevx_vuex_examples_shoppingcart_store_AppActions.mutator.addToCart({ id : payload1.id});
 			}
 		};
 	}
@@ -2914,6 +2932,7 @@ var haxevx_vuex_examples_shoppingcart_store_AppStore = function() {
 $hxClasses["haxevx.vuex.examples.shoppingcart.store.AppStore"] = haxevx_vuex_examples_shoppingcart_store_AppStore;
 haxevx_vuex_examples_shoppingcart_store_AppStore.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppStore"];
 haxevx_vuex_examples_shoppingcart_store_AppStore.actions = null;
+haxevx_vuex_examples_shoppingcart_store_AppStore.mutator = null;
 haxevx_vuex_examples_shoppingcart_store_AppStore.__super__ = haxevx_vuex_core_VxStore;
 haxevx_vuex_examples_shoppingcart_store_AppStore.prototype = $extend(haxevx_vuex_core_VxStore.prototype,{
 	cart: null
@@ -2942,6 +2961,17 @@ haxevx_vuex_util_ActionFactory.getActionDispatch = function(type) {
 		this.$store.dispatch(type,payload);
 	};
 };
+haxevx_vuex_util_ActionFactory.finaliseClass = function(cls,store) {
+	var fields = Type.getInstanceFields(cls);
+	var _g = 0;
+	while(_g < fields.length) {
+		var f = fields[_g];
+		++_g;
+		var name = Type.getClassName(haxevx_vuex_util_ReflectUtil.getBaseClassForField(cls,f)).split(".").join("_");
+		cls.prototype[f] = haxevx_vuex_util_ActionFactory.getActionDispatch((haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE != "" && HxOverrides.substr(name,0,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length) == haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE?HxOverrides.substr(name,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length,null):name) + "|" + f);
+	}
+	cls.prototype.$store = store;
+};
 haxevx_vuex_util_ActionFactory.reflectFunctionCall = function(func) {
 	var str = func.toString();
 	str = str.split("return")[1];
@@ -2969,10 +2999,14 @@ haxevx_vuex_util_ActionFactory.getClasses = function() {
 	var _this = haxevx_vuex_util_ActionFactory.REGISTERED_CLASSES;
 	return new haxe_ds__$StringMap_StringMapIterator(_this,_this.arrayKeys());
 };
-haxevx_vuex_util_ActionFactory.injectSingletonInstanceCallback = function(cls) {
-	if(haxevx_vuex_util_ReflectUtil.requiresInjection(null,haxevx_vuex_util_ActionFactory.META_INJECTIONS,cls)) {
-		haxevx_vuex_util_RttiUtil.injectSingletonInstance(cls,haxe_rtti_Rtti.getRtti(cls),null,haxevx_vuex_util_ActionFactory.META_INJECTIONS);
-	}
+haxevx_vuex_util_ActionFactory.get_META_INJECTIONS = function() {
+	return haxevx_vuex_util_ActionFactory.META_INJECTIONS;
+};
+haxevx_vuex_util_ActionFactory.getDispatchString = function(cls,f) {
+	var name = Type.getClassName(haxevx_vuex_util_ReflectUtil.getBaseClassForField(cls,f)).split(".").join("_");
+	return (haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE != "" && HxOverrides.substr(name,0,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length) == haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE?HxOverrides.substr(name,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length,null):name) + "|" + f;
+};
+haxevx_vuex_util_ActionFactory.nothing = function(cls) {
 };
 haxevx_vuex_util_ActionFactory.setupActionsOfInstanceOver = function(instance,over) {
 	var handler;
@@ -2981,7 +3015,7 @@ haxevx_vuex_util_ActionFactory.setupActionsOfInstanceOver = function(instance,ov
 		throw new js__$Boot_HaxeError("Couldn't resolve action class of: " + Std.string(instance));
 	}
 	Type.getClassName(cls);
-	haxevx_vuex_util_ReflectUtil.reflectClassHierachyInto(cls,haxevx_vuex_util_ActionFactory.REGISTERED_CLASSES,haxevx_vuex_util_ActionFactory.injectSingletonInstanceCallback);
+	haxevx_vuex_util_ReflectUtil.reflectClassHierachyInto(cls,haxevx_vuex_util_ActionFactory.REGISTERED_CLASSES,haxevx_vuex_util_ActionFactory.nothing);
 	var fields = Type.getInstanceFields(cls);
 	var _g = 0;
 	while(_g < fields.length) {
@@ -3090,9 +3124,26 @@ haxevx_vuex_util_MutatorFactory.getMutatorCommit = function(type) {
 		this.$store.commit(type,payload);
 	};
 };
+haxevx_vuex_util_MutatorFactory.finaliseClass = function(cls,store) {
+	var fields = Type.getInstanceFields(cls);
+	var _g = 0;
+	while(_g < fields.length) {
+		var f = fields[_g];
+		++_g;
+		var name = Type.getClassName(haxevx_vuex_util_ReflectUtil.getBaseClassForField(cls,f)).split(".").join("_");
+		cls.prototype[f] = haxevx_vuex_util_MutatorFactory.getMutatorCommit((haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE != "" && HxOverrides.substr(name,0,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length) == haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE?HxOverrides.substr(name,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length,null):name) + "|" + f);
+	}
+	cls.prototype.$store = store;
+};
 haxevx_vuex_util_MutatorFactory.getClasses = function() {
 	var _this = haxevx_vuex_util_MutatorFactory.REGISTERED_CLASSES;
 	return new haxe_ds__$StringMap_StringMapIterator(_this,_this.arrayKeys());
+};
+haxevx_vuex_util_MutatorFactory.nothing = function(cls) {
+};
+haxevx_vuex_util_MutatorFactory.getDispatchString = function(cls,f) {
+	var name = Type.getClassName(haxevx_vuex_util_ReflectUtil.getBaseClassForField(cls,f)).split(".").join("_");
+	return (haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE != "" && HxOverrides.substr(name,0,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length) == haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE?HxOverrides.substr(name,haxevx_vuex_util_ReflectUtil.PACKAGE_NAMESPACE.length,null):name) + "|" + f;
 };
 haxevx_vuex_util_MutatorFactory.setupMutatorsOfInstanceOver = function(instance,over) {
 	var handler;
@@ -3101,6 +3152,7 @@ haxevx_vuex_util_MutatorFactory.setupMutatorsOfInstanceOver = function(instance,
 		throw new js__$Boot_HaxeError("Couldn't resolve mutator class of: " + Std.string(instance));
 	}
 	var fields = Type.getInstanceFields(cls);
+	haxevx_vuex_util_ReflectUtil.reflectClassHierachyInto(cls,haxevx_vuex_util_MutatorFactory.REGISTERED_CLASSES,haxevx_vuex_util_MutatorFactory.nothing);
 	var _g = 0;
 	while(_g < fields.length) {
 		var f = fields[_g];
@@ -3149,6 +3201,9 @@ haxevx_vuex_util_ReflectUtil.getStaticMetaFieldsOfClass = function(cls) {
 };
 haxevx_vuex_util_ReflectUtil.getPrototypeField = function(cls,fieldName) {
 	return cls.prototype[fieldName];
+};
+haxevx_vuex_util_ReflectUtil.setPrototypeField = function(cls,fieldName,val) {
+	cls.prototype[fieldName] = val;
 };
 haxevx_vuex_util_ReflectUtil.reflectClassHierachyInto = function(child,map,callback,earlyOut) {
 	if(earlyOut == null) {
@@ -3876,11 +3931,11 @@ haxevx_vuex_core_VComponent.META_INJECTIONS = (function($this) {
 }(this));
 haxevx_vuex_core_VxStore.__rtti = "<class path=\"haxevx.vuex.core.VxStore\" params=\"T\">\n\t<implements path=\"haxevx.vuex.core.IVxStoreContext\"><c path=\"haxevx.vuex.core.VxStore.T\"/></implements>\n\t<state public=\"1\"><c path=\"haxevx.vuex.core.VxStore.T\"/></state>\n\t<dispatch public=\"1\" set=\"method\" line=\"28\">\n\t\t<f a=\"type:?payload\" v=\":null\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<meta><m n=\":value\"><e>{ payload : null }</e></m></meta>\n\t</dispatch>\n\t<commit public=\"1\" set=\"method\" line=\"29\">\n\t\t<f a=\"type:?payload\" v=\":null\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<meta><m n=\":value\"><e>{ payload : null }</e></m></meta>\n\t</commit>\n\t<strict public=\"1\" expr=\"false\" line=\"31\">\n\t\t<x path=\"Bool\"/>\n\t\t<meta><m n=\":value\"><e>false</e></m></meta>\n\t</strict>\n\t<_toNative public=\"1\" set=\"method\" line=\"34\"><f a=\"\"><t path=\"haxevx.vuex.core.NativeStore\"><c path=\"haxevx.vuex.core.VxStore.T\"/></t></f></_toNative>\n\t<getModuleTree set=\"method\" line=\"144\"><f a=\"moduleInstance:moduleNamespace\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<t path=\"haxevx.vuex.core.NativeModule\">\n\t\t<d/>\n\t\t<d/>\n\t</t>\n</f></getModuleTree>\n\t<new public=\"1\" set=\"method\" line=\"23\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<meta><m n=\":compilerGenerated\"/></meta>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_components_App.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.App\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<Components set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><d><c path=\"haxevx.vuex.core.VComponent\">\n\t<d/>\n\t<d/>\n</c></d></f></Components>\n\t<Template public=\"1\" set=\"method\" line=\"31\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
-haxevx_vuex_examples_shoppingcart_components_CartVue.__meta__ = { statics : { action : { action : null}}, fields : { total : { _computed : null}, checkOutStatus : { _prop : [{ type : "String"},true]}, products : { _prop : [{ type : "Array"},true]}, checkoutStatus : { _prop : [{ type : "String"},false]}}};
-haxevx_vuex_examples_shoppingcart_components_CartVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.CartVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.components.CartVueProps\"/>\n\t</extends>\n\t<action static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartDispatcher\"><d/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</action>\n\t<total set=\"null\">\n\t\t<x path=\"Float\"/>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</total>\n\t<get_total set=\"method\" line=\"31\"><f a=\"\"><x path=\"Float\"/></f></get_total>\n\t<checkout public=\"1\" set=\"method\" line=\"41\"><f a=\"products\">\n\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n\t<x path=\"Void\"/>\n</f></checkout>\n\t<Template set=\"method\" line=\"46\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<get_products set=\"method\" line=\"15\">\n\t\t<f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c></f>\n\t\t<meta><m n=\":has_untyped\"/></meta>\n\t</get_products>\n\t<checkOutStatus get=\"null\" set=\"null\">\n\t\t<c path=\"String\"/>\n\t\t<meta><m n=\"_prop\">\n\t<e>{ type : \"String\" }</e>\n\t<e>true</e>\n</m></meta>\n\t</checkOutStatus>\n\t<get_checkOutStatus set=\"method\" line=\"15\">\n\t\t<f a=\"\"><c path=\"String\"/></f>\n\t\t<meta><m n=\":has_untyped\"/></meta>\n\t</get_checkOutStatus>\n\t<products get=\"null\" set=\"null\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n\t\t<meta><m n=\"_prop\">\n\t<e>{ type : \"Array\" }</e>\n\t<e>true</e>\n</m></meta>\n\t</products>\n\t<checkoutStatus get=\"null\" set=\"null\">\n\t\t<c path=\"String\"/>\n\t\t<meta><m n=\"_prop\">\n\t<e>{ type : \"String\" }</e>\n\t<e>false</e>\n</m></meta>\n\t</checkoutStatus>\n\t<new public=\"1\" set=\"method\" line=\"20\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
-haxevx_vuex_examples_shoppingcart_components_CartVueProps.__meta__ = { statics : { Get_products : { propBinding : null}, Get_checkOutStatus : { propBinding : null}}};
-haxevx_vuex_examples_shoppingcart_components_ProductListVue.__meta__ = { statics : { dispatcher : { action : null}, actionDispatcher : { action : null}, Get_products : { propBinding : null}}, fields : { products : { _prop : [{ type : "Array"},true]}}};
-haxevx_vuex_examples_shoppingcart_components_ProductListVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.ProductListVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<dispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher\"/>\n\t\t<meta><m n=\"action\"/></meta>\n\t</dispatcher>\n\t<actionDispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppActions\"><d/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</actionDispatcher>\n\t<Get_products get=\"inline\" set=\"null\" line=\"69\" static=\"1\">\n\t\t<f a=\"store\">\n\t\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c>\n\t\t</f>\n\t\t<meta><m n=\"propBinding\"/></meta>\n\t</Get_products>\n\t<addToCart set=\"method\" line=\"34\"><f a=\"p\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/>\n\t<x path=\"Void\"/>\n</f></addToCart>\n\t<Created public=\"1\" set=\"method\" line=\"43\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></Created>\n\t<Template public=\"1\" set=\"method\" line=\"52\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<products get=\"null\" set=\"null\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c>\n\t\t<meta><m n=\"_prop\">\n\t<e>{ type : \"Array\" }</e>\n\t<e>true</e>\n</m></meta>\n\t</products>\n\t<get_products set=\"method\" line=\"15\">\n\t\t<f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c></f>\n\t\t<meta><m n=\":has_untyped\"/></meta>\n\t</get_products>\n\t<new public=\"1\" set=\"method\" line=\"20\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_components_CartVue.__meta__ = { statics : { action : { action : null}}, fields : { total : { _computed : null}, products : { _computed : null}, checkoutStatus : { _computed : null}}};
+haxevx_vuex_examples_shoppingcart_components_CartVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.CartVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<action static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartDispatcher\"><d/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</action>\n\t<total set=\"null\">\n\t\t<x path=\"Float\"/>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</total>\n\t<get_total set=\"method\" line=\"31\"><f a=\"\"><x path=\"Float\"/></f></get_total>\n\t<products set=\"null\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</products>\n\t<get_products public=\"1\" get=\"inline\" set=\"null\" line=\"40\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c></f></get_products>\n\t<checkoutStatus set=\"null\">\n\t\t<c path=\"String\"/>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</checkoutStatus>\n\t<get_checkoutStatus public=\"1\" get=\"inline\" set=\"null\" line=\"45\"><f a=\"\"><c path=\"String\"/></f></get_checkoutStatus>\n\t<checkout public=\"1\" set=\"method\" line=\"51\"><f a=\"products\">\n\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n\t<x path=\"Void\"/>\n</f></checkout>\n\t<Template set=\"method\" line=\"56\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"20\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_components_CartVueProps.__meta__ = { statics : { Get_products : { propBinding : null}, Get_checkoutStatus : { propBinding : null}}};
+haxevx_vuex_examples_shoppingcart_components_ProductListVue.__meta__ = { statics : { dispatcher : { action : null}, actionDispatcher : { action : null}}, fields : { products : { _computed : null}}};
+haxevx_vuex_examples_shoppingcart_components_ProductListVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.ProductListVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<dispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher\"/>\n\t\t<meta><m n=\"action\"/></meta>\n\t</dispatcher>\n\t<actionDispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppActions\"><d/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</actionDispatcher>\n\t<addToCart set=\"method\" line=\"35\"><f a=\"p\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/>\n\t<x path=\"Void\"/>\n</f></addToCart>\n\t<Created public=\"1\" set=\"method\" line=\"44\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></Created>\n\t<Template public=\"1\" set=\"method\" line=\"50\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<products set=\"null\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</products>\n\t<get_products public=\"1\" set=\"method\" line=\"67\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c></f></get_products>\n\t<new public=\"1\" set=\"method\" line=\"21\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_modules_Cart.__meta__ = { statics : { action : { action : null}, mutator : { mutator : null}}};
 haxevx_vuex_examples_shoppingcart_modules_Cart.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.Cart\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VModule\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></extends>\n\t<getCheckoutStatus set=\"method\" line=\"40\" static=\"1\"><f a=\"state\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/>\n\t<c path=\"String\"/>\n</f></getCheckoutStatus>\n\t<action static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartDispatcher\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</action>\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartMutator\"/>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<checkoutStatus public=\"1\" get=\"accessor\" set=\"null\"><c path=\"String\"/></checkoutStatus>\n\t<get_checkoutStatus set=\"method\" line=\"36\"><f a=\"\"><c path=\"String\"/></f></get_checkoutStatus>\n\t<new public=\"1\" set=\"method\" line=\"22\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.__meta__ = { statics : { mutator : { mutator : null}}};
@@ -3893,14 +3948,14 @@ haxevx_vuex_examples_shoppingcart_modules_Products.__rtti = "<class path=\"haxev
 haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.__meta__ = { statics : { mutator : { mutator : null}}};
 haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.modules.Products\">\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListMutator\"/>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<shop expr=\"Shop.getInstance()\" line=\"56\" static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.api.Shop\"/>\n\t\t<meta><m n=\":value\"><e>Shop.getInstance()</e></m></meta>\n\t</shop>\n\t<getAllProducts public=\"1\" set=\"method\" line=\"58\"><f a=\"\"><f a=\"\">\n\t<c path=\"haxevx.vuex.core.IVxStoreContext\"><c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/></c>\n\t<x path=\"Void\"/>\n</f></f></getAllProducts>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.shop = haxevx_vuex_examples_shoppingcart_api_Shop.getInstance();
-haxevx_vuex_examples_shoppingcart_modules_ProductListMutator.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListMutator\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.modules.Products\">\n\t<extends path=\"haxevx.vuex.examples.shoppingcart.store.AppMutator\"><c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/></extends>\n\t<receiveProducts public=\"1\" params=\"P\" set=\"method\" line=\"70\" override=\"1\"><f a=\"payload\">\n\t<c path=\"receiveProducts.P\"/>\n\t<f a=\":\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/>\n\t\t<c path=\"receiveProducts.P\"/>\n\t\t<x path=\"Void\"/>\n\t</f>\n</f></receiveProducts>\n\t<addToCart public=\"1\" params=\"P\" set=\"method\" line=\"76\" override=\"1\"><f a=\"payload\">\n\t<c path=\"addToCart.P\"/>\n\t<f a=\":\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/>\n\t\t<c path=\"addToCart.P\"/>\n\t\t<x path=\"Void\"/>\n\t</f>\n</f></addToCart>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
-haxevx_vuex_examples_shoppingcart_modules_ProductListModel.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.modules.Products\">\n\t<all public=\"1\" expr=\"[]\" line=\"92\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c>\n\t\t<meta><m n=\":value\"><e>[]</e></m></meta>\n\t</all>\n\t<new public=\"1\" set=\"method\" line=\"94\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_modules_ProductListMutator.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListMutator\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.modules.Products\">\n\t<extends path=\"haxevx.vuex.examples.shoppingcart.store.AppMutator\"><c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/></extends>\n\t<receiveProducts public=\"1\" params=\"P\" set=\"method\" line=\"71\" override=\"1\"><f a=\"payload\">\n\t<c path=\"receiveProducts.P\"/>\n\t<f a=\":\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/>\n\t\t<c path=\"receiveProducts.P\"/>\n\t\t<x path=\"Void\"/>\n\t</f>\n</f></receiveProducts>\n\t<addToCart public=\"1\" params=\"P\" set=\"method\" line=\"77\" override=\"1\"><f a=\"payload\">\n\t<c path=\"addToCart.P\"/>\n\t<f a=\":\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/>\n\t\t<c path=\"addToCart.P\"/>\n\t\t<x path=\"Void\"/>\n\t</f>\n</f></addToCart>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_modules_ProductListModel.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.modules.Products\">\n\t<all public=\"1\" expr=\"[]\" line=\"93\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c>\n\t\t<meta><m n=\":value\"><e>[]</e></m></meta>\n\t</all>\n\t<new public=\"1\" set=\"method\" line=\"95\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_store_AppActions.__meta__ = { statics : { mutator : { mutator : null}}};
-haxevx_vuex_examples_shoppingcart_store_AppActions.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.store.AppActions\" params=\"S\">\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppMutator\"><d/></c>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<addToCart public=\"1\" params=\"P\" set=\"method\" line=\"15\"><f a=\"product\">\n\t<c path=\"addToCart.P\"/>\n\t<f a=\":\">\n\t\t<c path=\"haxevx.vuex.core.IVxStoreContext\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppActions.S\"/></c>\n\t\t<c path=\"addToCart.P\"/>\n\t\t<x path=\"Void\"/>\n\t</f>\n</f></addToCart>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_store_AppActions.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.store.AppActions\" params=\"S\">\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppMutator\"><d/></c>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<addToCart public=\"1\" params=\"P\" set=\"method\" line=\"15\"><f a=\"payload\">\n\t<c path=\"addToCart.P\"/>\n\t<f a=\":\">\n\t\t<c path=\"haxevx.vuex.core.IVxStoreContext\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppActions.S\"/></c>\n\t\t<c path=\"addToCart.P\"/>\n\t\t<x path=\"Void\"/>\n\t</f>\n</f></addToCart>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_store_AppGetters.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.store.AppGetters\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VModule\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppState\"/></extends>\n\t<getCartProducts public=\"1\" params=\"S\" set=\"method\" line=\"21\" static=\"1\"><f a=\"state\">\n\t<c path=\"getCartProducts.S\"/>\n\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n</f></getCartProducts>\n\t<cartProducts public=\"1\" get=\"accessor\" set=\"null\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c></cartProducts>\n\t<get_cartProducts set=\"method\" line=\"17\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c></f></get_cartProducts>\n\t<new public=\"1\" set=\"method\" line=\"14\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
-haxevx_vuex_examples_shoppingcart_store_AppStore.__meta__ = { statics : { actions : { action : null}}, fields : { cart : { module : null}, products : { module : null}}};
-haxevx_vuex_examples_shoppingcart_store_AppStore.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxStore\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppState\"/></extends>\n\t<actions static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppActions\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppState\"/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</actions>\n\t<cart public=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.Cart\"/>\n\t\t<meta><m n=\"module\"/></meta>\n\t</cart>\n\t<products public=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.Products\"/>\n\t\t<meta><m n=\"module\"/></meta>\n\t</products>\n\t<getters public=\"1\" set=\"null\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppGetters\"/></getters>\n\t<new public=\"1\" set=\"method\" line=\"26\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
-haxevx_vuex_examples_shoppingcart_store_AppState.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.store.AppState\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.store.AppStore\">\n\t<cart public=\"1\" set=\"null\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></cart>\n\t<products public=\"1\" set=\"null\"><c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/></products>\n\t<new public=\"1\" set=\"method\" line=\"43\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_store_AppStore.__meta__ = { statics : { actions : { action : null}, mutator : { mutator : null}}, fields : { cart : { module : null}, products : { module : null}}};
+haxevx_vuex_examples_shoppingcart_store_AppStore.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxStore\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppState\"/></extends>\n\t<actions static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppActions\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppState\"/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</actions>\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppMutator\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppState\"/></c>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<cart public=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.Cart\"/>\n\t\t<meta><m n=\"module\"/></meta>\n\t</cart>\n\t<products public=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.Products\"/>\n\t\t<meta><m n=\"module\"/></meta>\n\t</products>\n\t<getters public=\"1\" set=\"null\"><c path=\"haxevx.vuex.examples.shoppingcart.store.AppGetters\"/></getters>\n\t<new public=\"1\" set=\"method\" line=\"29\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
+haxevx_vuex_examples_shoppingcart_store_AppState.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.store.AppState\" params=\"\" module=\"haxevx.vuex.examples.shoppingcart.store.AppStore\">\n\t<cart public=\"1\" set=\"null\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></cart>\n\t<products public=\"1\" set=\"null\"><c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListModel\"/></products>\n\t<new public=\"1\" set=\"method\" line=\"46\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
 haxevx_vuex_util_ActionFactory.REGISTERED_CLASSES = new haxe_ds_StringMap();
 haxevx_vuex_util_ActionFactory.META_INJECTIONS = (function($this) {
 	var $r;

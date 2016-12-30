@@ -442,7 +442,7 @@ class VxMacros
 						args:[], 
 					
 						//"return " + module+f.name+"(store);"
-						// haxe hack for javascript only .. may not be future proof
+						// haxe hack for javascript only .. may not be future proof. Also, inlining is lost!!
 						
 				expr: macro  { return untyped $i{module.split(".").join("_") + "." + f.name}(store);  } ,
 						ret: ret
