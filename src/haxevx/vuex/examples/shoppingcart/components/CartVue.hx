@@ -75,7 +75,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 }
 
 
-
+/*
 class CartVueProps  {
 	public var products(default, never):Array<ProductInCart>;
 	@propBinding public static inline function Get_products(store:AppStore):Array<ProductInCart> {
@@ -88,3 +88,4 @@ class CartVueProps  {
 	}
 
 }
+*/

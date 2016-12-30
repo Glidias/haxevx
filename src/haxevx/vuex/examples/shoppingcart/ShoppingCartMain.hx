@@ -20,6 +20,7 @@ class ShoppingCartMain
 		
 
 		VxBoot.startVue(params,  VxBoot.startStore(params));
+		
 	}
 	
 }
