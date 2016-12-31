@@ -35,9 +35,7 @@ _____
 
 Phase 2 (Lite version to replace existing one):
 	
-https://haxe.org/manual/types-abstract.html
-	
-Recently, i've discovered more about the power behind Haxe abstracts and macros, and how they can be used instead of Haxe-oriented base classes, RTTI, and metadata, which can bloat your codebase (and adds framework classes with an additional runtime-initialization conversion process) which isn't suitable for small projects. I intend to redo a lightweight version of HaxeVX for VueJS  (and hopefully for Vuex as well) using ONLY pure Haxe abstracts and compile-time macros to link directly to VueJS externs. This gives you class-like functionality with Haxe abstracts and all the typical strict-typing/compile-time checkings done when coding VueJS components. This means no additional boiler-framework code will be required beyond your implementation code.
+Recently, i've discovered more about the power behind Haxe ~~~abstracts?~~~ and macros, and how they can be used instead of Haxe-oriented base classes, RTTI, and metadata, which can bloat your codebase (and adds framework classes with an additional runtime-initialization conversion process) which isn't suitable for small projects. I intend to redo a lightweight version of HaxeVX for VueJS  (and hopefully for Vuex as well) depending ONLY ~~~pure Haxe abstracts and~~~ compile-time macros to link directly to VueJS externs. This gives you class-like functionality ~~~with Haxe abstracts~~~ and all the typical strict-typing/compile-time checkings done when coding VueJS components. This means no additional boiler-framework code will be required beyond your implementation code. (Note: abstracts vs classes is still under consideration, as there some advantages/disadvantages between using either of them for Vue.)
 
 ______
 
