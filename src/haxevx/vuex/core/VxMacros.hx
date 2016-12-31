@@ -20,7 +20,7 @@ import haxe.macro.Type;
 import haxe.macro.TypeTools;
 import haxe.rtti.CType.MetaData;
 
-
+#if macro
 /**
  * ...
  * @author Glidias
@@ -43,6 +43,7 @@ class VxMacros
 	// TODO:
 	//  ensure supplied default types with given default values! Type checking for prop default metadata!!
 	// prop validator support
+	
 	
 	macro public static function buildComponent():Array<Field>  {
 		var fields = Context.getBuildFields();
@@ -423,3 +424,4 @@ typedef PropBinding = {
 	var methodPos:Position;
 }
 
+#end

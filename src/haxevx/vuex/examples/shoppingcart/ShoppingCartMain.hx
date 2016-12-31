@@ -6,10 +6,12 @@ import haxevx.vuex.examples.shoppingcart.components.App;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.util.ReflectUtil;
 
+
 /**
  * Port of https://github.com/vuejs/vuex/tree/dev/examples/shopping-cart to HaxeVX
  * @author Glidias
  */
+
 class ShoppingCartMain
 {
 	public function new() 
@@ -18,7 +20,7 @@ class ShoppingCartMain
 		
 		var params = VxBoot.startParams( new App(),  new AppStore());
 		
-
+	
 		VxBoot.startVue(params,  VxBoot.startStore(params));
 		
 	}
