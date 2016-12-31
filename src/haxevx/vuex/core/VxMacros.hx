@@ -215,6 +215,7 @@ class VxMacros
 					//TPType
 					//Context.error("Variable declarations not allowed for Component", field.pos);
 				case FieldType.FFun(f):
+					ExprTools.iter( f.expr, checkIllegalAccess);
 					if (field.name == "GetData") {
 						gotGetData = true;
 					}
@@ -361,6 +362,38 @@ class VxMacros
 			default:
 				Context.warning("todo: Not yet resolve given type atm: "+type, pos);
 				return null;
+		}
+	}
+	
+	static function createStringSetFromArray(arr:Array<String>):StringMap<Bool> {
+		var strMap:StringMap<Bool> = new StringMap<Bool>(); 
+		for (str in arr) {
+			strMap.set(str, true);
+		}
+		return strMap;
+	}
+
+	// override this register components locally
+	 static var illegalReferences:StringMap<Bool> = {
+		var strMap:StringMap<Bool> = createStringSetFromArray([
+			"Created", "BeforeCreate", "BeforeDestroy", "Destroy", "BeforeMount", 
+			"Mounted", "BeforeUpdate", "Updated", "Activated", "Deactivated",
+			"El", "GetData", "Render", "Template", "Components"
+		]);
+		strMap;
+	};
+	
+	public static function checkIllegalAccess(e:Expr):Void {
+	
+		var errMsg:String = "Vue param keyword access is reserved: ";
+		 switch(e.expr) {
+			case ExprDef.EField((macro this), f):
+				if (illegalReferences.exists(f)) Context.fatalError(errMsg + f, e.pos);
+			case ExprDef.EConst(CIdent(f)): 
+				if (illegalReferences.exists(f)) Context.fatalError(errMsg + f, e.pos);	
+			case _:
+				 ExprTools.iter(e, checkIllegalAccess);		
+				 
 		}
 	}
 	

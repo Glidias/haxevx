@@ -196,7 +196,7 @@ class VComponent<D, P>
 	
 
 	
-	function _reflectPropsMetadataToNative(props:Array<Dynamic>, propName:String, cls:Class<Dynamic>):Dynamic {
+	static function _reflectPropsMetadataToNative(props:Array<Dynamic>, propName:String, cls:Class<Dynamic>):Dynamic {
 
 		var newProps:Dynamic = {};
 		var referProps:Dynamic = props[0];
