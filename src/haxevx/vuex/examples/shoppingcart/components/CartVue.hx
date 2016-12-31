@@ -19,7 +19,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 
 	public function new() 
 	{
-	
+		
 	}
 	
 	@action static var action:CartDispatcher<Dynamic>; 
@@ -30,7 +30,6 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	var total(get, never):Float;
 	function get_total():Float 
 	{
-	
 		return products.fold( function(p:ProductInCart, total:Float)  {
 			return total + p.price * p.quantity;
 		}, 0);
@@ -42,7 +41,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	}
 	
 	var checkoutStatus(get, never):String;
-	 public inline function get_checkoutStatus():String {
+	public inline function get_checkoutStatus():String {
 		return store.cart.checkoutStatus;
 	}
 	
@@ -75,17 +74,3 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 }
 
 
-/*
-class CartVueProps  {
-	public var products(default, never):Array<ProductInCart>;
-	@propBinding public static inline function Get_products(store:AppStore):Array<ProductInCart> {
-		return store.getters.cartProducts;
-	}
-	
-	public var checkoutStatus(default, never):String;
-	@propBinding public static inline function Get_checkoutStatus(store:AppStore):String {
-		return store.cart.checkoutStatus;
-	}
-
-}
-*/

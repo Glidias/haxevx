@@ -29,6 +29,10 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	
 	// Computed
+	var products(get, never):Array<ProductInStore>;
+	public function get_products():Array<ProductInStore> {
+		return store.products.allProducts;
+	}
 	
 	
 	// Methods
@@ -61,20 +65,6 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 			</li>
 		</ul>';
 	}
-	
-	///*
-	 var products(get, never):Array<ProductInStore>;
-	public function get_products():Array<ProductInStore> {
-		return store.products.allProducts;
-	}
-	//*/
-	
-	/*
-	@propBinding static inline function Get_products(store:AppStore):Array<ProductInStore> {
-			
-		return  store.products.allProducts;
-	}
-	*/
 	
 }
 
