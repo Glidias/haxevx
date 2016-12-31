@@ -93,10 +93,10 @@ class VxMacros
 		switch ( fg=TypeTools.follow(typeParamData) ) {
 			case TInst(t, params):		
 				requireData = t.get().name != "NoneT";
-				if (requireData) dataFieldsToAdd = t.get().fields.get();
+				if (requireData) dataFieldsToAdd = getClassFieldArrayToAdd( t.get().fields.get() );
 			case Type.TAnonymous(a):
 				requireData = true;
-				dataFieldsToAdd =a.get().fields;
+				dataFieldsToAdd  = getClassFieldArrayToAdd( a.get().fields );
 				
 			default:
 				Context.fatalError("Type not supported for Data (class, interface or typedef only):" + fg, Context.currentPos() );
@@ -114,7 +114,7 @@ class VxMacros
 				
 			case Type.TAnonymous(a):
 				requireProps = true;
-				propFieldsToAdd = classFieldArrayToStrMap(  a.get().fields );
+				propFieldsToAdd = classFieldArrayToStrMap(  a.get().fields);
 			//case Type.TAbstract(t, params):
 				//requireProps = true;
 				
@@ -293,7 +293,16 @@ class VxMacros
 			
 			
 		}
-
+		/*
+		fields.push({
+				name: "testMethod",
+			
+				access: [Access.APrivate],
+				pos: Context.currentPos() ,
+				kind:  FieldType.FFun({ret:null, args:[], expr:macro { $i{"Math"}.${"round"}(2222); }  } )
+			});
+		*/
+		
 		return fields;
 	}
 	
@@ -353,10 +362,30 @@ class VxMacros
 				return null;
 		}
 	}
+	
+	// for data
+	static function getClassFieldArrayToAdd(arr:Array<ClassField>):Array<ClassField> {
+		var refArr:Array<ClassField> = [];
+		for (f in arr) {
+			if (f.name.charAt(0) == "_") {	
+				continue;
+			}
+			refArr.push(f);
+		}
+		return refArr;
+	}
 
+	
+	// for props
 	static function classFieldArrayToStrMap(arr:Array<ClassField>):StringMap<ClassField> {
 		var strMap:StringMap<ClassField> = new StringMap<ClassField>();
 		for (f in arr) {
+			if (f.name.charAt(0) == "_") {
+			
+				Context.error('Prop field: "$f.name" cannot start with underscore', f.pos);
+				
+				continue;
+			}
 			strMap.set(f.name, f);
 		}
 		return strMap;
