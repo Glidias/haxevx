@@ -45,7 +45,7 @@ extern class VueInstance {
 	@:native("$once") public function _vOnce(event:String, callback:Function):Vue;
 	@:native("$off") public function _vOff(event:String, callback:Function):Vue;
 	
-	@:native("$emit") public function vEmit(event:String, r:Rest<Dynamic>):Vue;
+	@:native("$emit") public function _vEmit(event:String, r:Rest<Dynamic>):Vue;
 	
 	@:overload(function<T>(): Promise<T> {} )
 	@:native("$nextTick") public function _vNextTick(callback:Void->Void):Void;
