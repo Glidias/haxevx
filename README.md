@@ -12,15 +12,21 @@ Currently, the working Shopping Cart example (ported from the Vuex example) is a
 
 Roadmap can be found [here](https://github.com/Glidias/haxevx/issues/2)
 	
+Documentations can be found in wiki:
+https://github.com/Glidias/haxevx/wiki
+	
 ____________
 
+
+Vuex integration:
+	
 Even though Vuex boilerplate is avoided (via Haxe macro/reflection api), the current approach involves using class helper mutator/actions methods without managing/matching [constant] strings with Babel/ES6 helpers and such.
 
 In short, this is a Vuex implementation that avoids having to handle any strings. Instead, call strictly-typed functions with specifically typed parameters/requirements. At runtime, HaxeVX will convert these method calls to string-based commits/dispatches accordingly with automatic namespacing depending on which class they originated/extended from.
 
-HaxeVX for Vue currently works under the premise of having ~~~both~~~ compile-time checkings done within Haxe, ~~~and runtime initialization checkings of your app within Javascript as it converts it's HaxeVX core classes to native VueJS components~~~ (edit: this is no longer the intention. Runtime reflection/initialization should be heavily minimised for VueX and completely removed in Vue). With Haxe's type-strict compiling (via compile time macro checks), the chances of you running into runtime initialization/operation errors are minimized.
+Vue/Vuex:
 
-Right now, HaxeVX for Vue contains a Component build macro that mixes-in Vue component props and (non-underscored) data fields directly into the Vue component class, ensuring that props and data fields (that share the same namespace within the Vue component)  do not conflict at compile-time. Other compile-time checks are built into the macro to ensure your property declarations within the Vue component class conforms to VuejS standards/best practices. 
+HaxeVX for Vue currently works under the premise of having ~~~both~~~ compile-time checkings done within Haxe, ~~~and runtime initialization checkings of your app within Javascript as it converts it's HaxeVX core classes to native VueJS components~~~ (edit: this is no longer the intention. Runtime reflection/initialization should be heavily minimised for VueX and completely removed in Vue). With Haxe's type-strict compiling (via compile time macro checks), the chances of you running into runtime initialization/operation errors are minimized for both platforms.
 
 As of now, this draft is working under Haxe 3.3.0.
 
