@@ -20,14 +20,9 @@ import js.Promise;
 @:native("Object")
 extern class VueInstance { 
 	
-	// Properties within here (including _vData/_props) , cannot be accessed in VComponent/component class constructors, 
-	// because the VueInstance isn't initialized yet! For HaxeVX, , macro will be used to detect illegal access of such properties within constructor
-	// and specific hook Vue methods (if any, need to test in Vue).  
-	//This extern will be referenced by the Haxe macro to store the set of illegal Vue api keywords that you cannot use within constructor.
-	
-	// To easily access Vue instance methods within your Haxe Class, simply type he "_v" prefix, and most IDE's would show up a list of keywords 
-	// for you to quickly look up Vue-specific api fields/methods. The naming convention for Haxe is "_v" camel-casing of existing vue $properties,
-	// since Haxe doesn't allow $ prefixing of variable names.
+	// Properties defined within here (which will include _vData/_props) outside it , will be checked against build macro
+	// as it can't be accessed in VComponent/component class constructors (since it's only options initialization phase
+	// within class constructor scope). 
 	
 	@:native("$el") public var _vEl(default, never) :HtmlElement;
     @:native("$options") public var _vOptions(default, never):ComponentOptions; //ComponentOptions<this>
