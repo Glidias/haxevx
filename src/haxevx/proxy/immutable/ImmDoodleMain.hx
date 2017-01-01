@@ -32,6 +32,16 @@ class ImmDoodleMain
 		for (val in imm4) {
 			trace( val);
 		}
+		trace("done..");
+		/*	// The JS vanilla extern will not support iterators, array access  or constructor type-checking (below code will produce compile errors)
+		var imm5:ImmutableList<Float> = Immutable.fromJS([1, 2, 3]);
+		for (i in 0...imm5.count()) {
+			trace( imm5[i]);
+		}
+		for (val in imm5) {
+			trace(val);
+		}
+		*/
 	}
 	
 }
