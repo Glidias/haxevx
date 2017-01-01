@@ -1,59 +1,164 @@
 package haxevx.vuex.native;
+import haxe.Constraints.Function;
+import js.Error;
+import js.html.HtmlElement;
+import haxe.extern.Rest;
+import haxevx.vuex.native.Vue.FunctionalComponentOptions;
+import js.Promise;
 
 /**
- * Porting of https://github.com/vuejs/vue/tree/dev/types
+ * Porting of https://github.com/vuejs/vue/tree/dev/types typescript definitions
  * wip
  * 
  * @author Glidias
  */
-@:native("Vue") extern class Vue
-{
 
-	public function new(options:ComponentOptions) 
-	{
+ 
+/**
+ * Port of vue.d.ts
+ */
+@:native("Object")
+extern class VueInstance { 
+	
+	// Properties within here (including _vData/_props) , cannot be accessed in VComponent/component class constructors, 
+	// because the VueInstance isn't initialized yet! For HaxeVX, , macro will be used to detect illegal access of such properties within constructor
+	// and specific hook Vue methods (if any, need to test in Vue).  
+	//This extern will be referenced by the Haxe macro to store the set of illegal Vue api keywords that you cannot use within constructor.
+	
+	// To easily access Vue instance methods within your Haxe Class, simply type he "_v" prefix, and most IDE's would show up a list of keywords 
+	// for you to quickly look up Vue-specific api fields/methods. The naming convention for Haxe is "_v" camel-casing of existing vue $properties,
+	// since Haxe doesn't allow $ prefixing of variable names.
+	
+	@:native("$el") public var _vEl(default, never) :HtmlElement;
+    @:native("$options") public var _vOptions(default, never):ComponentOptions; //ComponentOptions<this>
+    @:native("$root") public var _vRoot(default, never):Vue;
+    @:native("$children") public var _vChildren(default, never):Array<Vue>;
+	@:native("$refs") public var _vRefs(default, never):Dynamic;
+	@:native("$slots") public var _vSlots(default, never):Dynamic;
+	@:native("$scopedSlots") public var _vScopedSlots(default, never):Dynamic; // Dynamic<ScopedSlot|ScopedSlotRetString>;
+    @:native("$isServer") public var _vIsServer(default, never):Bool;
+  
+	@:overload(function(?elementOrSelector:String):Vue {})
+	@:native("$mount") public function _vMount(?elementOrSelector:HtmlElement, ?hydrating:Bool):Vue;
+	@:native("$forceUpdate") public function _vForceUpdate():Void;
+	@:native("$destroy") public function _vDestroy():Void;
+	@:native("$set") public function _vSet<T>(object: Dynamic, key: String, value: T): T;
+	@:native("$delete") public function _vDelete(object: Dynamic, key: String): Void;
+	@:overload(function(expOrFn:Function, callback:WatchHandler, ?options:WatchOptions):Void->Void {})
+	@:native("$watch") public function _vWatch(expOrFn:String, callback:WatchHandler, ?options:WatchOptions):Void->Void;
+	@:native("$on") public function _vOn(event:String, callback:Function):Vue;
+	@:native("$once") public function _vOnce(event:String, callback:Function):Vue;
+	@:native("$off") public function _vOff(event:String, callback:Function):Vue;
+	
+	@:native("$emit") public function vEmit(event:String, r:Rest<Dynamic>):Vue;
+	
+	@:overload(function<T>(): Promise<T> {} )
+	@:native("$nextTick") public function _vNextTick(callback:Void->Void):Void;
 		
-	}
-	
-	public static function use(dyn:Dynamic):Void;
-	
-	// we only bother with static definitions for now (should be good enough)
-	
-	// instance $ char definitions have problems in haxe because $ is reserved.
-	/*
-	  static extend(options: ComponentOptions<Vue> | FunctionalComponentOptions): typeof Vue;
-	  static nextTick(callback: () => void, context?: any[]): void;
-	  static nextTick(): Promise<void>
-	  static set<T>(object: Object, key: string, value: T): T;
-	  static set<T>(array: T[], key: number, value: T): T;
-	  static delete(object: Object, key: string): void;
-
-	  static directive(
-		id: string,
-		definition?: DirectiveOptions | DirectiveFunction
-	  ): DirectiveOptions;
-	  static filter(id: string, definition?: Function): Function;
-	  */
-	  public static function component(id:String, definition:Component):Vue; // static component(id: string, definition?: Component | AsyncComponent): typeof Vue;
-		/*
-	  static use<T>(plugin: PluginObject<T> | PluginFunction<T>, options?: T): void;
-	  static mixin(mixin: typeof Vue | ComponentOptions<Vue>): void;
-	  static compile(template: string): {
-		render(createElement: typeof Vue.prototype.$createElement): VNode;
-		staticRenderFns: (() => VNode)[];
-	  };
-	  */
-	
+	@:overload(function():VNode {})
+	@:overload(function(tag:Component, ?children:VNodeChildren):VNode {})
+	@:overload(function(tag:Component, ?data:VNodeData, ?children:VNodeChildren):VNode {})
+	@:overload(function(tag:AsyncComponent, ?children:VNodeChildren):VNode {})
+	@:overload(function(tag:AsyncComponent, ?data:VNodeData, ?children:VNodeChildren):VNode {})
+	@:overload(function(tag:String,  ?children:VNodeChildren):VNode {})
+	@:native("$createElement") public function _vCreateElement(tag:String, ?data:VNodeData, ?children:VNodeChildren):VNode;
 }
 
-extern class VNode
+
+typedef CreateElement = Dynamic->?Dynamic->?Dynamic->VNode;
+/*  // for reference in typescript as below
+ * 
+export type CreateElement = {
+  // empty node
+  (): VNode;
+
+  // element or component name
+  (tag: string, children: VNodeChildren): VNode;
+  (tag: string, data?: VNodeData, children?: VNodeChildren): VNode;
+
+  // component constructor or options
+  (tag: Component, children: VNodeChildren): VNode;
+  (tag: Component, data?: VNodeData, children?: VNodeChildren): VNode;
+
+  // async component
+  (tag: AsyncComponent, children: VNodeChildren): VNode;
+  (tag: AsyncComponent, data?: VNodeData, children?: VNodeChildren): VNode;
+}
+*/
+ 
+@:native("Vue") extern class Vue extends VueInstance
 {
+	public function new(options:ComponentOptions);
 	
+	@:native("$data") public var _vData:Dynamic;
+
+	public static var config:VueConfig;
+
+	@:overload(function(options:FunctionalComponentOptions):Vue {})
+	public static function extend(options:ComponentOptions):Vue;
+	
+	@:overload(function<T>(): Promise<T> {} )
+	public static function nextTick(callback:Void->Void, ?context: Array<Dynamic>): Void;
+	
+	@:overload(function<T>(array:Array<T>, key: Float, value: T): T {} )
+	public static function set<T>(object: Dynamic, key: String, value: T): T;
+	
+	public static function  delete(object: Dynamic, key: String): Void;
+	
+	@:overload(function(id:String, ?definition:DirectiveFunction):DirectiveOptions{})
+	public static function directive(id:String, ?definition:DirectiveOptions):DirectiveOptions;
+	public static function filter(id: String, ?definition: Function): Function;  
+	  
+	 @:overload(function(id:String, definition: AsyncComponent): Vue {} )
+	 @:overload(function(id:String, definition: AsyncComponentRetVoid): Vue {} )
+	 public static function component(id:String, ?definition:Component):Vue; 
+	 
+	 public static function use(extension:Dynamic):Void; 
+	
+	 @:overload(function(mixin:ComponentOptions):Void {})  // ComponentOptions<Vue>
+	 public static function mixin(mixin:Vue): Void;
+	 
+	 public static function compile(template:String):{
+		render:CreateElement->VNode,
+		staticRenderFns: Array<Void->VNode>
+	 };
+	  
+
+}
+
+typedef VueConfig = {
+	var silent:Bool;
+	var optionMergeStrategies: Dynamic;
+	var devtools: Bool;
+	function errorHandler(err:Error, vm: Vue): Void;
+	var keyCodes:Dynamic<UInt>;
+};
+	
+//@:overload(tu[<T>(): Promise<T> {} )
+
+typedef AsyncComponent = (Component->Void) -> (Dynamic) -> Promise<Component>;
+typedef AsyncComponentRetVoid = (Component->Void) -> (Dynamic) -> Void;
+/*
+export type AsyncComponent = (
+  resolve: (component: Component) => void,
+  reject: (reason?: any) => void
+) => Promise<Component> | Component | void;
+*/
+
+typedef FunctionalComponentOptions =  {
+  @:optional var props:Array<String>; // props?: string[] | { [key: string]: PropOptions | Constructor | Constructor[] };
+  var functional:Bool; 
+//  render(this: never, createElement: CreateElement, context: RenderContext): VNode;
+  @:optional var name: String;
 }
 
 
-extern typedef CreateElement = Dynamic->?Dynamic->?Dynamic->VNode;
 
-typedef Component = Dynamic;
+typedef Component = Dynamic;  // typeof Vue | ComponentOptions<Vue> | FunctionalComponentOptions;
+
+/**
+ * Port of options.d.ts
+ */
 
 typedef ComponentOptions =  {
 	@:optional var data:Dynamic;
@@ -125,3 +230,100 @@ typedef ComponentOptions =  {
 	delimiters?: [string, string];
 	*/
 }
+
+typedef WatchHandler = Dynamic->Dynamic->Void;
+//(this: V, val: any, oldVal: any) => void;
+
+// typescript version was interface with ?optional parameters
+typedef WatchOptions =  {
+	@:optional var deep: Bool;
+	@:optional var immediate: Bool;
+}
+
+typedef DirectiveFunction =
+HtmlElement ->
+VNodeDirective -> 
+VNode ->
+VNode ->
+Void;
+/*
+export type DirectiveFunction = (
+  el: HTMLElement,
+  binding: VNodeDirective,
+  vnode: VNode,
+  oldVnode: VNode
+) => void;
+*/
+
+typedef DirectiveOptions = {
+  @:optional var bind: DirectiveFunction;
+  @:optional var inserted: DirectiveFunction;
+  @:optional var update: DirectiveFunction;
+  @:optional var componentUpdated: DirectiveFunction;
+  @:optional var unbind: DirectiveFunction;
+}
+
+
+/**
+ * Port of vnode.d.ts
+ */
+
+ 
+ // TODO VNodes
+ 
+ 
+typedef ScopedSlot = Dynamic -> VNodeChildrenArrayContents;
+typedef ScopedSlotRetString = Dynamic ->String;
+//(props: any) => VNodeChildrenArrayContents | string;
+
+
+// HMMM>.....
+typedef VNodeChildren = Dynamic; // VNodeChildrenArrayContents | [ScopedSlot] | string;
+typedef VNodeChildrenArrayContents = Dynamic;
+/* 
+extern interface VNodeChildrenArrayContents {  // lol, how to do this...does Haxe support this?
+	// [x: number]: VNode | string | VNodeChildren;
+}
+*/
+
+
+
+extern interface VNode
+{
+	
+}
+
+extern interface VNodeDirective
+{
+	
+}
+
+
+typedef VNodeData = Dynamic;
+/* 
+export interface VNodeData {
+  key?: string | number;
+  slot?: string;
+  scopedSlots?: { [key: string]: ScopedSlot };
+  ref?: string;
+  tag?: string;
+  staticClass?: string;
+  class?: any;
+  staticStyle?: { [key: string]: any };
+  style?: Object[] | Object;
+  props?: { [key: string]: any };
+  attrs?: { [key: string]: any };
+  domProps?: { [key: string]: any };
+  hook?: { [key: string]: Function };
+  on?: { [key: string]: Function | Function[] };
+  nativeOn?: { [key: string]: Function | Function[] };
+  transition?: Object;
+  show?: boolean;
+  inlineTemplate?: {
+    render: Function;
+    staticRenderFns: Function[];
+  };
+  directives?: VNodeDirective[];
+  keepAlive?: boolean;
+}
+*/

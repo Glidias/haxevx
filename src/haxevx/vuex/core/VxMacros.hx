@@ -215,7 +215,9 @@ class VxMacros
 					//TPType
 					//Context.error("Variable declarations not allowed for Component", field.pos);
 				case FieldType.FFun(f):
-					ExprTools.iter( f.expr, checkIllegalAccess);
+					#if !fastcompile 
+						ExprTools.iter( f.expr, checkIllegalAccess); 
+					#end
 					if (field.name == "GetData") {
 						gotGetData = true;
 					}

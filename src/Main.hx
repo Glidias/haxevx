@@ -1,7 +1,6 @@
 package;
 
 
-
 import haxevx.vuex.examples.shoppingcart.ShoppingCartMain;
 
 
@@ -12,8 +11,20 @@ import haxevx.vuex.examples.shoppingcart.ShoppingCartMain;
  */
 class Main 
 {
+
+
+	
 	static function main() 
-	{	
+	{
+		
 		new ShoppingCartMain();
+
 	}
+	
+	
 }
+
+
+
+
+

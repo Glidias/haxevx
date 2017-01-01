@@ -5,6 +5,7 @@ import haxe.rtti.Rtti;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue.CreateElement;
 import haxevx.vuex.native.Vue.VNode;
+import haxevx.vuex.native.Vue.VueInstance;
 import haxevx.vuex.util.ActionFactory;
 import haxevx.vuex.util.ReflectUtil;
 import haxevx.vuex.util.RttiUtil;
@@ -13,22 +14,23 @@ import haxevx.vuex.util.RttiUtil;
  * @author Glidias
  */
 @:autoBuild(haxevx.vuex.core.VxMacros.buildComponent())
-class VComponent<D, P>
+class VComponent<D, P> extends VueInstance
 {
+		
 	#if !remove_props_accessor
-	var props(get, null):P;
-	inline function get_props():P 
+	var _props(get, null):P;
+	inline function get__props():P 
 	{
 		return untyped this;
 	}
 	#end
-
-
-	var data(get, null):D;
-	inline function get_data():D 
+	
+	var _vData(get, null):D;
+	inline function get__vData():D 
 	{
 		return untyped __js__("this.$data");
 	}
+	
 	
 	/**
 	 * Optionally override this to determine starting prop values for Unit Testing only!
@@ -233,15 +235,7 @@ class VComponent<D, P>
 	
 	
 	
-	// internally unsupported  (bleh...but seldom used..)
-	/*
-	@:optional var parent: Vue;
-	@:optional var mixins:Dynamic; // ComponentOptions; // mixins?: (ComponentOptions<Vue> | typeof Vue)[];
-	@:optional var name:String;		// default impl?
-	//@:optional var extends:Dynamic;// ComponentOptions<Vue> | typeof Vue; // TODO: urm can we alias this?? extends reserved Haxe keyword BAH!!
-	@:optional var delimiters: Array<String>;
-	*/
-	
+
 	
 
 	
