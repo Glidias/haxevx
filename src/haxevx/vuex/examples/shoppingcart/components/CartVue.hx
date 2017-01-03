@@ -1,5 +1,4 @@
 package haxevx.vuex.examples.shoppingcart.components;
-import haxevx.vuex.core.PropsBindedToStore;
 import haxevx.vuex.examples.shoppingcart.modules.Cart;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxComponent;
@@ -15,7 +14,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  */
 using Lambda;
 @:rtti
-class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
+class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 {
 
 	public function new() 
@@ -25,14 +24,25 @@ class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
 	
 	@action static var action:CartDispatcher<Dynamic>; 
 	
+
 	// Computed
 	
-	var total(get, null):Float;
+	var total(get, never):Float;
 	function get_total():Float 
 	{
-		return props.products.fold( function(p:ProductInCart, total:Float)  {
+		return products.fold( function(p:ProductInCart, total:Float)  {
 			return total + p.price * p.quantity;
 		}, 0);
+	}
+	
+	var products(get, never):Array<ProductInCart>;
+	public  inline function get_products():Array<ProductInCart> {
+		return store.getters.cartProducts;
+	}
+	
+	var checkoutStatus(get, never):String;
+	public inline function get_checkoutStatus():String {
+		return store.cart.checkoutStatus;
 	}
 	
 	
@@ -48,43 +58,19 @@ class CartVue extends VxComponent<AppStore, NoneT, CartVueProps>
 				<p v-show="!products.length"><i>Please add some products to cart.</i></p>
 				<ul>
 				  <li v-for="p in products">
-					{{ p.title }} - {{ p.price | currency }} x {{ p.quantity }}
+					{{ p.title }} - {{ p.price  }}  (x{{ p.quantity }})
 				  </li>
 				</ul>
-				<p>Total: {{ total | currency }}</p>
+				<p>Total: {{ total  }}</p>
 				<p><button :disabled="!products.length" @click="checkout(products)">Checkout</button></p>
 				<p v-show="checkoutStatus">Checkout {{ checkoutStatus }}.</p>
 			  </div>';
 	}
 	
+	
+	
 
 	
 }
 
-class CartVueProps extends PropsBindedToStore<AppStore> {
-	public var products(#if compile_strict get #else default #end, null):Array<ProductInCart>;
-	function get_products():Array<ProductInCart>
-	{
-		return CartVuePropHelper.GetCartProducts(store);
-	}
-	
-	
-	public var checkoutStatus(#if compile_strict get #else default #end, null):String;
-	function get_checkoutStatus():String 
-	{
-		return CartVuePropHelper.CheckOutStatus(store);
-	}
-	
-	
-}
 
-class CartVuePropHelper {
-	public static inline function GetCartProducts(store:AppStore):Array<ProductInCart> {
-		return store.getters.cartProducts;
-	}
-	public static inline function CheckOutStatus(store:AppStore):String {
-		return store.cart.checkoutStatus;
-	}
-		
-	
-}

@@ -27,6 +27,7 @@ class Cart extends VModule<CartState>
 			checkoutStatus:null,
 			lastCheckout:null  // why initials tate did not include hthis?
 		}
+	
 	}
 	
 	

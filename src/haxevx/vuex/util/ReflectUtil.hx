@@ -34,6 +34,13 @@ class ReflectUtil
 		return rt;
 	}
 	
+	public static inline function getPrototypeField(cls:Class<Dynamic>, fieldName:String):Dynamic {
+		return  untyped cls.prototype[fieldName];
+	}
+	public static inline function setPrototypeField(cls:Class<Dynamic>, fieldName:String, val:Dynamic):Void {
+		 untyped cls.prototype[fieldName] = val;
+	}
+	
 	public static function reflectClassHierachyInto(child:Class<Dynamic>, map:StringMap<Class<Dynamic>>, callback:Class<Dynamic>->Void, earlyOut:Bool = true):Void {
 		var cls:Class<Dynamic> = child;
 		while (cls != null) {
@@ -44,6 +51,7 @@ class ReflectUtil
 				continue;
 			}
 			callback(cls);
+		
 			map.set(clsName, cls);
 			cls = Type.getSuperClass(cls);
 		}
@@ -102,15 +110,22 @@ class ReflectUtil
 		//Dynamic<Array<Dynamic>>
 		map.set(saveName, fieldMap);
 		for (f in Reflect.fields(metaFields)) {
+			var met = metaFields.f;
+			
 			var metaF:Dynamic<Array<Dynamic>> = Reflect.field(metaFields, f);
 			for (m in Reflect.fields(metaF)) {
-				var fieldsToMetaInfo = fieldMap.get(m);
+				var fieldsToMetaInfo:Dynamic<Array<Dynamic>> = fieldMap.get(m);
 				if (fieldsToMetaInfo == null) {
 					fieldsToMetaInfo = {};
 					fieldMap.set(m, fieldsToMetaInfo);
 					
 				}
-				Reflect.setField(fieldsToMetaInfo, f, metaF);
+			
+				var arrF:Array<Dynamic> = Reflect.field(metaF, m);
+				if (arrF != null && !Std.is(arrF, Array)) {
+					throw "PRoperty isn't array:" + arrF;
+				}
+				Reflect.setField(fieldsToMetaInfo, f, arrF);
 			}
 		}
 	}
@@ -123,6 +138,12 @@ class ReflectUtil
 		// warning, assumed instance constructor has zero required parameters
 		SINGLETON_CACHE.set(name, getNewInstanceByClassName(name) );
 		return SINGLETON_CACHE.get(name);
+	}
+	
+	public static  function findSingletonByClassName(name:String):Dynamic {
+		if ( SINGLETON_CACHE.exists(name) ) return SINGLETON_CACHE.get(name);
+		throw "Could not find registered singleton by class name: " + name;
+		return null;
 	}
 	
 	static var PACKAGE_NAMESPACE:String = "";
@@ -295,6 +316,19 @@ class ReflectUtil
 	static public inline function isClass(instance:Dynamic):Bool
 	{
 		return Std.is(instance, Class);
+	}
+	
+	static public function strToNativeType(str:String):Dynamic
+	{
+		switch( str) {
+			case "String": return untyped __js__("String");
+			case "Number": return untyped __js__("Number");
+			case "Boolean": return untyped __js__("Boolean");
+			case "Function": return untyped __js__("Function");
+			case "Object": return untyped __js__("Object");
+			case "Array": return untyped __js__("Array");	
+			default: throw "Could not resolve string to native data type: " + str;
+		}
 	}
 	
 	static private function tagSetHasField(tagSet:StringMap<Bool>, fieldMeta:Dynamic):Bool

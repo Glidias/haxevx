@@ -11,5 +11,5 @@ package haxevx.proxy.immutable;
 	public static function Record<T>(objDef:T):Class<ImmutableRecord<T>>;
 	
 	
-	public static function fromJS<T>(objDef:T):ImmutableMap<T>;
+	public static function fromJS(objDef:Dynamic):Dynamic;
 }

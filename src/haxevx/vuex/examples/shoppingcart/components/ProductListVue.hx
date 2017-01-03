@@ -7,7 +7,7 @@ import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppActions;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
-import haxevx.vuex.core.PropsBindedToStore;
+import haxevx.vuex.util.ReflectUtil;
 
 /**
  * components/ProductList.vue port
@@ -15,7 +15,7 @@ import haxevx.vuex.core.PropsBindedToStore;
  * @author Glidias
  */
 @:rtti
-class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
+class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 {
 
 	public function new() 
@@ -29,6 +29,10 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 	
 	
 	// Computed
+	var products(get, never):Array<ProductInStore>;
+	public function get_products():Array<ProductInStore> {
+		return store.products.allProducts;
+	}
 	
 	
 	// Methods
@@ -36,21 +40,22 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 		actionDispatcher.addToCart(p);
 	}
 	
-
+	
 	
 	// Hooks
 
 	
-	override public function Created():Void {
+	override public function Created():Void {	
+		//trace(ReflectUtil.getSingletonByClassName(Type.getClassName(Type.getClass(dispatcher))) == dispatcher);
 		dispatcher.getAllProducts();
 	}
-	
+
 	
 	override public function Template():String {
 		return 
 		'<ul>
 			<li v-for="p in products">
-			  {{ p.title }} - {{ p.price | currency }}
+			  {{ p.title }} - {{ p.price }} - ({{p.inventory}})
 			  <br>
 			  <button
 				:disabled="!p.inventory"
@@ -61,24 +66,6 @@ class ProductListVue extends VxComponent<AppStore, NoneT, ProductListVueProps>
 		</ul>';
 	}
 	
-	
-	
 }
 
-@:rtti
-class ProductListVueProps extends PropsBindedToStore<AppStore> {
-	
-	public var products(#if compile_strict get #else default #end, null):Array<ProductInStore>;
-	function get_products():Array<ProductInStore>
-	{
-		return ProductListPropHelper.GetProducts(store);
-	}
 
-
-}
-
-class ProductListPropHelper {
-	public static inline function GetProducts(store:AppStore) {
-		return store.products.allProducts;
-	}
-}

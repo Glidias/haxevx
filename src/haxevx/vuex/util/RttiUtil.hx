@@ -25,6 +25,15 @@ class RttiUtil
 		}
 	}
 	
+	public static function getInstanceFieldsUnderClass(cls:Class<Dynamic>):Array<String> {
+		var arr:Array<String> = [];
+		for (f in Rtti.getRtti(cls).fields){
+			arr.push(f.name);
+		}
+		return arr;
+		
+	}
+	
 	/**
 	 * Generic injection method
 	 * @param	instance	The object to inject into
@@ -100,6 +109,12 @@ class RttiUtil
 	public static  function injectSingletonInstance(instance:Dynamic,  rtti:Classdef, forFields:StringMap<Bool>=null, forMeta:StringMap<Bool>=null):Void  {
 		
 		injectNewInstance(instance, rtti, forFields, forMeta, ReflectUtil.getSingletonByClassName);
+		
+	}
+	
+	public static  function injectFoundSingletonInstances(instance:Dynamic,  rtti:Classdef, forFields:StringMap<Bool>=null, forMeta:StringMap<Bool>=null):Void  {
+		
+		injectNewInstance(instance, rtti, forFields, forMeta, ReflectUtil.findSingletonByClassName);
 		
 	}
 	

@@ -15,6 +15,9 @@ class AppStore extends VxStore<AppState>
 	// Actions
 	@action static var actions:AppActions<AppState>;
 	
+	// Mutators
+	@mutator static var mutator:AppMutator<AppState>;
+	
 	// Modules
 	@module public var cart:Cart;
 	@module public var products:Products;

@@ -15,11 +15,20 @@ class MutatorFactory
 		return untyped __js__("this.$store");
 	}
 	
-	public static function getMutatorCommit(type:String):?Dynamic->Dynamic->Void {
+	// consider, non-static store variable within getMutatorCommit parameter
+	static function getMutatorCommit(type:String):?Dynamic->Void {
 		// to test: possible to precompute context out of here??
-		return function(payload:Dynamic=null, context:Dynamic = null) {		
-			(context != null ? context : store).commit(type, payload);
+		return function(payload:Dynamic=null) {		
+			store.commit(type, payload);
 		};
+	}
+	public static function finaliseClass(cls:Class<Dynamic>, store:Dynamic):Void {
+		var fields:Array<String> = Type.getInstanceFields(cls); 
+		for (f in fields) {
+			ReflectUtil.setPrototypeField(cls, f, getMutatorCommit(getDispatchString(cls, f)));
+		}
+		ReflectUtil.setPrototypeField(cls, "$store", store);
+	
 	}
 	
 	static var REGISTERED_CLASSES:StringMap<Class<Dynamic>> = new StringMap<Class<Dynamic>>();
@@ -27,14 +36,29 @@ class MutatorFactory
 		return REGISTERED_CLASSES.iterator();
 	}
 	
+	
+	
+	
+	static function nothing(cls:Class<Dynamic>):Void {
+		
+	}
+
+	
+	static inline function getDispatchString(cls:Class<Dynamic>, f:String):String {
+		return ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
+	}
+	
 	public static function setupMutatorsOfInstanceOver(instance:Dynamic, over:Dynamic):Void {
 		var handler:Dynamic;
+		
 		var cls:Class<Dynamic> = Type.getClass(instance);
 		if (cls == null) throw "Couldn't resolve mutator class of: " + instance;
 			
 		// setup instance fields
 		var fields:Array<String> = Type.getInstanceFields(cls);  // TODO: get all derived instnace fields as well as part of entire collection
-			
+		
+		ReflectUtil.reflectClassHierachyInto(cls, REGISTERED_CLASSES, nothing);
+		
 		for (f in fields) {
 			
 			var checkF =  Reflect.field(instance, f) ;
@@ -52,9 +76,11 @@ class MutatorFactory
 					throw "Could not resolve handler for field: " + f;
 				}
 				
-				var fieldName:String = ReflectUtil.getNamespaceForClass(ReflectUtil.getBaseClassForField(cls, f)) + f;
-				if (Reflect.hasField(over, fieldName)) trace("Exception occured repeated field handler set");
-				Reflect.setField(over, fieldName, handler);
+				var fieldName:String = getDispatchString(cls, f);
+				if (!Reflect.hasField(over, fieldName)) 
+					Reflect.setField(over, fieldName, handler);
+				else
+					trace("Exception occured repeated field handler set");
 			}
 			else {
 				trace("Warning!! Mutator classes should only contain function fields! Fieldname: " + f);

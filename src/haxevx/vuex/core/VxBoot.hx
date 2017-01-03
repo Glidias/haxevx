@@ -1,7 +1,12 @@
 package haxevx.vuex.core;
+import haxe.rtti.Rtti;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue;
 import haxevx.vuex.native.Vuex;
+import haxevx.vuex.util.ActionFactory;
+import haxevx.vuex.util.MutatorFactory;
+import haxevx.vuex.util.RttiUtil;
+
 import haxevx.vuex.native.Vuex.Store;
 import haxevx.vuex.util.GetterFactory;
 import haxevx.vuex.util.ReflectUtil;
@@ -32,14 +37,15 @@ class VxBoot
 	}
 	
 	public static function start<T>(rootVue:VComponent<Dynamic, Dynamic>, store:VxStore<Dynamic> = null, otherComponents:Dynamic<VComponent<Dynamic,Dynamic>> = null):Vue {
+		var nativeStore:Store<Dynamic> = null;
 		var opts:VxBootParams<T> = startParams(rootVue, store);
 		if (opts.storeParams != null) {
-			startStore(opts);
+			nativeStore = startStore(opts);
 		}	
-		return startVue(opts);
+		return startVue(opts, nativeStore);
 	}
 	
-	public static function startStore<T>(opts:VxBootParams<T>):Store<T> {
+	public static function startStore<T>(opts:VxBootParams<T>):Store<Dynamic>  {
 		var metaFields:Dynamic<Array<Dynamic>>;
 		var md:Dynamic;
 		var noNamespaceGetterProps:Dynamic;
@@ -47,6 +53,7 @@ class VxBoot
 		//Vue.use(Vuex);
 		
 		var store = new Store(opts.storeParams);
+	
 		if ( opts.storeParams.getters!= null) {
 			// define get_ utility functions under store.getters ( for non-namespced
 			
@@ -75,12 +82,19 @@ class VxBoot
 					moduleNameStack.push(p);
 					
 					var m:NativeModule<Dynamic,Dynamic> = Reflect.field(o, p);
-					if (m.getters != null) {
-						md = Reflect.field(STORE, p); //VModule<Dynamic>
+					md = Reflect.field(STORE, p); //VModule<Dynamic>
 						ReflectUtil.setHiddenField(store,  p,  md );
-						if ( Reflect.field(md, "state")==null ) {
+				
+						/*  // why i included this;.. i dunno.
+						if ( Reflect.field(md, "state") == null ) {
+							trace("Setting state on native module:"+p);
 							Reflect.setField(md, "state", opts.storeParams.state);
-						}						
+						
+						}	
+						*/
+						
+					if (m.getters != null) {
+										
 						noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
 						GetterFactory.hookupGettersFromPropsOver2(noNamespaceGetterProps, md, storeGetters, moduleNameStack.join(ReflectUtil.MODULE_FRACTAL_SEP) + ReflectUtil.MODULES_SEPERATOR);
 						
@@ -103,15 +117,62 @@ class VxBoot
 			
 		}
 		
-		// inject store  unto all static singleton classes "@store" field (look through all registered singletons cache for this)
-		// inject store's state unto all modules and nested modules tree
+		var sg:Dynamic;
+		
+		// finalise singleton initializations from Mutators and Actions accordingly, and re-rout their methods
+		
+		for (c in  MutatorFactory.getClasses()) {
+			// check that all mutator singletons in factory  can be found
+			sg = ReflectUtil.findSingletonByClassName(Type.getClassName(c));
+			if (sg == null) throw "Fatal exception occured could not find mutator singleton by class name:" + Type.getClassName(c);
+			
+			MutatorFactory.finaliseClass(c, store);
+			
+		}
+		
+		for (c in  ActionFactory.getClasses()) {
+			// check that all action signletons in factory can be found
+			sg = ReflectUtil.findSingletonByClassName(Type.getClassName(c));
+			if (sg == null) throw "Fatal exception occured could not find action singleton by class name:" + Type.getClassName(c);
+			
+			// inject mutators into action singletons 
+			if (ReflectUtil.requiresInjection(null, ActionFactory.get_META_INJECTIONS(), c)) {
+			
+				RttiUtil.injectFoundSingletonInstances(c, Rtti.getRtti(c), null, ActionFactory.get_META_INJECTIONS());
+			}
+			
+			ActionFactory.finaliseClass(c, store);
+		}
 		
 		return store;
 	}
-	public static function startVue<T>(opts:VxBootParams<T>):Vue {
-		var vm =  new Vue(opts.vueParams);
+	
+	public static function startVue<T>(opts:VxBootParams<T>, store:Store<Dynamic>):Vue {
+		var bootVueParams:Dynamic = {};
+		bootVueParams.el = "#app";
+		
+		var vueParams = opts.vueParams;
+		if (opts.storeParams != null && store == null) {
+			//throw "ERROR! Store params found but no store provided!";
+			store = startStore(opts);
+			
+		}
+		if (store != null) {
+			
+			Reflect.setField(bootVueParams, "store", store);
+			
+		}
+
+		bootVueParams.render = getRenderComponentMethod(vueParams);
+		var vm =  new Vue(bootVueParams);
 		
 		return vm;
+	}
+	
+	public static function getRenderComponentMethod(nativeComp:Dynamic):CreateElement->VNode {
+		return function(h:CreateElement):VNode {
+			return h(nativeComp,null,null);
+		}
 	}
 	
 	
