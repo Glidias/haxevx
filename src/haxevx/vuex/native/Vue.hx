@@ -20,7 +20,7 @@ import js.Promise;
 
  
 // This is a base pseudo-vue class that excludes _vData:D and constructor, and is used for vue component/extension definitions in particular. 
-// Vue instance api calls are restricted to private scope for such definitions.
+// Vue instance api calls are restricted to private scope for such comp definitions.
 @:native("Object")
 @:build( haxevx.vuex.native.NativeMacro.saveVueBaseFields() )
 extern class VueBase {	// a base of private fields
