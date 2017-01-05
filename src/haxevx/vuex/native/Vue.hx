@@ -17,38 +17,38 @@ import js.Promise;
 /**
  * Port of vue.d.ts
  */
+
+ 
+// This is a base pseudo-vue class that excludes _vData:D and constructor, and is used for vue component/extension definitions in particular. 
+// Vue instance api calls are restricted to private scope for such definitions.
 @:native("Object")
-extern class VueInstance { 
-	
-	// Properties defined within here (which will include _vData/_props) outside it , will be checked against build macro
-	// as it can't be accessed in VComponent/component class constructors (since it's only options initialization phase
-	// within class constructor scope). 
-	
-	@:native("$el") var _vEl(default, never) :HtmlElement;
-    @:native("$options") var _vOptions(default, never):ComponentOptions; //ComponentOptions<this>
-    @:native("$root") var _vRoot(default, never):Vue;
-    @:native("$children") var _vChildren(default, never):Array<Vue>;
-	@:native("$refs") var _vRefs(default, never):Dynamic;
-	@:native("$slots") var _vSlots(default, never):Dynamic;
-	@:native("$scopedSlots") var _vScopedSlots(default, never):Dynamic; // Dynamic<ScopedSlot|ScopedSlotRetString>;
-    @:native("$isServer") var _vIsServer(default, never):Bool;
+@:build( haxevx.vuex.native.NativeMacro.saveVueBaseFields() )
+extern class VueBase {	// a base of private fields
+	@:native("$el") private var _vEl(default, never) :HtmlElement;
+    @:native("$options") private var _vOptions(default, never):ComponentOptions; //ComponentOptions<this>
+    @:native("$root")private  var _vRoot(default, never):Vue;
+    @:native("$children") private var _vChildren(default, never):Array<Vue>;
+	@:native("$refs") private var _vRefs(default, never):Dynamic;
+	@:native("$slots") private var _vSlots(default, never):Dynamic;
+	@:native("$scopedSlots") private var _vScopedSlots(default, never):Dynamic; // Dynamic<ScopedSlot|ScopedSlotRetString>;
+    @:native("$isServer") private var _vIsServer(default, never):Bool;
   
 	@:overload(function(?elementOrSelector:String):Vue {})
-	@:native("$mount") function _vMount(?elementOrSelector:HtmlElement, ?hydrating:Bool):Vue;
-	@:native("$forceUpdate") function _vForceUpdate():Void;
-	@:native("$destroy") function _vDestroy():Void;
-	@:native("$set") function _vSet<T>(object: Dynamic, key: String, value: T): T;
-	@:native("$delete") function _vDelete(object: Dynamic, key: String): Void;
+	@:native("$mount") private function _vMount(?elementOrSelector:HtmlElement, ?hydrating:Bool):Vue;
+	@:native("$forceUpdate") private function _vForceUpdate():Void;
+	@:native("$destroy") private function _vDestroy():Void;
+	@:native("$set") private function _vSet<T>(object: Dynamic, key: String, value: T): T;
+	@:native("$delete") private function _vDelete(object: Dynamic, key: String): Void;
 	@:overload(function(expOrFn:Function, callback:WatchHandler, ?options:WatchOptions):Void->Void {})
-	@:native("$watch") function _vWatch(expOrFn:String, callback:WatchHandler, ?options:WatchOptions):Void->Void;
-	@:native("$on") function _vOn(event:String, callback:Function):Vue;
-	@:native("$once") function _vOnce(event:String, callback:Function):Vue;
-	@:native("$off") function _vOff(event:String, callback:Function):Vue;
+	@:native("$watch") private function _vWatch(expOrFn:String, callback:WatchHandler, ?options:WatchOptions):Void->Void;
+	@:native("$on") private function _vOn(event:String, callback:Function):Vue;
+	@:native("$once") private function _vOnce(event:String, callback:Function):Vue;
+	@:native("$off") private function _vOff(event:String, callback:Function):Vue;
 	
-	@:native("$emit") function _vEmit(event:String, r:Rest<Dynamic>):Vue;
+	@:native("$emit") private function _vEmit(event:String, r:Rest<Dynamic>):Vue;
 	
 	@:overload(function<T>(): Promise<T> {} )
-	@:native("$nextTick") function _vNextTick(callback:Void->Void):Void;
+	@:native("$nextTick") private function  _vNextTick(callback:Void->Void):Void;
 		
 	@:overload(function():VNode {})
 	@:overload(function(tag:Component, ?children:VNodeChildren):VNode {})
@@ -56,7 +56,14 @@ extern class VueInstance {
 	@:overload(function(tag:AsyncComponent, ?children:VNodeChildren):VNode {})
 	@:overload(function(tag:AsyncComponent, ?data:VNodeData, ?children:VNodeChildren):VNode {})
 	@:overload(function(tag:String,  ?children:VNodeChildren):VNode {})
-	@:native("$createElement") public function _vCreateElement(tag:String, ?data:VNodeData, ?children:VNodeChildren):VNode;
+	@:native("$createElement") private function _vCreateElement(tag:String, ?data:VNodeData, ?children:VNodeChildren):VNode;
+}
+
+// The native class alias for Vue to support it's constructor and defining your own class-specific _vData:D type and includes basic Vue api fields with public access.
+@:native("Vue")
+@:build( haxevx.vuex.native.NativeMacro.mixin() )
+extern class VueInstance  { 
+	public function new(options:ComponentOptions);
 }
 
 
@@ -80,12 +87,16 @@ export type CreateElement = {
   (tag: AsyncComponent, data?: VNodeData, children?: VNodeChildren): VNode;
 }
 */
- 
-@:native("Vue") extern class Vue extends VueInstance
+
+// This native class for Vue with untyped public var_vData:Dynamic included in (for simplicity, as defining <D> is rather verbose,
+// and all Vue instance api fields with public access.
+@:native("Vue")
+@:build( haxevx.vuex.native.NativeMacro.mixin() )
+extern class Vue		// For simplicity, Native Vue will consider _vData as Dynamic, 
 {
 	public function new(options:ComponentOptions);
 	
-	@:native("$data") var _vData:Dynamic;
+	@:native("$data") public var _vData:Dynamic;
 
 	public static var config:VueConfig;
 

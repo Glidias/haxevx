@@ -5,7 +5,7 @@ import haxe.rtti.Rtti;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue.CreateElement;
 import haxevx.vuex.native.Vue.VNode;
-import haxevx.vuex.native.Vue.VueInstance;
+import haxevx.vuex.native.Vue.VueBase;
 import haxevx.vuex.util.ActionFactory;
 import haxevx.vuex.util.ReflectUtil;
 import haxevx.vuex.util.RttiUtil;
@@ -14,7 +14,7 @@ import haxevx.vuex.util.RttiUtil;
  * @author Glidias
  */
 @:autoBuild(haxevx.vuex.core.VxMacros.buildComponent())
-class VComponent<D, P> extends VueInstance
+class VComponent<D, P> extends VueBase
 {
 		
 	#if !remove_props_accessor
@@ -91,7 +91,7 @@ class VComponent<D, P> extends VueInstance
 		var useRtti:Bool = hasRtti;
 		//useRtti = false;  // TODO: non-rtti checking not working
 		var baseClass:Class<Dynamic> =VComponent;
-
+		
 		
 		var fields:Array<String> = useRtti ? RttiUtil.getInstanceFieldsUnderClass(cls) : Type.getInstanceFields(cls); // Type.getInstanceFields(Type.getClass(this));
 		for (f in fields) {
