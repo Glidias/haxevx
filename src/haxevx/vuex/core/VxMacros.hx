@@ -28,19 +28,6 @@ import haxevx.vuex.util.ReflectUtil;
  */
 class VxMacros
 {
-	
-	// DONE:
-	//  Macro to check (get,never) convention (matching types) and convert it to raw property instead. A @_computed metadata.
-	// Show warning against get_whatever not adropting getter pair with exact get/never (will autoconvert to get/never)
-	// All props and data must exist outside of component (show error if otherwise)
-		// Data and props will be both mixed into component (if duplicate properties between data and props, compiler will show it!). 
-		// - Thus, data+props can be access locally within component class or through explicit .props or .data accessor.
-		// - Data is included witin class with  full read/write access privately
-	   // - Props is included within class as readonly property signature privately.
-	// If got @_data found, ensure Data() is implemented by class!
-	// prop will include merge info in @prop metadata 
-	//  static @propBinding support for VxStore  or within PropsOfVxStore
-	
 	// TODO:
 	//  ensure supplied default types with given default values! Type checking for prop default metadata!!
 	// prop validator support
@@ -253,7 +240,7 @@ class VxMacros
 						  meta: field.meta
 						};
 						if (field.meta == null) field.meta = new Metadata();
-						field.meta.push({name: "_computed",  pos:field.pos});  // TODO: remove this once _toNative() is phased out
+						
 						
 						if (!gotSetter) {
 							var fName:String = "get_"+field.name;
@@ -360,8 +347,7 @@ class VxMacros
 							doc: f.doc,
 							access: [Access.APrivate],
 							pos: p ,
-							kind:  FieldType.FProp("null", "never",  TypeTools.toComplexType( f.type) ),
-							meta: [ {name:"_prop", pos:p, params:[  getPropMetadata(f.meta.get(), f.type, f.pos, p) ] } ] // // TODO: remove this once _toNative() is phased out
+							kind:  FieldType.FProp("null", "never",  TypeTools.toComplexType( f.type) )
 						});
 					default:
 						// suppress?
