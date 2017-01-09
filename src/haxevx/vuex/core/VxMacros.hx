@@ -42,6 +42,7 @@ class VxMacros
 	
 	
 		var funcLookup:StringMap<Function> = new StringMap<Function>();
+		var watchableFields:StringMap<ComplexType> = new StringMap<ComplexType>();
 		var classTypeParams  = Context.getLocalClass().get().superClass.params;
 		var typeParamData:Type;
 		var typeParamProps:Type;
@@ -83,17 +84,17 @@ class VxMacros
 		var computedAssignments:Array<FieldExprPair> = [];
 		var propAssignments:Array<FieldExprPair> = [];
 		var methodAssignments:Array<FieldExprPair> = [];
-		
-
+		var watchAssignments:Array<FieldExprPair> = [];
+		var setWatches:StringMap< Bool> = new StringMap<Bool>();
 		//var data
 		
 		switch ( fg=TypeTools.follow(typeParamData) ) {
 			case TInst(t, params):		
 				requireData = t.get().name != "NoneT";
-				if (requireData) dataFieldsToAdd = getClassFieldArrayToAdd( t.get().fields.get() );
+				if (requireData) dataFieldsToAdd = getClassFieldArrayToAdd( t.get().fields.get(), watchableFields );
 			case Type.TAnonymous(a):
 				requireData = true;
-				dataFieldsToAdd  = getClassFieldArrayToAdd( a.get().fields );
+				dataFieldsToAdd  = getClassFieldArrayToAdd( a.get().fields, watchableFields );
 				
 			default:
 				Context.fatalError("Type not supported for Data (class, interface or typedef only):" + fg, Context.currentPos() );
@@ -123,7 +124,7 @@ class VxMacros
 		var noneT:Type = ComplexTypeTools.toType(noneTC);
 		if (noneT == null) Context.error("Could not resolve macro NoneT", Context.currentPos() );
 		
-	
+		
 		
 		for (field in fields) {
 			switch (field.kind)
@@ -132,6 +133,10 @@ class VxMacros
 					if (field.name.indexOf("get_") == 0) {
 						funcLookup.set( field.name.substr(4), f);
 					}
+				case FieldType.FProp("get", "set", t):
+					watchableFields.set(field.name, t);
+				case FieldType.FProp("get", "never", t):
+					watchableFields.set(field.name, t);
 				default:
 				//	trace(field.kind);
 			}
@@ -140,6 +145,7 @@ class VxMacros
 		var gotGetData:Bool = false;
 		var constructorFieldExpr:Expr;
 		var constructorFieldPos:Position;
+		var metadataEntry:MetadataEntry;
 		
 		var injections:Array<{fieldName:String, className:String}> = [];
 		
@@ -215,7 +221,7 @@ class VxMacros
 						Context.warning("Computed field: '" + field.name+"' needs to adopt [(get)/(set/never)] convention..(ie. non physical)", field.pos );
 					}
 					
-					if (hasMetaTag(field.meta, "mapGetterProp") ) {
+					if ( hasMetaTag(field.meta, "mapGetterProp") ) {
 						trace("TODO: mapGetterProp implementation");
 						break;
 					}
@@ -224,7 +230,7 @@ class VxMacros
 					var func:Function = funcLookup.get(name);
 					
 					if (func != null) {
-						if ( func.ret+"" != getType+"") {  // is this the "right" way to compare  pattern enums? oh well..
+						if ( !isEqualComplexTypes(func.ret, getType)  ) { 
 							Context.error("Field types for computed property must match getter method: "+name, field.pos);
 						}
 						
@@ -277,6 +283,60 @@ class VxMacros
 					
 					if ( illegalReferences.exists(field.name) ) {
 						addMethodHookToInitBlock(field.name, initBlock);
+					}
+					else if ( (metadataEntry = getMetaTagEntry(field.meta, ":watch")) != null) {
+						
+						if (field.access.indexOf(Access.APublic) >= 0) {
+							Context.error("Watcher fields must be private", field.pos);
+						}
+						
+						var mFieldName:String = metadataEntry.params != null  && metadataEntry.params.length != 0 ?  getMetaStrValueFromExpr(metadataEntry.params[0], metadataEntry.params.length == 1 ? field.name.split("_").pop() : null) : field.name.split("_").pop();
+						
+						
+						if (mFieldName == null || !watchableFields.exists(mFieldName)) {
+							
+							Context.fatalError("Could not find watchable field (data/computed): " + mFieldName, field.pos);
+						}
+						
+						if (setWatches.exists(mFieldName)) {
+							Context.fatalError("Duplicate watch field target detected: " + mFieldName, field.pos);
+						}
+						
+						
+						if (f.args.length == 0 || f.args.length > 2) {
+							Context.fatalError("Watcher methods need 1 or 2 arguments: " + field.name, field.pos);
+						}
+						
+						if (f.args.length == 2 && !isEqualComplexTypes(f.args[0].type, f.args[1].type) ) {
+							Context.fatalError("Watcher method parameter types must match: " + field.name, field.pos);
+						}
+						
+						if ( !isEqualComplexTypes(f.args[0].type, watchableFields.get(mFieldName)) ) {
+							Context.fatalError("Watcher method parameter type(s) must match against target field: "+f.args[0].type + " vs " +watchableFields.get(mFieldName), field.pos);
+						}
+					
+						
+						var existingObjDeclArr:Array<FieldExprPair> =  metadataEntry.params != null  && metadataEntry.params.length != 0  ? metadataEntry.params.length > 1 ?  getMetaObjArrFromExpr(metadataEntry.params[1]) :  getMetaObjArrFromExpr(metadataEntry.params[0]) : null;
+						
+						var methodName:String = field.name;
+						
+						if (existingObjDeclArr != null) {
+							existingObjDeclArr.push( {field:"handler", expr:macro clsP.$methodName } );
+							
+							watchAssignments.push({field:mFieldName, expr:macro ${ {expr:EObjectDecl(existingObjDeclArr), pos:field.pos } } } );
+						}
+						else {
+							watchAssignments.push({field:mFieldName, expr:macro clsP.$methodName } );
+						}
+						
+						setWatches.set(mFieldName, true);
+						
+							
+						// dup below
+						if (field.name.charAt(0) != "_") {
+							var fName:String = field.name;
+							methodAssignments.push({field:field.name, expr:macro clsP.$fName } );
+						}
 					}
 					else if (field.name.charAt(0) != "_") {
 						var fName:String = field.name;
@@ -341,7 +401,7 @@ class VxMacros
 						}
 						
 						var p = Context.currentPos();
-							propAssignments.push({field:f.name, expr:getPropMetadata2(f.meta.get(), f.type, f.pos, p )});
+						propAssignments.push({field:f.name, expr:getPropMetadata(f.meta.get(), f.type, f.pos, p )});
 						fields.push({
 							name: f.name,
 							doc: f.doc,
@@ -389,6 +449,9 @@ class VxMacros
 		if (propAssignments.length != 0) {
 			initBlock.push( macro  untyped this.props = ${ {expr:EObjectDecl(propAssignments), pos:pos} } );
 		}
+		if (watchAssignments.length != 0) {
+			initBlock.push( macro  untyped this.watch = ${ {expr:EObjectDecl(watchAssignments), pos:pos} } );
+		}
 		
 		if (injections.length != 0) {
 			for (inj in injections ) {
@@ -416,50 +479,63 @@ class VxMacros
 		return fields;
 	}
 	
-	// THis is rather hackish and may not be future-proof
+	// THis is rather hackish and may not be future-proof.
+	// is this the "right" way to compare  pattern enums? oh well..
 	static inline function isEqualComplexTypes(a:ComplexType, b:ComplexType):Bool {
 		return ComplexTypeTools.toType(a) + "" == ComplexTypeTools.toType(b) + "";
 	}
 	
 	
 	
+	static function getMetaStrValueFromExpr(xpression:Expr, defaultedValue:String):String {
+		if (xpression == null) return defaultedValue;
+		
+		switch( xpression.expr) {
+			case EConst(CString(s)):
+				return s;
+			case EObjectDecl(fields):
+				
+				 return getMetaStrValueFromExpr(findValueByName(fields, "name"), defaultedValue);  // a bit lazy here, will capture recursive values
+			default:
+				//trace(xpression.expr);
+			
+		}
+		
+		return null;
+	}
 	
-	static  function getPropMetadata(metadata:Metadata, fldType:Type, fldPos:Position, p:Position):Expr {  // this will be deperciated
-		var list:Array<{field:String, expr:Expr}> = [];
-		
-		if (metadata != null) {
-			for (m in metadata) {
-				if (m.name == "prop" && m.params!= null && m.params.length > 0 && m.params[0] != null)  {
-					//{ pos:p, expr:m.params[0] };
-					switch( m.params[0].expr) {
-						case ExprDef.EObjectDecl(fields): 
-							for (f in fields) {
-								list.push( {field:f.field, expr:f.expr});
-							}
-						default:
-							Context.fatalError("first parameter for metadata @prop must be Object or null!", fldPos);
-					}
-				}
-			}
-		}
-		
-		//
-		var typeStr:String =  getTypeString(fldType, fldPos);
-		if (typeStr != null) {
-			list.push({field:"type", expr:macro $v{typeStr} });
-		}
-		
-		return  {expr:ExprDef.EObjectDecl(list), pos:p};
+	static function getMetaObjArrFromExpr(xpression:Expr):Array<FieldExprPair> {
 
+		switch( xpression.expr) {
+		
+			case EObjectDecl(fields):
+				return fields.concat([]);  // a bit lazy here, will capture recursive values
+			default:
+				return null;
+			
+		}
+		
+		return null;
 	}
 	
 	
-	static  function getPropMetadata2(metadata:Metadata, fldType:Type, fldPos:Position, p:Position):Expr {
+	static function findValueByName(arr:Array<FieldExprPair>, name:String):Expr {
+		for ( f in arr) {
+			if (f.field == name) {
+				return f.expr;
+			}
+		}
+		return null;
+	}
+
+	
+	
+	static  function getPropMetadata(metadata:Metadata, fldType:Type, fldPos:Position, p:Position):Expr {
 		var list:Array<{field:String, expr:Expr}> = [];
 		
 		if (metadata != null) {
 			for (m in metadata) {
-				if (m.name == "prop" && m.params!= null && m.params.length > 0 && m.params[0] != null)  {
+				if (m.name == ":prop" && m.params!= null && m.params.length > 0 && m.params[0] != null)  {
 					//{ pos:p, expr:m.params[0] };
 					switch( m.params[0].expr) {
 						case ExprDef.EObjectDecl(fields): 
@@ -530,7 +606,7 @@ class VxMacros
 	};
 	
 	static var META_INJECTIONS:StringMap<Bool> = {
-		var strMap = createStringSetFromArray(["mutator", "action"]);
+		var strMap = createStringSetFromArray([":mutator", ":action"]);
 		strMap;
 	}
 	
@@ -560,13 +636,21 @@ class VxMacros
 	}
 	
 	// for data
-	static function getClassFieldArrayToAdd(arr:Array<ClassField>):Array<ClassField> {
+	static function getClassFieldArrayToAdd(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>):Array<ClassField> {
 		var refArr:Array<ClassField> = [];
 		for (f in arr) {
-			if (f.name.charAt(0) == "_") {	
-				continue;
+			switch( f.kind) {
+			
+				case FVar(VarAccess.AccNormal, _):
+					watchableFields.set(f.name, TypeTools.toComplexType(f.type));
+					if (f.name.charAt(0) == "_") {	
+						continue;
+					}
+					refArr.push(f);
+					
+				default:
+					
 			}
-			refArr.push(f);
 		}
 		return refArr;
 	}
@@ -607,6 +691,14 @@ class VxMacros
 			if (m.name == tag) return true;
 		}
 		return false;
+	}
+	
+	
+	static private function getMetaTagEntry(metaData:Metadata, tag:String):MetadataEntry {
+		for ( m in metaData) {
+			if (m.name == tag) return m;
+		}
+		return null;
 	}
 	
 	

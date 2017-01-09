@@ -2265,9 +2265,6 @@ haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_
 		this.template = this.Template();
 		this.computed = { total : clsP.get_total, products : clsP.get_products, checkoutStatus : clsP.get_checkoutStatus};
 		this.methods = { get_total : clsP.get_total, get_products : clsP.get_products, get_checkoutStatus : clsP.get_checkoutStatus, checkout : clsP.checkout};
-		if(cls.action == null) {
-			cls.action = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.modules.CartDispatcher");
-		}
 	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_CartVue
 });
@@ -2300,12 +2297,6 @@ haxevx_vuex_examples_shoppingcart_components_ProductListVue.prototype = $extend(
 		this.template = this.Template();
 		this.computed = { products : clsP.get_products};
 		this.methods = { get_products : clsP.get_products, addToCart : clsP.addToCart};
-		if(cls.dispatcher == null) {
-			cls.dispatcher = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher");
-		}
-		if(cls.actionDispatcher == null) {
-			cls.actionDispatcher = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.store.AppActions");
-		}
 	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_ProductListVue
 });
