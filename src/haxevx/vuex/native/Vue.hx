@@ -94,7 +94,7 @@ export type CreateElement = {
 @:build( haxevx.vuex.native.NativeMacro.mixin() )
 extern class Vue		// For simplicity, Native Vue will consider _vData as Dynamic, 
 {
-	public function new(options:ComponentOptions);
+	public function new(options:Dynamic);  // originally Components, but for flexibility without having to cast, using Dynamic instead..
 	
 	@:native("$data") public var _vData:Dynamic;
 

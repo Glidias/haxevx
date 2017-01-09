@@ -19,6 +19,7 @@ import haxe.macro.MacroStringTools;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
 import haxe.rtti.CType.MetaData;
+import haxevx.vuex.util.ReflectUtil;
 
 #if macro
 /**
@@ -36,7 +37,7 @@ class VxMacros
 		// - Thus, data+props can be access locally within component class or through explicit .props or .data accessor.
 		// - Data is included witin class with  full read/write access privately
 	   // - Props is included within class as readonly property signature privately.
-	// If got @_data found, ensure getData() is implemented by class!
+	// If got @_data found, ensure Data() is implemented by class!
 	// prop will include merge info in @prop metadata 
 	//  static @propBinding support for VxStore  or within PropsOfVxStore
 	
@@ -47,6 +48,7 @@ class VxMacros
 	
 	macro public static function buildComponent():Array<Field>  {
 		var fields = Context.getBuildFields();
+		
 		
 		var classModule:String = Context.getLocalClass().get().module;
 		if (classModule == "haxevx.vuex.core.VxComponent"  || classModule == "haxevx.vuex.core.VComponent") return fields;
@@ -87,7 +89,14 @@ class VxMacros
 		
 		var propFieldsToAdd:StringMap<ClassField> = null;
 		var dataFieldsToAdd:Array<ClassField> = null;
-	
+		
+		var cls1 = Context.getLocalClass().toString();
+		var initBlock:Array<Expr> = [];
+		var injectBlock:Array<Expr> = [];
+		var computedAssignments:Array<FieldExprPair> = [];
+		var propAssignments:Array<FieldExprPair> = [];
+		var methodAssignments:Array<FieldExprPair> = [];
+		
 
 		//var data
 		
@@ -109,8 +118,6 @@ class VxMacros
 				
 				if (requireProps) {
 					propFieldsToAdd = classFieldArrayToStrMap( t.get().fields.get() );
-					
-
 				}
 				
 			case Type.TAnonymous(a):
@@ -144,25 +151,72 @@ class VxMacros
 		}
 		
 		var gotGetData:Bool = false;
+		var constructorFieldExpr:Expr;
+		var constructorFieldPos:Position;
+		
+		var injections:Array<{fieldName:String, className:String}> = [];
 		
 		for ( i in 0...fields.length)
 		{
+			
 			var field = fields[i];
 			if (  field.access.indexOf( Access.AStatic) >= 0 ) {
 				
+				if (hasMetaTags(field.meta, META_INJECTIONS)) {
+					
+					switch (field.kind) {
+						case FieldType.FVar(t, _):	
+							
+							var tt;
+							switch( tt=ComplexTypeTools.toType(t)) {
+								case TInst(t, _):
+									//trace(t.toString());
+									injections.push({fieldName:field.name, className: t.toString() });				
+								default:
+									Context.error("Can't resolve class injection path for:"+tt, field.pos);
+							}
+							
+						default:
+							Context.error("Fieldname with injectable metadata is incorrect format:"+field.kind, field.pos);
+							//trace( "" + field.kind);
+					}
+					
+					
+				}
+				
 				continue;
+			}
+			if (reservedCompFieldNames.exists(field.name)) {  //  todo note: this check can be foregoed for explicit Vue instances (ie. non components)
+				Context.error("Field name: " + field.name + " is reserved for comp definition.", Context.currentPos());
 			}
 			switch (field.kind)
 			{
+				
+			
 				case FProp(pget, pset, getType, _):
+					
+					
 					if (field.name == "store") {
 						continue;
+					}
+					
+					if (field.name.charAt(0) == "_") {
+						if (field.name.charAt(1) != "_") {
+							Context.error("Field names cannot start with a single underscore.", field.pos);
+							continue;
+						}
+						else {
+							trace("TODO initialization parameter variables");
+							continue;
+						}
 					}
 					//field.
 					var name = field.name;// formatName(field.name);
 					var indexer:Int;
+					
+					var gotSetter:Bool = false;
 					// assume there is always a getter
-					if (pget == "get" && pset == "never") {
+					if (pget == "get" && ( pset == "never" || pset == "set") ) {
 						if ( (indexer=field.access.indexOf( Access.APublic)) <0 ) {
 							// ok, do nothing
 						}
@@ -170,10 +224,11 @@ class VxMacros
 							Context.warning("Computed getter field: '" + field.name+"' should not be public.", field.pos) ;
 							field.access = field.access.splice(indexer, 1);
 						}
+						gotSetter = pset == "set";
 					}
 					else {
 						//trace("GG2:"+field.name);
-						Context.warning("Computed getter field: '" + field.name+"' needs to adopt (get/never) convention..", field.pos );
+						Context.warning("Computed field: '" + field.name+"' needs to adopt [(get)/(set/never)] convention..(ie. non physical)", field.pos );
 					}
 					
 					if (hasMetaTag(field.meta, "mapGetterProp") ) {
@@ -184,7 +239,6 @@ class VxMacros
 					// Add fields  as type matches getter function return type
 					var func:Function = funcLookup.get(name);
 					
-					
 					if (func != null) {
 						if ( func.ret+"" != getType+"") {  // is this the "right" way to compare  pattern enums? oh well..
 							Context.error("Field types for computed property must match getter method: "+name, field.pos);
@@ -193,17 +247,24 @@ class VxMacros
 						field = fields[i] =  {
 						  name:  name,
 						  access: [Access.APrivate],
-						  kind: FieldType.FProp("default", "never", func.ret), 
+						  kind: FieldType.FProp("default", (gotSetter ? "set" : "never"), func.ret),   // let haxe use default set_method call instead, might as well...
 						  pos: field.pos,
 						  doc: field.doc,
 						  meta: field.meta
 						};
 						if (field.meta == null) field.meta = new Metadata();
-						field.meta.push({name: "_computed",  pos:field.pos});
+						field.meta.push({name: "_computed",  pos:field.pos});  // TODO: remove this once _toNative() is phased out
+						
+						if (!gotSetter) {
+							var fName:String = "get_"+field.name;
+							computedAssignments.push({field:field.name, expr:macro clsP.$fName } );
+						}
+						else {
+							var fName:String = "get_" + field.name;
+							var fName2:String = "set_" + field.name;
+							computedAssignments.push( { field:field.name, expr: macro ${ {expr:EObjectDecl([{field:"get", expr:macro clsP.$fName}, {field:"set", expr:macro clsP.$fName2}]), pos:field.pos} }  } );
+						}
 					
-					}
-					else {
-						Context.error("Could not find getter function for: "+name, field.pos);
 					}
 				case FieldType.FVar(t, e):
 					//field.meta.
@@ -218,8 +279,21 @@ class VxMacros
 					#if !fastcompile 
 						ExprTools.iter( f.expr, checkIllegalAccess); 
 					#end
-					if (field.name == "GetData") {
+					if (field.name == "_new" || field.name == "new") {
+						// constructor found
+						constructorFieldExpr = f.expr;
+						constructorFieldPos = field.pos;
+						continue;
+					}
+					if (field.name == "Data") {
 						gotGetData = true;
+					}
+					if ( illegalReferences.exists(field.name) ) {
+						addMethodHookToInitBlock(field.name, initBlock);
+					}
+					else if (field.name.charAt(0) != "_") {
+						var fName:String = field.name;
+						methodAssignments.push({field:field.name, expr:macro clsP.$fName } );
 					}
 				default:
 					//trace(field.name, field.kind);
@@ -229,7 +303,7 @@ class VxMacros
 		
 		
 		if (requireData && !gotGetData) {
-			Context.fatalError("Component class with Data Type requires getData() implementation", Context.getLocalClass().get().pos);
+			Context.fatalError("Component class with Data Type D requires Data() implementation", Context.getLocalClass().get().pos);
 		}
 		
 		if (dataFieldsToAdd != null) {
@@ -280,32 +354,78 @@ class VxMacros
 						}
 						
 						var p = Context.currentPos();
-
+							propAssignments.push({field:f.name, expr:getPropMetadata2(f.meta.get(), f.type, f.pos, p )});
 						fields.push({
 							name: f.name,
 							doc: f.doc,
 							access: [Access.APrivate],
 							pos: p ,
 							kind:  FieldType.FProp("null", "never",  TypeTools.toComplexType( f.type) ),
-						meta: [ {name:"_prop", pos:p, params:[  getPropMetadata(f.meta.get(), f.type, f.pos, p) ] } ] // only add relavant metatag _prop and relavant metadata
+							meta: [ {name:"_prop", pos:p, params:[  getPropMetadata(f.meta.get(), f.type, f.pos, p) ] } ] // // TODO: remove this once _toNative() is phased out
 						});
 					default:
 						// suppress?
 						 Context.warning("Field type not supported for props: "+f.kind,f.pos);
 				}
 			}
+		}
+		
+		
+		// Set up _Init() generated macro
+		var pos:Position = Context.currentPos();
+
+		var isOverriding:Bool = Context.getLocalClass().get().superClass != null;
+		
+		
+		// Call Init from constructor if required
+		if (!isOverriding) {
+			// inject _Init() call into constructor
+			if (constructorFieldExpr != null) {
+				switch( constructorFieldExpr.expr) {
+					case EBlock(exprs):
+						exprs.push(macro _Init());
+					default:
+						Context.error("Failed to resolve constructor field expr type: " + constructorFieldExpr.expr, constructorFieldPos);
+				}
+			}
+			else {  // add public constructor with _Init() call
+				fields.push(  { name: "new", kind:FieldType.FFun({args:[], ret:null, expr:macro _Init() }) , pos:pos } );
 			
+			}
+		}
+		
+		if (computedAssignments.length != 0) {
+			initBlock.push( macro  untyped this.computed = ${ {expr:EObjectDecl(computedAssignments), pos:pos} } );
+		}
+		if (methodAssignments.length != 0) {
+			initBlock.push( macro  untyped this.methods = ${ {expr:EObjectDecl(methodAssignments), pos:pos} } );
+		}
+		if (propAssignments.length != 0) {
+			initBlock.push( macro  untyped this.props = ${ {expr:EObjectDecl(propAssignments), pos:pos} } );
+		}
+		
+		if (injections.length != 0) {
+			for (inj in injections ) {
+				var fieldName = inj.fieldName;
+				var className = inj.className;
+				//trace(fieldName + ", " + className);
+				initBlock.push( macro if (cls.$fieldName == null) cls.$fieldName = haxevx.vuex.util.ReflectUtil.findSingletonByClassName($v{className}) );
+			}
 			
 		}
-		/*
+		
+		var theInitExpr:Expr = macro {
+			var cls:Dynamic = untyped $p{cls1.split('.')};
+			var clsP:Dynamic = cls.prototype;
+			$b{initBlock};
+		};
+		
 		fields.push({
-				name: "testMethod",
-			
-				access: [Access.APrivate],
-				pos: Context.currentPos() ,
-				kind:  FieldType.FFun({ret:null, args:[], expr:macro { $i{"Math"}.${"round"}(2222); }  } )
-			});
-		*/
+			name: "_Init",
+			access: isOverriding ? [Access.APrivate, Access.AOverride] :  [Access.APrivate],
+			pos: Context.currentPos() ,
+			kind:  FieldType.FFun({ret:null, args:[], expr:theInitExpr } )
+		});
 		
 		return fields;
 	}
@@ -316,7 +436,9 @@ class VxMacros
 	}
 	
 	
-	static  function getPropMetadata(metadata:Metadata, fldType:Type, fldPos:Position, p:Position):Expr {
+	
+	
+	static  function getPropMetadata(metadata:Metadata, fldType:Type, fldPos:Position, p:Position):Expr {  // this will be deperciated
 		var list:Array<{field:String, expr:Expr}> = [];
 		
 		if (metadata != null) {
@@ -345,6 +467,38 @@ class VxMacros
 
 	}
 	
+	
+	static  function getPropMetadata2(metadata:Metadata, fldType:Type, fldPos:Position, p:Position):Expr {
+		var list:Array<{field:String, expr:Expr}> = [];
+		
+		if (metadata != null) {
+			for (m in metadata) {
+				if (m.name == "prop" && m.params!= null && m.params.length > 0 && m.params[0] != null)  {
+					//{ pos:p, expr:m.params[0] };
+					switch( m.params[0].expr) {
+						case ExprDef.EObjectDecl(fields): 
+							for (f in fields) {
+								list.push( {field:f.field, expr:f.expr});
+							}
+						default:
+							Context.fatalError("first parameter for metadata @prop must be Object or null!", fldPos);
+					}
+				}
+			}
+		}
+		
+		//
+		var typeStr:String =  getTypeString(fldType, fldPos);
+		
+		if (typeStr != null ) {
+			
+			list.push({field:"type", expr:macro untyped __js__($v{typeStr}) });
+		}
+		
+		return  {expr:ExprDef.EObjectDecl(list), pos:p};
+
+	}
+	
 	static function getTypeString(type:Type, pos:Position):String {
 		switch (type) {
 			case Type.TDynamic(_):
@@ -367,6 +521,10 @@ class VxMacros
 		}
 	}
 	
+
+
+	
+	
 	static function createStringSetFromArray(arr:Array<String>):StringMap<Bool> {
 		var strMap:StringMap<Bool> = new StringMap<Bool>(); 
 		for (str in arr) {
@@ -380,7 +538,23 @@ class VxMacros
 		var strMap:StringMap<Bool> = createStringSetFromArray([
 			"Created", "BeforeCreate", "BeforeDestroy", "Destroy", "BeforeMount", 
 			"Mounted", "BeforeUpdate", "Updated", "Activated", "Deactivated",
-			"El", "GetData", "Render", "Template", "Components"
+			"El", "Data", "PropsData", "Render", "Template", "Components"
+		]);
+		strMap;
+	};
+	
+	static var META_INJECTIONS:StringMap<Bool> = {
+		var strMap = createStringSetFromArray(["mutator", "action"]);
+		strMap;
+	}
+	
+	
+	
+	static var reservedCompFieldNames:StringMap<Bool> = {
+		var strMap:StringMap<Bool> = createStringSetFromArray([
+			"created", "beforeCreate", "beforeDestroy", "destroy", "beforeMount", 
+			"mounted", "beforeUpdate", "updated", "activated", "deactivated",
+			"el", "data", "propsData", "render", "template", "components"
 		]);
 		strMap;
 	};
@@ -451,6 +625,80 @@ class VxMacros
 	
 	
 	
+	static private function hasMetaTags(metaData:Metadata, tags:StringMap<Bool>):Bool {
+		for ( m in metaData) {
+			if (tags.exists(m.name)) return true;
+		}
+		return false;
+	}
+	
+	
+	
+	
+	static private function addMethodHookToObjDeclArr(f:String, arr:Array<FieldExprPair>):Void {
+				
+		
+		switch(f) {
+			case "Created": arr.push( {field:"created", expr:macro clsP.$f } );
+			case "BeforeCreate":  arr.push( {field:"beforeCreated", expr:macro clsP.$f } );
+			case "BeforeDestroy": arr.push( {field:"beforeDestroy", expr:macro clsP.$f } );
+			case "Destroy":  arr.push( {field:"beforeDestroy", expr:macro clsP.$f } );
+			case "BeforeMount":  arr.push( {field:"beforeMount", expr:macro clsP.$f } );
+			case "Mounted":   arr.push( {field:"mounted", expr:macro clsP.$f } );
+			case "BeforeUpdate":  arr.push( {field:"beforeUpdate", expr:macro clsP.$f } );
+			case "Updated":   arr.push( {field:"updated", expr:macro clsP.$f } );
+			case "Activated":   arr.push( {field:"activated", expr:macro clsP.$f } );
+			case "Deactivated":  arr.push( {field:"deactivated", expr:macro clsP.$f } );
+			case "PropsData":  arr.push( {field:"propsData", expr:macro clsP.$f } );
+			
+			case "Data": arr.push( {field:"data", expr:macro clsP.$f } );
+			
+			case "Render": arr.push( {field:"render", expr:macro clsP.$f } );
+			case "Template": arr.push( {field:"template", expr:macro clsP.$f } );
+			case "El": arr.push( {field:"el", expr:macro clsP.$f() } );
+			case "Components": arr.push( {field:"components", expr:macro clsP.$f() } );
+			default:
+		}
+		
+		
+	}
+	
+		
+	static private function addMethodHookToInitBlock(f:String, arr:Array<Expr>):Void {
+				
+		switch(f) {
+			case "Created": arr.push( macro untyped this.created = clsP.$f );
+			case "BeforeCreate":  arr.push( macro untyped this.beforeCreate =  clsP.$f );
+			case "BeforeDestroy": arr.push( macro untyped this.beforeDestroy = clsP.$f );
+			case "Destroy":	arr.push( macro untyped this.destroy = clsP.$f );
+			case "BeforeMount":	arr.push( macro untyped this.beforeMount = clsP.$f );
+			case "Mounted": 	arr.push( macro untyped this.mounted = clsP.$f );
+			case "BeforeUpdate": arr.push( macro untyped this.beforeUpdate = clsP.$f );
+			case "Updated": arr.push( macro untyped this.updated = clsP.$f );
+			case "Activated": arr.push( macro untyped this.activated = clsP.$f );
+			case "Deactivated":  arr.push( macro untyped this.deactivated = clsP.$f );
+			case "PropsData":   arr.push( macro untyped this.propsData = PropsData() );
+			
+			case "Data":	arr.push( macro untyped this.data = clsP.$f );
+			case "Render":	arr.push( macro untyped this.render = clsP.$f );
+			
+			case "Template": arr.push( macro untyped this.template = this.$f() );
+			case "El":  arr.push( macro untyped this.el = this.$f() );
+			case "Components": arr.push( macro untyped this.components = this.$f() );
+			default:
+		}
+		
+		
+	}
+	
+	
+	
+	
+}
+
+typedef FieldExprPair = {
+	var field:String;
+	var expr:Expr;
 }
 
 typedef PropBinding = {
@@ -459,4 +707,7 @@ typedef PropBinding = {
 	var methodPos:Position;
 }
 
+
+
 #end
+

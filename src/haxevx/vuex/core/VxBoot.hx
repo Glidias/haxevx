@@ -19,70 +19,58 @@ import haxevx.vuex.util.ReflectUtil;
 class VxBoot
 {
 	// saved parameter cache
-	public static var STORE:VxStore<Dynamic>;
-	public static var VUE:VComponent<Dynamic,Dynamic>;
+	 static var STORE:Store<Dynamic>;
+	//public static var VUE:VComponent<Dynamic,Dynamic>;
 
-	public static function startParams<T>(rootVue:VComponent<Dynamic, Dynamic>, store:VxStore<Dynamic> = null, otherComponents:Dynamic<VComponent<Dynamic,Dynamic>> = null):VxBootParams<T> {
-		VUE = rootVue;
-		STORE = store;
-		var storeParams = null;
-		if (store != null) {
-			storeParams = store._toNative();
-			
+
+	
+	public static function startStore<T>(storeInstance:VxStore<Dynamic>):Store<Dynamic>  {
+		if (STORE != null) {
+			throw "Vuex store already started! Only 1 store is allowed";
 		}
-		if (otherComponents!= null) registerGlobalHxComponents(otherComponents);
 		
-		var rootVueOptions =  rootVue._toNative();
-		return {storeParams:storeParams, vueParams:rootVueOptions};
-	}
-	
-	public static function start<T>(rootVue:VComponent<Dynamic, Dynamic>, store:VxStore<Dynamic> = null, otherComponents:Dynamic<VComponent<Dynamic,Dynamic>> = null):Vue {
-		var nativeStore:Store<Dynamic> = null;
-		var opts:VxBootParams<T> = startParams(rootVue, store);
-		if (opts.storeParams != null) {
-			nativeStore = startStore(opts);
-		}	
-		return startVue(opts, nativeStore);
-	}
-	
-	public static function startStore<T>(opts:VxBootParams<T>):Store<Dynamic>  {
+		
+		var storeParams = storeInstance._toNative();
+		
+		
+		
 		var metaFields:Dynamic<Array<Dynamic>>;
 		var md:Dynamic;
 		var noNamespaceGetterProps:Dynamic;
 		// use Vuex
 		//Vue.use(Vuex);
 		
-		var store = new Store(opts.storeParams);
+		var store = new Store(storeParams);
 	
-		if ( opts.storeParams.getters!= null) {
+		if ( storeParams.getters!= null) {
 			// define get_ utility functions under store.getters ( for non-namespced
 			
 			var o:Dynamic;
 			// define get_utility functions under store.customGetters to store.getters namespaced
 			//Reflect.field(opts.storeParams.getters
 			var storeGetters:Dynamic = store.getters;
-			GetterFactory.hookupGettersFromPropsOver(opts.storeParams.getters, storeGetters);
+			GetterFactory.hookupGettersFromPropsOver(storeParams.getters, storeGetters);
 			
 			// find the fields with @getters under STORE and treat them as namespaced mixins
 			// for each getter field instance
-			metaFields = ReflectUtil.getMetaDataFieldsWithTag(Type.getClass(STORE), "getter");
+			metaFields = ReflectUtil.getMetaDataFieldsWithTag(Type.getClass(storeInstance), "getter");
 			if (metaFields != null) {
 				for (p in Reflect.fields(metaFields)) {
-					md = Reflect.field(STORE, p);
+					md = Reflect.field(storeInstance, p);
 					noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
 					GetterFactory.hookupGettersFromPropsOver2(noNamespaceGetterProps, md, storeGetters);
 				}
 			}
 			
 				
-			if (opts.storeParams.modules != null) {  // todo: modules and fractal depth first traversal
+			if (storeParams.modules != null) {  // todo: modules and fractal depth first traversal
 				var moduleNameStack:Array<String> = [];
 				
-				for (p in Reflect.fields((o = opts.storeParams.modules))) {
+				for (p in Reflect.fields((o = storeParams.modules))) {
 					moduleNameStack.push(p);
 					
 					var m:NativeModule<Dynamic,Dynamic> = Reflect.field(o, p);
-					md = Reflect.field(STORE, p); //VModule<Dynamic>
+					md = Reflect.field(storeInstance, p); //VModule<Dynamic>
 						ReflectUtil.setHiddenField(store,  p,  md );
 				
 						/*  // why i included this;.. i dunno.
@@ -144,49 +132,43 @@ class VxBoot
 			ActionFactory.finaliseClass(c, store);
 		}
 		
+		STORE = store;
 		return store;
 	}
 	
-	public static function startVue<T>(opts:VxBootParams<T>, store:Store<Dynamic>):Vue {
+	public static function startVueWithRootComponent<T>(rootComponent:VComponent<Dynamic, Dynamic>):Vue {
 		var bootVueParams:Dynamic = {};
 		bootVueParams.el = "#app";
-		
-		var vueParams = opts.vueParams;
-		if (opts.storeParams != null && store == null) {
-			//throw "ERROR! Store params found but no store provided!";
-			store = startStore(opts);
-			
-		}
-		if (store != null) {
-			
-			Reflect.setField(bootVueParams, "store", store);
-			
+		if (STORE != null) {
+			Reflect.setField(bootVueParams, "store", STORE);
 		}
 
-		bootVueParams.render = getRenderComponentMethod(vueParams);
+		bootVueParams.render = getRenderComponentMethod(rootComponent);
 		var vm =  new Vue(bootVueParams);
 		
 		return vm;
 	}
 	
-	public static function getRenderComponentMethod(nativeComp:Dynamic):CreateElement->VNode {
+	static function getRenderComponentMethod(nativeComp:Dynamic):CreateElement->VNode {
 		return function(h:CreateElement):VNode {
 			return h(nativeComp,null,null);
 		}
 	}
 	
 	
-	public static function registerGlobalHxComponents( otherComponents:Dynamic<VComponent<Dynamic,Dynamic>>):Void {
+	public static function registerGlobalHxComponents( otherComponents:Dynamic):Void {  // originally otherComponents:Dynamic<VComponent<Dynamic,Dynamic>>
 		for (i in Reflect.fields( otherComponents) ) {
 			var comp:VComponent<Dynamic, Dynamic> = cast(Reflect.field( otherComponents, i));
-			var compParams =  comp._toNative();
+			var compParams =  comp;
 			Vue.component( i, compParams);
 		}
 	}
 	
 }
 
+/*
 typedef VxBootParams<T> = {
 	var storeParams:NativeStore<T>;
-	var vueParams:NativeComponent;
+	var vueParams:Dynamic;
 }
+*/

@@ -12,3 +12,4 @@ typedef NativeComponent = ComponentOptions;
 typedef NativeStore<T> = StoreOptions<T>;
 typedef NativeModule<T,R> = Module<T,R>;
 typedef NativeGetters<T,R> = GetterTree<T,R>;
+

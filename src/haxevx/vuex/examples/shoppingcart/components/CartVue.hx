@@ -13,13 +13,12 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * @author Glidias
  */
 using Lambda;
-@:rtti
 class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 {
 
 	public function new() 
 	{
-		
+		super();
 	}
 	
 	@action static var action:CartDispatcher<Dynamic>; 
@@ -44,6 +43,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	public inline function get_checkoutStatus():String {
 		return store.cart.checkoutStatus;
 	}
+	
 	
 	
 	// Methods

@@ -4,6 +4,7 @@ import haxevx.vuex.core.VxBoot;
 import haxevx.vuex.examples.shoppingcart.api.Shop;
 import haxevx.vuex.examples.shoppingcart.components.App;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
+import haxevx.vuex.native.Vue;
 import haxevx.vuex.util.ReflectUtil;
 
 
@@ -18,11 +19,11 @@ class ShoppingCartMain
 	{
 		ReflectUtil.NAMESPACE = ReflectUtil.getPackagePathForInstance(this);
 		
-		var params = VxBoot.startParams( new App(),  new AppStore());
-		
-	
-		VxBoot.startVue(params,  VxBoot.startStore(params));
-		
+		VxBoot.startStore( new AppStore() );
+		VxBoot.startVueWithRootComponent( new App() );
+
+		// if not using VueX and App is a self-contained Vue instance (which isn't in this case, however), can forego VxBoot and simply call:
+		//new Vue( new App() );
 	}
 	
 }

@@ -10,13 +10,12 @@ import haxevx.vuex.examples.shoppingcart.store.AppStore;
  * Root application vue component implementation
  * @author Glidias
  */
-@:rtti
 class App extends VxComponent<AppStore, NoneT, NoneT>
 {
 
 	public function new() 
 	{
-		
+		super();
 	}
 	
 	override function Components():Dynamic<VComponent<Dynamic,Dynamic>> {

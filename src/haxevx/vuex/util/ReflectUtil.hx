@@ -61,7 +61,7 @@ class ReflectUtil
 		#if js 
 			return untyped cls.prototype[field] != null;
 		#else
-			return Type.getInstanceFields(cls).indexOf(field) >= 0
+			return Type.getInstanceFields(cls).indexOf(field) >= 0;
 		#end
 	}
 	

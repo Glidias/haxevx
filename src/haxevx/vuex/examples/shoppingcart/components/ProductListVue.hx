@@ -14,13 +14,12 @@ import haxevx.vuex.util.ReflectUtil;
  * 
  * @author Glidias
  */
-@:rtti
 class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 {
 
 	public function new() 
 	{
-		
+		super();
 	}
 	
 

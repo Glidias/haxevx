@@ -1733,36 +1733,16 @@ haxevx_vuex_core_NoneT.prototype = {
 	}
 	,__class__: haxevx_vuex_core_NoneT
 };
-var haxevx_vuex_core_VComponent = function() { };
+var haxevx_vuex_core_VComponent = function() {
+	this._Init();
+};
 $hxClasses["haxevx.vuex.core.VComponent"] = haxevx_vuex_core_VComponent;
 haxevx_vuex_core_VComponent.__name__ = ["haxevx","vuex","core","VComponent"];
-haxevx_vuex_core_VComponent._reflectPropsMetadataToNative = function(props,propName,cls) {
-	var newProps = { };
-	var referProps = props[0];
-	if(referProps != null) {
-		var _g = 0;
-		var _g1 = Reflect.fields(referProps);
-		while(_g < _g1.length) {
-			var p = _g1[_g];
-			++_g;
-			newProps[p] = Reflect.field(referProps,p);
-		}
-	}
-	if(newProps.type != null) {
-		newProps.type = haxevx_vuex_util_ReflectUtil.strToNativeType(newProps.type);
-	}
-	if(props.length > 1 && props[1]) {
-		var funcLookup = cls.prototype["get_" + propName];
-		if(funcLookup == null) {
-			throw new js__$Boot_HaxeError("Could not find function hander macro get for: " + propName);
-		}
-		newProps["default"] = funcLookup;
-	}
-	return newProps;
-};
 haxevx_vuex_core_VComponent.__super__ = Object;
 haxevx_vuex_core_VComponent.prototype = $extend(Object.prototype,{
-	_props: null
+	_Init: function() {
+	}
+	,_props: null
 	,get__props: function() {
 		return this;
 	}
@@ -1770,10 +1750,10 @@ haxevx_vuex_core_VComponent.prototype = $extend(Object.prototype,{
 	,get__vData: function() {
 		return this.$data;
 	}
-	,GetPropsData: function() {
+	,PropsData: function() {
 		return null;
 	}
-	,GetData: function() {
+	,Data: function() {
 		return null;
 	}
 	,Created: function() {
@@ -1808,168 +1788,6 @@ haxevx_vuex_core_VComponent.prototype = $extend(Object.prototype,{
 	,Components: function() {
 		return null;
 	}
-	,_toNative: function() {
-		var comp = { };
-		var componentsToAdd = null;
-		var nativeChildComponents = { };
-		var cls = js_Boot.getClass(this);
-		var useRtti = haxe_rtti_Rtti.hasRtti(cls);
-		var baseClass = haxevx_vuex_core_VComponent;
-		var fields = useRtti?haxevx_vuex_util_RttiUtil.getInstanceFieldsUnderClass(cls):Type.getInstanceFields(cls);
-		var _g = 0;
-		while(_g < fields.length) {
-			var f = fields[_g];
-			++_g;
-			switch(f) {
-			case "Activated":
-				if(useRtti || cls.prototype.Activated != baseClass.prototype.Activated) {
-					comp.activated = cls.prototype.Activated;
-				}
-				break;
-			case "BeforeCreate":
-				if(useRtti || cls.prototype.BeforeCreate != baseClass.prototype.BeforeCreate) {
-					comp.beforeCreate = cls.prototype.BeforeCreate;
-				}
-				break;
-			case "BeforeDestroy":
-				if(useRtti || cls.prototype.BeforeDestroy != baseClass.prototype.BeforeDestroy) {
-					comp.beforeDestroy = cls.prototype.BeforeDestroy;
-				}
-				break;
-			case "BeforeMount":
-				if(useRtti || cls.prototype.BeforeMount != baseClass.prototype.BeforeMount) {
-					comp.beforeMount = cls.prototype.BeforeMount;
-				}
-				break;
-			case "BeforeUpdate":
-				if(useRtti || cls.prototype.BeforeUpdate != baseClass.prototype.BeforeUpdate) {
-					comp.beforeUpdate = cls.prototype.BeforeUpdate;
-				}
-				break;
-			case "Components":
-				if(useRtti || cls.prototype.Components != baseClass.prototype.Components) {
-					componentsToAdd = this.Components();
-					comp.components = nativeChildComponents;
-				}
-				break;
-			case "Created":
-				if(useRtti || cls.prototype.Created != baseClass.prototype.Created) {
-					comp.created = cls.prototype.Created;
-				}
-				break;
-			case "Deactivated":
-				if(useRtti || cls.prototype.Deactivated != baseClass.prototype.Deactivated) {
-					comp.deactivated = cls.prototype.Deactivated;
-				}
-				break;
-			case "Destroy":
-				if(useRtti || cls.prototype.Destroy != baseClass.prototype.Destroy) {
-					comp.destroy = cls.prototype.Destroy;
-				}
-				break;
-			case "El":
-				if(useRtti || cls.prototype.El != baseClass.prototype.El) {
-					comp.el = this.El();
-				}
-				break;
-			case "GetData":
-				if(useRtti || cls.prototype.GetData != baseClass.prototype.GetData) {
-					comp.data = cls.prototype.GetData;
-				}
-				break;
-			case "GetPropsData":
-				if(useRtti || cls.prototype.GetPropsData != baseClass.prototype.GetPropsData) {
-					comp.propsData = this.GetPropsData();
-				}
-				break;
-			case "Mounted":
-				if(useRtti || cls.prototype.Mounted != baseClass.prototype.Mounted) {
-					comp.mounted = cls.prototype.Mounted;
-				}
-				break;
-			case "Render":
-				if(useRtti || cls.prototype.Render != baseClass.prototype.Render) {
-					comp.render = cls.prototype.Render;
-				}
-				break;
-			case "Template":
-				if(useRtti || cls.prototype.Template != baseClass.prototype.Template) {
-					comp.template = this.Template();
-				}
-				break;
-			case "Updated":
-				if(useRtti || cls.prototype.Updated != baseClass.prototype.Updated) {
-					comp.updated = cls.prototype.Updated;
-				}
-				break;
-			default:
-				if(useRtti || cls.prototype[f] != baseClass.prototype[f]) {
-					if(Reflect.isFunction(Reflect.field(this,f)) && f != "get_store") {
-						if(comp.methods == null) {
-							comp.methods = { };
-						}
-						comp.methods[f] = Reflect.field(this,f);
-					}
-				}
-			}
-		}
-		if(haxevx_vuex_util_ReflectUtil.requiresInjection(null,haxevx_vuex_core_VComponent.META_INJECTIONS,cls)) {
-			haxevx_vuex_util_RttiUtil.injectFoundSingletonInstances(cls,haxe_rtti_Rtti.getRtti(cls),null,haxevx_vuex_core_VComponent.META_INJECTIONS);
-		}
-		var cFields;
-		var t;
-		var mInfo;
-		cFields = haxevx_vuex_util_ReflectUtil.getMetaDataFieldsWithTag(cls,"_computed");
-		var _g1 = 0;
-		var _g11 = Reflect.fields(cFields);
-		while(_g1 < _g11.length) {
-			var f1 = _g11[_g1];
-			++_g1;
-			t = Reflect.field(this,"get_" + f1);
-			if(t == null || !Reflect.isFunction(t)) {
-				throw new js__$Boot_HaxeError("Invalid get_" + f1);
-			}
-			if(comp.computed == null) {
-				comp.computed = { };
-			}
-			comp.computed[f1] = t;
-		}
-		cFields = haxevx_vuex_util_ReflectUtil.getMetaDataFieldsWithTag(cls,"_prop");
-		comp.props = { };
-		var _g2 = 0;
-		var _g12 = Reflect.fields(cFields);
-		while(_g2 < _g12.length) {
-			var f2 = _g12[_g2];
-			++_g2;
-			var propMetaInfo = Reflect.field(cFields,f2);
-			if(propMetaInfo != null) {
-				if((propMetaInfo instanceof Array) && propMetaInfo.__enum__ == null) {
-					if(propMetaInfo.length > 0) {
-						propMetaInfo = haxevx_vuex_core_VComponent._reflectPropsMetadataToNative(propMetaInfo,f2,cls);
-					} else {
-						propMetaInfo = { };
-					}
-				} else {
-					throw new js__$Boot_HaxeError("Prop meta-info isn't array!!");
-				}
-			} else {
-				console.log("No property params found:" + Std.string(propMetaInfo));
-				propMetaInfo = { };
-			}
-			comp.props[f2] = propMetaInfo;
-		}
-		if(componentsToAdd != null) {
-			var _g3 = 0;
-			var _g13 = Reflect.fields(componentsToAdd);
-			while(_g3 < _g13.length) {
-				var f3 = _g13[_g3];
-				++_g3;
-				var c = Reflect.field(componentsToAdd,f3);
-				nativeChildComponents[f3] = c._toNative();
-			}
-		}
-		return comp;
-	}
 	,__class__: haxevx_vuex_core_VComponent
 });
 var haxevx_vuex_core_VModule = function() { };
@@ -1983,60 +1801,42 @@ var haxevx_vuex_core_VxBoot = function() { };
 $hxClasses["haxevx.vuex.core.VxBoot"] = haxevx_vuex_core_VxBoot;
 haxevx_vuex_core_VxBoot.__name__ = ["haxevx","vuex","core","VxBoot"];
 haxevx_vuex_core_VxBoot.STORE = null;
-haxevx_vuex_core_VxBoot.VUE = null;
-haxevx_vuex_core_VxBoot.startParams = function(rootVue,store,otherComponents) {
-	haxevx_vuex_core_VxBoot.VUE = rootVue;
-	haxevx_vuex_core_VxBoot.STORE = store;
-	var storeParams = null;
-	if(store != null) {
-		storeParams = store._toNative();
+haxevx_vuex_core_VxBoot.startStore = function(storeInstance) {
+	if(haxevx_vuex_core_VxBoot.STORE != null) {
+		throw new js__$Boot_HaxeError("Vuex store already started! Only 1 store is allowed");
 	}
-	if(otherComponents != null) {
-		haxevx_vuex_core_VxBoot.registerGlobalHxComponents(otherComponents);
-	}
-	return { storeParams : storeParams, vueParams : rootVue._toNative()};
-};
-haxevx_vuex_core_VxBoot.start = function(rootVue,store,otherComponents) {
-	var nativeStore = null;
-	var opts = haxevx_vuex_core_VxBoot.startParams(rootVue,store);
-	if(opts.storeParams != null) {
-		nativeStore = haxevx_vuex_core_VxBoot.startStore(opts);
-	}
-	return haxevx_vuex_core_VxBoot.startVue(opts,nativeStore);
-};
-haxevx_vuex_core_VxBoot.startStore = function(opts) {
+	var storeParams = storeInstance._toNative();
 	var metaFields;
 	var md;
 	var noNamespaceGetterProps;
-	var store = new Vuex.Store(opts.storeParams);
-	if(opts.storeParams.getters != null) {
+	var store = new Vuex.Store(storeParams);
+	if(storeParams.getters != null) {
 		var o;
 		var storeGetters = store.getters;
-		haxevx_vuex_util_GetterFactory.hookupGettersFromPropsOver(opts.storeParams.getters,storeGetters);
-		var o1 = haxevx_vuex_core_VxBoot.STORE;
-		metaFields = haxevx_vuex_util_ReflectUtil.getMetaDataFieldsWithTag(o1 == null?null:js_Boot.getClass(o1),"getter");
+		haxevx_vuex_util_GetterFactory.hookupGettersFromPropsOver(storeParams.getters,storeGetters);
+		metaFields = haxevx_vuex_util_ReflectUtil.getMetaDataFieldsWithTag(storeInstance == null?null:js_Boot.getClass(storeInstance),"getter");
 		if(metaFields != null) {
 			var _g = 0;
 			var _g1 = Reflect.fields(metaFields);
 			while(_g < _g1.length) {
 				var p = _g1[_g];
 				++_g;
-				md = Reflect.field(haxevx_vuex_core_VxBoot.STORE,p);
+				md = Reflect.field(storeInstance,p);
 				noNamespaceGetterProps = haxevx_vuex_util_GetterFactory.setupGettersFromInstance(md);
 				haxevx_vuex_util_GetterFactory.hookupGettersFromPropsOver2(noNamespaceGetterProps,md,storeGetters);
 			}
 		}
-		if(opts.storeParams.modules != null) {
+		if(storeParams.modules != null) {
 			var moduleNameStack = [];
 			var _g2 = 0;
-			o = opts.storeParams.modules;
+			o = storeParams.modules;
 			var _g11 = Reflect.fields(o);
 			while(_g2 < _g11.length) {
 				var p1 = _g11[_g2];
 				++_g2;
 				moduleNameStack.push(p1);
 				var m = Reflect.field(o,p1);
-				md = Reflect.field(haxevx_vuex_core_VxBoot.STORE,p1);
+				md = Reflect.field(storeInstance,p1);
 				haxevx_vuex_util_ReflectUtil.setHiddenField(store,p1,md);
 				if(m.getters != null) {
 					noNamespaceGetterProps = haxevx_vuex_util_GetterFactory.setupGettersFromInstance(md);
@@ -2068,19 +1868,16 @@ haxevx_vuex_core_VxBoot.startStore = function(opts) {
 		}
 		haxevx_vuex_util_ActionFactory.finaliseClass(c1,store);
 	}
+	haxevx_vuex_core_VxBoot.STORE = store;
 	return store;
 };
-haxevx_vuex_core_VxBoot.startVue = function(opts,store) {
+haxevx_vuex_core_VxBoot.startVueWithRootComponent = function(rootComponent) {
 	var bootVueParams = { };
 	bootVueParams.el = "#app";
-	var vueParams = opts.vueParams;
-	if(opts.storeParams != null && store == null) {
-		store = haxevx_vuex_core_VxBoot.startStore(opts);
+	if(haxevx_vuex_core_VxBoot.STORE != null) {
+		bootVueParams.store = haxevx_vuex_core_VxBoot.STORE;
 	}
-	if(store != null) {
-		bootVueParams.store = store;
-	}
-	bootVueParams.render = haxevx_vuex_core_VxBoot.getRenderComponentMethod(vueParams);
+	bootVueParams.render = haxevx_vuex_core_VxBoot.getRenderComponentMethod(rootComponent);
 	return new Vue(bootVueParams);
 };
 haxevx_vuex_core_VxBoot.getRenderComponentMethod = function(nativeComp) {
@@ -2094,10 +1891,12 @@ haxevx_vuex_core_VxBoot.registerGlobalHxComponents = function(otherComponents) {
 	while(_g < _g1.length) {
 		var i = _g1[_g];
 		++_g;
-		Vue.component(i,Reflect.field(otherComponents,i)._toNative());
+		Vue.component(i,Reflect.field(otherComponents,i));
 	}
 };
-var haxevx_vuex_core_VxComponent = function() { };
+var haxevx_vuex_core_VxComponent = function() {
+	haxevx_vuex_core_VComponent.call(this);
+};
 $hxClasses["haxevx.vuex.core.VxComponent"] = haxevx_vuex_core_VxComponent;
 haxevx_vuex_core_VxComponent.__name__ = ["haxevx","vuex","core","VxComponent"];
 haxevx_vuex_core_VxComponent.__super__ = haxevx_vuex_core_VComponent;
@@ -2366,8 +2165,8 @@ haxevx_vuex_core_VxStore.prototype = {
 };
 var haxevx_vuex_examples_shoppingcart_ShoppingCartMain = function() {
 	haxevx_vuex_util_ReflectUtil.set_NAMESPACE(haxevx_vuex_util_ReflectUtil.getPackagePathForInstance(this));
-	var params = haxevx_vuex_core_VxBoot.startParams(new haxevx_vuex_examples_shoppingcart_components_App(),new haxevx_vuex_examples_shoppingcart_store_AppStore());
-	haxevx_vuex_core_VxBoot.startVue(params,haxevx_vuex_core_VxBoot.startStore(params));
+	haxevx_vuex_core_VxBoot.startStore(new haxevx_vuex_examples_shoppingcart_store_AppStore());
+	haxevx_vuex_core_VxBoot.startVueWithRootComponent(new haxevx_vuex_examples_shoppingcart_components_App());
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.ShoppingCartMain"] = haxevx_vuex_examples_shoppingcart_ShoppingCartMain;
 haxevx_vuex_examples_shoppingcart_ShoppingCartMain.__name__ = ["haxevx","vuex","examples","shoppingcart","ShoppingCartMain"];
@@ -2407,6 +2206,7 @@ haxevx_vuex_examples_shoppingcart_api_Shop.prototype = {
 	,__class__: haxevx_vuex_examples_shoppingcart_api_Shop
 };
 var haxevx_vuex_examples_shoppingcart_components_App = function() {
+	haxevx_vuex_core_VxComponent.call(this);
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.components.App"] = haxevx_vuex_examples_shoppingcart_components_App;
 haxevx_vuex_examples_shoppingcart_components_App.__name__ = ["haxevx","vuex","examples","shoppingcart","components","App"];
@@ -2418,9 +2218,16 @@ haxevx_vuex_examples_shoppingcart_components_App.prototype = $extend(haxevx_vuex
 	,Template: function() {
 		return "<div id=\"app\">\r\n\t\t\t\t<h1>Shopping Cart Example</h1>\r\n\t\t\t\t<hr>\r\n\t\t\t\t<h2>Products</h2>\r\n\t\t\t\t<product-list></product-list>\r\n\t\t\t\t<hr>\r\n\t\t\t\t<cart></cart>\r\n\t\t\t  </div>";
 	}
+	,_Init: function() {
+		var cls = haxevx_vuex_examples_shoppingcart_components_App;
+		var clsP = cls.prototype;
+		this.components = this.Components();
+		this.template = this.Template();
+	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_App
 });
 var haxevx_vuex_examples_shoppingcart_components_CartVue = function() {
+	haxevx_vuex_core_VxComponent.call(this);
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.components.CartVue"] = haxevx_vuex_examples_shoppingcart_components_CartVue;
 haxevx_vuex_examples_shoppingcart_components_CartVue.__name__ = ["haxevx","vuex","examples","shoppingcart","components","CartVue"];
@@ -2447,9 +2254,20 @@ haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_
 	,Template: function() {
 		return "<div class=\"cart\">\r\n\t\t\t\t<h2>Your Cart</h2>\r\n\t\t\t\t<p v-show=\"!products.length\"><i>Please add some products to cart.</i></p>\r\n\t\t\t\t<ul>\r\n\t\t\t\t  <li v-for=\"p in products\">\r\n\t\t\t\t\t{{ p.title }} - {{ p.price  }}  (x{{ p.quantity }})\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<p>Total: {{ total  }}</p>\r\n\t\t\t\t<p><button :disabled=\"!products.length\" @click=\"checkout(products)\">Checkout</button></p>\r\n\t\t\t\t<p v-show=\"checkoutStatus\">Checkout {{ checkoutStatus }}.</p>\r\n\t\t\t  </div>";
 	}
+	,_Init: function() {
+		var cls = haxevx_vuex_examples_shoppingcart_components_CartVue;
+		var clsP = cls.prototype;
+		this.template = this.Template();
+		this.computed = { total : clsP.get_total, products : clsP.get_products, checkoutStatus : clsP.get_checkoutStatus};
+		this.methods = { get_total : clsP.get_total, get_products : clsP.get_products, get_checkoutStatus : clsP.get_checkoutStatus, checkout : clsP.checkout};
+		if(cls.action == null) {
+			cls.action = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.modules.CartDispatcher");
+		}
+	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_CartVue
 });
 var haxevx_vuex_examples_shoppingcart_components_ProductListVue = function() {
+	haxevx_vuex_core_VxComponent.call(this);
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.components.ProductListVue"] = haxevx_vuex_examples_shoppingcart_components_ProductListVue;
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.__name__ = ["haxevx","vuex","examples","shoppingcart","components","ProductListVue"];
@@ -2469,6 +2287,20 @@ haxevx_vuex_examples_shoppingcart_components_ProductListVue.prototype = $extend(
 	}
 	,Template: function() {
 		return "<ul>\r\n\t\t\t<li v-for=\"p in products\">\r\n\t\t\t  {{ p.title }} - {{ p.price }} - ({{p.inventory}})\r\n\t\t\t  <br>\r\n\t\t\t  <button\r\n\t\t\t\t:disabled=\"!p.inventory\"\r\n\t\t\t\t@click=\"addToCart(p)\">\r\n\t\t\t\tAdd to cart\r\n\t\t\t  </button>\r\n\t\t\t</li>\r\n\t\t</ul>";
+	}
+	,_Init: function() {
+		var cls = haxevx_vuex_examples_shoppingcart_components_ProductListVue;
+		var clsP = cls.prototype;
+		this.created = clsP.Created;
+		this.template = this.Template();
+		this.computed = { products : clsP.get_products};
+		this.methods = { get_products : clsP.get_products, addToCart : clsP.addToCart};
+		if(cls.dispatcher == null) {
+			cls.dispatcher = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher");
+		}
+		if(cls.actionDispatcher == null) {
+			cls.actionDispatcher = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.store.AppActions");
+		}
 	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_ProductListVue
 });
@@ -3658,33 +3490,9 @@ haxe_xml_Parser.escapes = (function($this) {
 	$r = h;
 	return $r;
 }(this));
-haxevx_vuex_core_VComponent.META_INJECTIONS = (function($this) {
-	var $r;
-	var strMap = new haxe_ds_StringMap();
-	if(__map_reserved.mutator != null) {
-		strMap.setReserved("mutator",true);
-	} else {
-		strMap.h["mutator"] = true;
-	}
-	if(__map_reserved.action != null) {
-		strMap.setReserved("action",true);
-	} else {
-		strMap.h["action"] = true;
-	}
-	if(__map_reserved.getter != null) {
-		strMap.setReserved("getter",true);
-	} else {
-		strMap.h["getter"] = true;
-	}
-	$r = strMap;
-	return $r;
-}(this));
 haxevx_vuex_core_VxStore.__rtti = "<class path=\"haxevx.vuex.core.VxStore\" params=\"T\">\n\t<implements path=\"haxevx.vuex.core.IVxStoreContext\"><c path=\"haxevx.vuex.core.VxStore.T\"/></implements>\n\t<state public=\"1\"><c path=\"haxevx.vuex.core.VxStore.T\"/></state>\n\t<dispatch public=\"1\" set=\"method\" line=\"28\">\n\t\t<f a=\"type:?payload\" v=\":null\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<meta><m n=\":value\"><e>{ payload : null }</e></m></meta>\n\t</dispatch>\n\t<commit public=\"1\" set=\"method\" line=\"29\">\n\t\t<f a=\"type:?payload\" v=\":null\">\n\t\t\t<c path=\"String\"/>\n\t\t\t<d/>\n\t\t\t<x path=\"Void\"/>\n\t\t</f>\n\t\t<meta><m n=\":value\"><e>{ payload : null }</e></m></meta>\n\t</commit>\n\t<strict public=\"1\" expr=\"false\" line=\"31\">\n\t\t<x path=\"Bool\"/>\n\t\t<meta><m n=\":value\"><e>false</e></m></meta>\n\t</strict>\n\t<_toNative public=\"1\" set=\"method\" line=\"34\"><f a=\"\"><t path=\"haxevx.vuex.core.NativeStore\"><c path=\"haxevx.vuex.core.VxStore.T\"/></t></f></_toNative>\n\t<getModuleTree set=\"method\" line=\"144\"><f a=\"moduleInstance:moduleNamespace\">\n\t<d/>\n\t<c path=\"String\"/>\n\t<t path=\"haxevx.vuex.core.NativeModule\">\n\t\t<d/>\n\t\t<d/>\n\t</t>\n</f></getModuleTree>\n\t<new public=\"1\" set=\"method\" line=\"23\">\n\t\t<f a=\"\"><x path=\"Void\"/></f>\n\t\t<meta><m n=\":compilerGenerated\"/></meta>\n\t</new>\n\t<meta><m n=\":rtti\"/></meta>\n</class>";
-haxevx_vuex_examples_shoppingcart_components_App.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.App\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<Components set=\"method\" line=\"22\" override=\"1\"><f a=\"\"><d><c path=\"haxevx.vuex.core.VComponent\">\n\t<d/>\n\t<d/>\n</c></d></f></Components>\n\t<Template public=\"1\" set=\"method\" line=\"31\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"17\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_components_CartVue.__meta__ = { statics : { action : { action : null}}, fields : { total : { _computed : null}, products : { _computed : null}, checkoutStatus : { _computed : null}}};
-haxevx_vuex_examples_shoppingcart_components_CartVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.CartVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<action static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartDispatcher\"><d/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</action>\n\t<total set=\"null\">\n\t\t<x path=\"Float\"/>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</total>\n\t<get_total set=\"method\" line=\"31\"><f a=\"\"><x path=\"Float\"/></f></get_total>\n\t<products set=\"null\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</products>\n\t<get_products public=\"1\" get=\"inline\" set=\"null\" line=\"39\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c></f></get_products>\n\t<checkoutStatus set=\"null\">\n\t\t<c path=\"String\"/>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</checkoutStatus>\n\t<get_checkoutStatus public=\"1\" get=\"inline\" set=\"null\" line=\"44\"><f a=\"\"><c path=\"String\"/></f></get_checkoutStatus>\n\t<checkout public=\"1\" set=\"method\" line=\"50\"><f a=\"products\">\n\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInCart\"/></c>\n\t<x path=\"Void\"/>\n</f></checkout>\n\t<Template set=\"method\" line=\"55\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"20\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_components_ProductListVue.__meta__ = { statics : { dispatcher : { action : null}, actionDispatcher : { action : null}}, fields : { products : { _computed : null}}};
-haxevx_vuex_examples_shoppingcart_components_ProductListVue.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.components.ProductListVue\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VxComponent\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppStore\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t\t<c path=\"haxevx.vuex.core.NoneT\"/>\n\t</extends>\n\t<dispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher\"/>\n\t\t<meta><m n=\"action\"/></meta>\n\t</dispatcher>\n\t<actionDispatcher static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.store.AppActions\"><d/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</actionDispatcher>\n\t<products set=\"null\">\n\t\t<c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c>\n\t\t<meta><m n=\"_computed\"/></meta>\n\t</products>\n\t<get_products public=\"1\" set=\"method\" line=\"33\"><f a=\"\"><c path=\"Array\"><t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/></c></f></get_products>\n\t<addToCart set=\"method\" line=\"39\"><f a=\"p\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.store.ProductInStore\"/>\n\t<x path=\"Void\"/>\n</f></addToCart>\n\t<Created public=\"1\" set=\"method\" line=\"48\" override=\"1\"><f a=\"\"><x path=\"Void\"/></f></Created>\n\t<Template public=\"1\" set=\"method\" line=\"54\" override=\"1\"><f a=\"\"><c path=\"String\"/></f></Template>\n\t<new public=\"1\" set=\"method\" line=\"21\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":build\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":autoBuild\"><e>haxevx.vuex.core.VxMacros.buildComponent()</e></m>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_modules_Cart.__meta__ = { statics : { action : { action : null}, mutator : { mutator : null}}};
 haxevx_vuex_examples_shoppingcart_modules_Cart.__rtti = "<class path=\"haxevx.vuex.examples.shoppingcart.modules.Cart\" params=\"\">\n\t<extends path=\"haxevx.vuex.core.VModule\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></extends>\n\t<getCheckoutStatus set=\"method\" line=\"40\" static=\"1\"><f a=\"state\">\n\t<t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/>\n\t<c path=\"String\"/>\n</f></getCheckoutStatus>\n\t<action static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartDispatcher\"><t path=\"haxevx.vuex.examples.shoppingcart.modules.CartState\"/></c>\n\t\t<meta><m n=\"action\"/></meta>\n\t</action>\n\t<mutator static=\"1\">\n\t\t<c path=\"haxevx.vuex.examples.shoppingcart.modules.CartMutator\"/>\n\t\t<meta><m n=\"mutator\"/></meta>\n\t</mutator>\n\t<checkoutStatus public=\"1\" get=\"accessor\" set=\"null\"><c path=\"String\"/></checkoutStatus>\n\t<get_checkoutStatus set=\"method\" line=\"36\"><f a=\"\"><c path=\"String\"/></f></get_checkoutStatus>\n\t<new public=\"1\" set=\"method\" line=\"22\"><f a=\"\"><x path=\"Void\"/></f></new>\n\t<meta>\n\t\t<m n=\":directlyUsed\"/>\n\t\t<m n=\":rtti\"/>\n\t</meta>\n</class>";
 haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.__meta__ = { statics : { mutator : { mutator : null}}};
