@@ -4,7 +4,10 @@
 
 ### Type-safe coding to target Vuex/VueJS environments using Haxe compile-time Macros and Classes. ~~~runtime Reflection/Metadata and RTTI (runtime-type information)~~~.
 
-Still in early draft stage, but some ideas i've been tossing around with regards to developing in Haxe to target/construct a VueJS/VueX 2.0 application. With it, you get the benefit of massive type-hinting/type-checking/compile-time safety, etc. inherant within Haxe. 
+With HaxeVx, you get the benefit of massive access-control/type-hinting/type-checking/compile-time safety, etc. inherant within Haxe when developing VueJS/Vuex applications. Compile-time mixins/macros/checks are provided specifically for your Haxe classes to ensure they conform to the necessary VueJS conventions.
+
+For what features are available, documentations can be found in wiki:
+https://github.com/Glidias/haxevx/wiki
 
 Examples (based off Vuex repository examples) can be found [here](https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples)
 	
@@ -12,9 +15,7 @@ Currently, the working Shopping Cart example (ported from the Vuex example) is a
 
 Roadmap can be found [here](https://github.com/Glidias/haxevx/issues/2)
 	
-Documentations can be found in wiki:
-https://github.com/Glidias/haxevx/wiki
-	
+
 ____________
 
 
@@ -43,7 +44,3 @@ Main links:
 VueJS - https://vuejs.org/
 Vuex - https://vuex.vuejs.org/en
 Haxe - http://haxe.org
-	
-Related Links:
-	
-Haxe vs Typescript -  https://blog.onthewings.net/2015/08/05/typescript-vs-haxe/
