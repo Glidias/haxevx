@@ -21,11 +21,9 @@ class App extends VxComponent<AppStore, NoneT, NoneT>
 	override function Components():Dynamic<VComponent<Dynamic,Dynamic>> {
 		return {
 			"product-list": new ProductListVue(),
-			"cart": new CartVue()
+			"cart": new CartVue("My Haxe Cart")
 		};
 	}
-	
-	
 	
 	override public function Template():String {
 		return '<div id="app">

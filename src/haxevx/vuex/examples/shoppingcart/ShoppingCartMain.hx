@@ -20,7 +20,7 @@ class ShoppingCartMain
 		ReflectUtil.NAMESPACE = ReflectUtil.getPackagePathForInstance(this);
 		
 		VxBoot.startStore( new AppStore() );
-		VxBoot.startVueWithRootComponent( new App() );
+		VxBoot.startVueWithRootComponent("#app", new App() );
 
 		// if not using VueX and App is a self-contained Vue instance (which isn't in this case, however), can forego VxBoot and simply call:
 		//new Vue( new App() );

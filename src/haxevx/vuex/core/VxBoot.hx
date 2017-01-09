@@ -136,9 +136,9 @@ class VxBoot
 		return store;
 	}
 	
-	public static function startVueWithRootComponent<T>(rootComponent:VComponent<Dynamic, Dynamic>):Vue {
+	public static function startVueWithRootComponent<T>(el:String, rootComponent:VComponent<Dynamic, Dynamic>):Vue {
 		var bootVueParams:Dynamic = {};
-		bootVueParams.el = "#app";
+		bootVueParams.el = el;
 		if (STORE != null) {
 			Reflect.setField(bootVueParams, "store", STORE);
 		}

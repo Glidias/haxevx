@@ -1871,9 +1871,9 @@ haxevx_vuex_core_VxBoot.startStore = function(storeInstance) {
 	haxevx_vuex_core_VxBoot.STORE = store;
 	return store;
 };
-haxevx_vuex_core_VxBoot.startVueWithRootComponent = function(rootComponent) {
+haxevx_vuex_core_VxBoot.startVueWithRootComponent = function(el,rootComponent) {
 	var bootVueParams = { };
-	bootVueParams.el = "#app";
+	bootVueParams.el = el;
 	if(haxevx_vuex_core_VxBoot.STORE != null) {
 		bootVueParams.store = haxevx_vuex_core_VxBoot.STORE;
 	}
@@ -2166,7 +2166,7 @@ haxevx_vuex_core_VxStore.prototype = {
 var haxevx_vuex_examples_shoppingcart_ShoppingCartMain = function() {
 	haxevx_vuex_util_ReflectUtil.set_NAMESPACE(haxevx_vuex_util_ReflectUtil.getPackagePathForInstance(this));
 	haxevx_vuex_core_VxBoot.startStore(new haxevx_vuex_examples_shoppingcart_store_AppStore());
-	haxevx_vuex_core_VxBoot.startVueWithRootComponent(new haxevx_vuex_examples_shoppingcart_components_App());
+	haxevx_vuex_core_VxBoot.startVueWithRootComponent("#app",new haxevx_vuex_examples_shoppingcart_components_App());
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.ShoppingCartMain"] = haxevx_vuex_examples_shoppingcart_ShoppingCartMain;
 haxevx_vuex_examples_shoppingcart_ShoppingCartMain.__name__ = ["haxevx","vuex","examples","shoppingcart","ShoppingCartMain"];
@@ -2213,7 +2213,7 @@ haxevx_vuex_examples_shoppingcart_components_App.__name__ = ["haxevx","vuex","ex
 haxevx_vuex_examples_shoppingcart_components_App.__super__ = haxevx_vuex_core_VxComponent;
 haxevx_vuex_examples_shoppingcart_components_App.prototype = $extend(haxevx_vuex_core_VxComponent.prototype,{
 	Components: function() {
-		return { 'product-list' : new haxevx_vuex_examples_shoppingcart_components_ProductListVue(), 'cart' : new haxevx_vuex_examples_shoppingcart_components_CartVue()};
+		return { 'product-list' : new haxevx_vuex_examples_shoppingcart_components_ProductListVue(), 'cart' : new haxevx_vuex_examples_shoppingcart_components_CartVue("My Haxe Cart")};
 	}
 	,Template: function() {
 		return "<div id=\"app\">\r\n\t\t\t\t<h1>Shopping Cart Example</h1>\r\n\t\t\t\t<hr>\r\n\t\t\t\t<h2>Products</h2>\r\n\t\t\t\t<product-list></product-list>\r\n\t\t\t\t<hr>\r\n\t\t\t\t<cart></cart>\r\n\t\t\t  </div>";
@@ -2226,7 +2226,11 @@ haxevx_vuex_examples_shoppingcart_components_App.prototype = $extend(haxevx_vuex
 	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_App
 });
-var haxevx_vuex_examples_shoppingcart_components_CartVue = function() {
+var haxevx_vuex_examples_shoppingcart_components_CartVue = function(customTitle) {
+	if(customTitle == null) {
+		customTitle = "My Cart";
+	}
+	this.__customTitle = customTitle;
 	haxevx_vuex_core_VxComponent.call(this);
 };
 $hxClasses["haxevx.vuex.examples.shoppingcart.components.CartVue"] = haxevx_vuex_examples_shoppingcart_components_CartVue;
@@ -2234,7 +2238,8 @@ haxevx_vuex_examples_shoppingcart_components_CartVue.__name__ = ["haxevx","vuex"
 haxevx_vuex_examples_shoppingcart_components_CartVue.action = null;
 haxevx_vuex_examples_shoppingcart_components_CartVue.__super__ = haxevx_vuex_core_VxComponent;
 haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_vuex_core_VxComponent.prototype,{
-	total: null
+	__customTitle: null
+	,total: null
 	,get_total: function() {
 		return Lambda.fold(this.products,function(p,total) {
 			return total + p.price * p.quantity;
@@ -2252,7 +2257,7 @@ haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_
 		haxevx_vuex_examples_shoppingcart_components_CartVue.action.checkout(products);
 	}
 	,Template: function() {
-		return "<div class=\"cart\">\r\n\t\t\t\t<h2>Your Cart</h2>\r\n\t\t\t\t<p v-show=\"!products.length\"><i>Please add some products to cart.</i></p>\r\n\t\t\t\t<ul>\r\n\t\t\t\t  <li v-for=\"p in products\">\r\n\t\t\t\t\t{{ p.title }} - {{ p.price  }}  (x{{ p.quantity }})\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<p>Total: {{ total  }}</p>\r\n\t\t\t\t<p><button :disabled=\"!products.length\" @click=\"checkout(products)\">Checkout</button></p>\r\n\t\t\t\t<p v-show=\"checkoutStatus\">Checkout {{ checkoutStatus }}.</p>\r\n\t\t\t  </div>";
+		return "<div class=\"cart\">\r\n\t\t\t\t<h2>" + this.__customTitle + "</h2>\r\n\t\t\t\t<p v-show=\"!products.length\"><i>Please add some products to cart.</i></p>\r\n\t\t\t\t<ul>\r\n\t\t\t\t  <li v-for=\"p in products\">\r\n\t\t\t\t\t{{ p.title }} - {{ p.price  }}  (x{{ p.quantity }})\r\n\t\t\t\t  </li>\r\n\t\t\t\t</ul>\r\n\t\t\t\t<p>Total: {{ total  }}</p>\r\n\t\t\t\t<p><button :disabled=\"!products.length\" @click=\"checkout(products)\">Checkout</button></p>\r\n\t\t\t\t<p v-show=\"checkoutStatus\">Checkout {{ checkoutStatus }}.</p>\r\n\t\t\t  </div>";
 	}
 	,_Init: function() {
 		var cls = haxevx_vuex_examples_shoppingcart_components_CartVue;

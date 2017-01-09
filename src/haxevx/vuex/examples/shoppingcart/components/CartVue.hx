@@ -16,9 +16,16 @@ using Lambda;
 class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 {
 
-	public function new() 
+	var __customTitle:String;
+	
+	public function new(customTitle:String = "My Cart") 
 	{
+		__customTitle = customTitle;
+		
+		// ensure you call call super() last...because _Init() must be called last!
 		super();
+		
+
 	}
 	
 	@action static var action:CartDispatcher<Dynamic>; 
@@ -54,7 +61,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	override function Template():String {
 		return '<div class="cart">
-				<h2>Your Cart</h2>
+				<h2>$__customTitle</h2>
 				<p v-show="!products.length"><i>Please add some products to cart.</i></p>
 				<ul>
 				  <li v-for="p in products">
