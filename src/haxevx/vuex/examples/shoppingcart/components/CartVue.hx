@@ -28,7 +28,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 
 	}
 	
-	@action static var action:CartDispatcher<Dynamic>; 
+	@:action static var action:CartDispatcher<Dynamic>; 
 	
 
 	// Computed

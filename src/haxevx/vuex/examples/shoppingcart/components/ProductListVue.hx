@@ -23,8 +23,8 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	}
 	
 
-	@action static var dispatcher:ProductListDispatcher;
-	@action static var actionDispatcher:AppActions<Dynamic>;
+	@:action static var dispatcher:ProductListDispatcher;
+	@:action static var actionDispatcher:AppActions<Dynamic>;
 	
 	
 	// Computed
