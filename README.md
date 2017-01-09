@@ -27,7 +27,7 @@ In short, this is a Vuex implementation that avoids having to handle any strings
 
 Vue/Vuex:
 
-HaxeVX for Vue currently works under the premise of having ~~~both~~~ compile-time checkings done within Haxe, ~~~and runtime initialization checkings of your app within Javascript as it converts it's HaxeVX core classes to native VueJS components~~~ (edit: this is no longer the intention. Runtime reflection/initialization should be heavily minimised for VueX and completely removed in Vue). With Haxe's type-strict compiling (via compile time macro checks), the chances of you running into runtime initialization/operation errors are minimized for both platforms.
+HaxeVX for Vue currently works under the premise of having ~~~both~~~ compile-time checkings done within Haxe, ~~~and runtime initialization checkings of your app within Javascript as it converts it's HaxeVX core classes to native VueJS components~~~ (edit: this is no longer the case. Runtime reflection/initialization should be heavily minimised for VueX and is now completely removed in Vue). With Haxe's type-strict compiling (via ONLY compile time macro checks), the chances of you running into runtime initialization/operation errors are minimized for both platforms.
 
 As of now, this draft is working under Haxe 3.3.0.
 
