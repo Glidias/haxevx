@@ -176,27 +176,24 @@ class VxMacros
 			if (reservedCompFieldNames.exists(field.name)) {  //  todo note: this check can be foregoed for explicit Vue instances (ie. non components)
 				Context.error("Field name: " + field.name + " is reserved for comp definition.", Context.currentPos());
 			}
+			if (field.name.charAt(0) == "_") {
+				if (field.name.charAt(1) != "_") {
+					Context.error("Field names cannot start with a single underscore.", field.pos);
+					continue;
+				}
+				continue;
+			}
+			
 			switch (field.kind)
 			{
 				
 			
 				case FProp(pget, pset, getType, _):
-					
-					
+							
 					if (field.name == "store") {
 						continue;
 					}
 					
-					if (field.name.charAt(0) == "_") {
-						if (field.name.charAt(1) != "_") {
-							Context.error("Field names cannot start with a single underscore.", field.pos);
-							continue;
-						}
-						else {
-							trace("TODO initialization parameter variables");
-							continue;
-						}
-					}
 					//field.
 					var name = field.name;// formatName(field.name);
 					var indexer:Int;
@@ -259,6 +256,8 @@ class VxMacros
 					else {
 						trace("TODO: mapGetterProp implementation");
 					}
+					
+					
 				//	TypeTools.
 					//TPType
 					//Context.error("Variable declarations not allowed for Component", field.pos);
@@ -275,6 +274,7 @@ class VxMacros
 					if (field.name == "Data") {
 						gotGetData = true;
 					}
+					
 					if ( illegalReferences.exists(field.name) ) {
 						addMethodHookToInitBlock(field.name, initBlock);
 					}
