@@ -1,6 +1,4 @@
 package haxevx.vuex.examples.shoppingcart.store;
-import haxevx.vuex.examples.shoppingcart.store.ObjTypes.Product;
-import haxevx.vuex.examples.shoppingcart.store.ObjTypes.ProductInCart;
 
 /**
  * Generic object/payload data types

@@ -1,5 +1,4 @@
 package haxevx.vuex.examples.shoppingcart.store;
-import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxStore;
 import haxevx.vuex.examples.shoppingcart.modules.Cart;
 import haxevx.vuex.examples.shoppingcart.modules.Products;

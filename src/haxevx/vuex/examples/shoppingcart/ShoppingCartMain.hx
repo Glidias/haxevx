@@ -1,10 +1,7 @@
 package haxevx.vuex.examples.shoppingcart;
-import haxe.Json;
 import haxevx.vuex.core.VxBoot;
-import haxevx.vuex.examples.shoppingcart.api.Shop;
 import haxevx.vuex.examples.shoppingcart.components.App;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
-import haxevx.vuex.native.Vue;
 import haxevx.vuex.util.ReflectUtil;
 
 

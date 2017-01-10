@@ -1,14 +1,8 @@
 package haxevx.vuex.core;
 
-import haxe.ds.StringMap;
-import haxe.rtti.Rtti;
-import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue.CreateElement;
 import haxevx.vuex.native.Vue.VNode;
 import haxevx.vuex.native.Vue.VueBase;
-import haxevx.vuex.util.ActionFactory;
-import haxevx.vuex.util.ReflectUtil;
-import haxevx.vuex.util.RttiUtil;
 /**
  * ...
  * @author Glidias

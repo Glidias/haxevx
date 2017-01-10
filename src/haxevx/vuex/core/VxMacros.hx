@@ -1,16 +1,9 @@
 package haxevx.vuex.core;
-import haxe.EnumTools.EnumValueTools;
-import haxe.Json;
 import haxe.macro.ComplexTypeTools;
-import haxe.macro.Expr.ComplexType;
-import haxe.macro.Expr.Function;
 import haxe.ds.StringMap;
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import haxe.macro.Expr.Access;
 import haxe.macro.Expr.Field;
-import haxe.macro.Expr.FieldType;
-import haxe.macro.Expr.FunctionArg;
 import haxe.macro.Expr.Metadata;
 import haxe.macro.Expr.MetadataEntry;
 import haxe.macro.Expr.Position;
@@ -18,8 +11,6 @@ import haxe.macro.ExprTools;
 import haxe.macro.MacroStringTools;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
-import haxe.rtti.CType.MetaData;
-import haxevx.vuex.util.ReflectUtil;
 
 #if macro
 /**

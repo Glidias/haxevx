@@ -2,7 +2,6 @@ package haxevx.vuex.core;
 import haxe.rtti.Rtti;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue;
-import haxevx.vuex.native.Vuex;
 import haxevx.vuex.util.ActionFactory;
 import haxevx.vuex.util.MutatorFactory;
 import haxevx.vuex.util.RttiUtil;

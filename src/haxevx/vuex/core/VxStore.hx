@@ -1,14 +1,10 @@
 package haxevx.vuex.core;
-import haxe.Json;
 import haxe.ds.StringMap;
 import haxe.rtti.CType;
 import haxe.rtti.CType.Classdef;
-import haxe.rtti.Meta;
 import haxe.rtti.Rtti;
-import haxevx.vuex.core.NativeTypes.NativeGetters;
 import haxevx.vuex.core.NativeTypes.NativeModule;
 import haxevx.vuex.core.NativeTypes.NativeStore;
-import haxevx.vuex.native.Vuex.GetterTree;
 import haxevx.vuex.util.ActionFactory;
 import haxevx.vuex.util.GetterFactory;
 import haxevx.vuex.util.MutatorFactory;

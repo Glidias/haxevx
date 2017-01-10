@@ -1,9 +1,7 @@
 package haxevx.vuex.examples.shoppingcart.components;
-import haxevx.vuex.examples.shoppingcart.modules.Cart;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxComponent;
 import haxevx.vuex.examples.shoppingcart.modules.Cart.CartDispatcher;
-import haxevx.vuex.examples.shoppingcart.modules.Cart.CartMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
 
