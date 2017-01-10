@@ -105,12 +105,12 @@ class VxMacros
 				requireProps = t.get().name != "NoneT";
 				
 				if (requireProps) {
-					propFieldsToAdd = classFieldArrayToStrMap( t.get().fields.get() );
+					propFieldsToAdd = classFieldArrayToStrMap( t.get().fields.get(), watchableFields );
 				}
 				
 			case Type.TAnonymous(a):
 				requireProps = true;
-				propFieldsToAdd = classFieldArrayToStrMap(  a.get().fields);
+				propFieldsToAdd = classFieldArrayToStrMap(  a.get().fields, watchableFields);
 			//case Type.TAbstract(t, params):
 				//requireProps = true;
 				
@@ -295,7 +295,7 @@ class VxMacros
 						
 						if (mFieldName == null || !watchableFields.exists(mFieldName)) {
 							
-							Context.fatalError("Could not find watchable field (data/computed): " + mFieldName, field.pos);
+							Context.fatalError("Could not find watchable field (data/computed/props): " + mFieldName, field.pos);
 						}
 						
 						if (setWatches.exists(mFieldName)) {
@@ -657,9 +657,12 @@ class VxMacros
 
 	
 	// for props
-	static function classFieldArrayToStrMap(arr:Array<ClassField>):StringMap<ClassField> {
+	static function classFieldArrayToStrMap(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>):StringMap<ClassField> {
 		var strMap:StringMap<ClassField> = new StringMap<ClassField>();
 		for (f in arr) {
+			
+	
+			watchableFields.set(f.name, TypeTools.toComplexType(f.type));
 			if (f.name.charAt(0) == "_") {
 			
 				Context.error('Prop field: "$f.name" cannot start with underscore', f.pos);
