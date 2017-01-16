@@ -1,4 +1,5 @@
 package haxevx.vuex.examples.shoppingcart.modules;
+import haxevx.vuex.core.IAction;
 import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.core.VModule;
 import haxevx.vuex.examples.shoppingcart.api.Shop;
@@ -24,7 +25,7 @@ class Cart extends VModule<CartState>
 			checkoutStatus:null,
 			lastCheckout:null  // why initials tate did not include hthis?
 		}
-	
+		
 	}
 	
 	
@@ -52,31 +53,31 @@ typedef CartState =  {	//eg. typedef style store module state
 }
 
 @:rtti
-class CartDispatcher<S:CartState> {
+class CartDispatcher<S:CartState> implements IAction {
 	
 	@mutator static var mutator:CartMutator;
 	
 	static var shop:Shop = Shop.getInstance();
 	
 	
-	 public function checkout<P:Array<ProductAdded>>(payload:P):IVxStoreContext<S>->P->Void {  //
-		return function(context:IVxStoreContext<S>, payload:P):Void {
-			var savedCartItems:Array<ProductAdded> = context.state.added.concat([]);  
-			mutator.checkoutRequest();
-			shop.buyProducts( payload, function() { 
-				mutator.checkoutSuccess();
-			},
-			function() {
-				mutator.checkoutFailure({savedCartItems:savedCartItems});
-			});
-		}
+	function checkout(context:IVxStoreContext<S>, payload:Array<ProductAdded>):Void {  //
+		var savedCartItems:Array<ProductAdded> = context.state.added.concat([]);  
+		mutator._checkoutRequest(context);
+		shop.buyProducts( payload, function() { 
+			mutator._checkoutSuccess(context);
+		},
+		function() {
+			mutator._checkoutFailure(context, {savedCartItems:savedCartItems});
+		});
 	}
 }
 
-class CartMutator extends AppMutator<CartState> {
-	override public function addToCart<P:ProductIdentifier>(payload:P):CartState->P->Void {
+
+class CartMutator extends AppMutator<CartState>  {
+
+	override function addToCart(state:CartState, payload:ProductIdentifier):Void {
 		
-		return function(state:CartState, payload:P):Void {
+			
 			state.lastCheckout = null;
 			var chk = state.added.filter( function(p) {
 				return p.id == payload.id;
@@ -92,27 +93,25 @@ class CartMutator extends AppMutator<CartState> {
 				var record = chk[0];  // increment resolved record quantity
 				record.quantity++;
 			}
-		}
+	
 	}
 		
-	override public function checkoutRequest():CartState-> Void {
-		return function(state:CartState):Void {
-			state.added = [];
-			state.checkoutStatus = null;
-		}
+	override function checkoutRequest(state:CartState):Void {
+		
+		state.added = [];
+		state.checkoutStatus = null;
+		
 	}
 	
-	override public function checkoutSuccess():CartState->Void {
-		return function(state:CartState):Void {
-			 state.checkoutStatus = 'successful';
-		}
+	override function checkoutSuccess(state:CartState):Void {
+		state.checkoutStatus = 'successful';
 	}
 	
-	override public function checkoutFailure<P:ProductHistory>(payload:P):CartState->P->Void {
-		return function(state:CartState, payload:P):Void {
-			state.added = payload.savedCartItems;
-			state.checkoutStatus  =  'failed';
-		}
+	override function checkoutFailure(state:CartState, payload:ProductHistory):Void {
+		
+		state.added = payload.savedCartItems;
+		state.checkoutStatus  =  'failed';
+		
 	}
 	
 

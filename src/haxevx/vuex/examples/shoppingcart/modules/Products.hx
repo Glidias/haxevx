@@ -1,4 +1,5 @@
 package haxevx.vuex.examples.shoppingcart.modules;
+import haxevx.vuex.core.IAction;
 import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.core.VModule;
 import haxevx.vuex.examples.shoppingcart.api.Shop;
@@ -17,6 +18,7 @@ class Products extends VModule<ProductListModel>
 	public function new() 
 	{
 		state = new ProductListModel();
+		
 	}
 
 	// Getters
@@ -50,41 +52,38 @@ class Products extends VModule<ProductListModel>
 }
 
 @:rtti
-class ProductListDispatcher {
+class ProductListDispatcher implements IAction { 
 	
 	@mutator static var mutator:ProductListMutator;
 	static var shop:Shop = Shop.getInstance();
 	
-	public function getAllProducts():IVxStoreContext<ProductListModel>->Void {  
-		return function(context:IVxStoreContext<ProductListModel>) {
+	function getAllProducts(context:IVxStoreContext<ProductListModel>):Void {  
+		shop.getProducts( function(products) {
 			
-			shop.getProducts( function(products) {
-				
-				mutator.receiveProducts(products);
-			});
-		}
+			mutator._receiveProducts(context, products);
+		});
+		
 	}
 }
 
 @:rtti
 class ProductListMutator extends AppMutator<ProductListModel> {
-	override public function receiveProducts<P:Array<ProductInStore>>(payload:P):ProductListModel->P->Void {
-		return function(state:ProductListModel, payload:P):Void {
-			state.all = payload;
-		};
+	override function receiveProducts(state:ProductListModel, payload:Array<ProductInStore>):Void {
+		
+		state.all = payload;
+		
 	}
 	
-	override public function addToCart<P:ProductIdentifier>(payload:P):ProductListModel->P->Void {
-		return function(state:ProductListModel, payload:P):Void {
-			var filtered = state.all.filter( function(p) { return p.id == payload.id;  } );
-			if (filtered.length > 0) {
-				filtered[0].inventory--;
-				
-			}
-		};
+	override function addToCart(state:ProductListModel, payload:ProductIdentifier):Void {
+		var filtered = state.all.filter( function(p) { return p.id == payload.id;  } );
+		if (filtered.length > 0) {
+			filtered[0].inventory--;
+			
+		}
 	}
 	
 }
+
 
 @:rtti
 class ProductListModel {  //eg. class style store module state

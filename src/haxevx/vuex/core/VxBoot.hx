@@ -113,7 +113,7 @@ class VxBoot
 			sg = ReflectUtil.findSingletonByClassName(Type.getClassName(c));
 			if (sg == null) throw "Fatal exception occured could not find mutator singleton by class name:" + Type.getClassName(c);
 			
-			MutatorFactory.finaliseClass(c, store);
+			//MutatorFactory.finaliseClass(c, store);
 			
 		}
 		
@@ -128,7 +128,7 @@ class VxBoot
 				RttiUtil.injectFoundSingletonInstances(c, Rtti.getRtti(c), null, ActionFactory.get_META_INJECTIONS());
 			}
 			
-			ActionFactory.finaliseClass(c, store);
+			//ActionFactory.finaliseClass(c, store);
 		}
 		
 		STORE = store;

@@ -150,9 +150,9 @@ class ReflectUtil
 	static public inline var MODULE_FRACTAL_SEP:String = ">";
 	static public inline var MODULES_SEPERATOR:String = "/";
 	
-	// Sets up your app package path, like sg.myapp.project, which is useful for shortening namespaces
-	public static var NAMESPACE(default, set):String;
-	
+	// Deprecrated.. Sets up your app package path, like sg.myapp.project, which is useful for shortening namespaces
+	//public static var NAMESPACE(default, set):String;
+	/*
 	static function set_NAMESPACE(value:String):String 
 	{
 		setPackageNamespace(value);
@@ -161,6 +161,7 @@ class ReflectUtil
 	static inline function setPackageNamespace(namespace:String):Void {  
 		PACKAGE_NAMESPACE = namespace.split(".").join("_") + "_";
 	}
+	*/
 	
 	public static function getPackagePathForInstance(instance:Dynamic):String {
 		var clas = Type.getClass(instance);

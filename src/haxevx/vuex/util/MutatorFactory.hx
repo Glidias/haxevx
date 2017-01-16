@@ -1,5 +1,6 @@
 package haxevx.vuex.util;
 import haxe.ds.StringMap;
+import haxe.rtti.Meta;
 
 /**
  * ...
@@ -22,6 +23,8 @@ class MutatorFactory
 			store.commit(type, payload);
 		};
 	}
+	
+	/*	// depreciated
 	public static function finaliseClass(cls:Class<Dynamic>, store:Dynamic):Void {
 		var fields:Array<String> = Type.getInstanceFields(cls); 
 		for (f in fields) {
@@ -30,6 +33,7 @@ class MutatorFactory
 		ReflectUtil.setPrototypeField(cls, "$store", store);
 	
 	}
+	*/
 	
 	static var REGISTERED_CLASSES:StringMap<Class<Dynamic>> = new StringMap<Class<Dynamic>>();
 	public static function getClasses() {
@@ -59,28 +63,34 @@ class MutatorFactory
 		
 		ReflectUtil.reflectClassHierachyInto(cls, REGISTERED_CLASSES, nothing);
 		
+		var metaFields = Meta.getFields(cls);
+		var metaStrMap = ["ignore" => true];
 		for (f in fields) {
 			
 			var checkF =  Reflect.field(instance, f) ;
-			if  ( Reflect.isFunction(checkF)) {
+			if  ( Reflect.isFunction(checkF)   ) {
+				
 				
 				// RESOLVE HANDLER
 				// todo: check from rtti or metadata, whether got specific return data type is  that is handler function or not.
 				
 				// Assumed function call will return handler
 				// javascript allows executing function without supplygng explicit parameters
-				handler = checkF();
-				if (handler == null) continue;
 				
-				if (!Reflect.isFunction(handler)) {
-					throw "Could not resolve handler for field: " + f;
+				if (!ReflectUtil.hasMetaTag(f, metaFields, metaStrMap ) ) {
+					handler = ReflectUtil.getPrototypeField(cls, f);
+					
+					if (!Reflect.isFunction(handler)) {
+						throw "Could not resolve handler for field: " + f;
+					}
+					
+					var fieldName:String = getDispatchString(cls, f);
+					if (!Reflect.hasField(over, fieldName)) 
+						Reflect.setField(over, fieldName, handler);
+					else
+						trace("Exception occured repeated field handler set");
+						
 				}
-				
-				var fieldName:String = getDispatchString(cls, f);
-				if (!Reflect.hasField(over, fieldName)) 
-					Reflect.setField(over, fieldName, handler);
-				else
-					trace("Exception occured repeated field handler set");
 			}
 			else {
 				trace("Warning!! Mutator classes should only contain function fields! Fieldname: " + f);

@@ -2,6 +2,7 @@ package haxevx.vuex.examples.shoppingcart.components;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VxComponent;
 import haxevx.vuex.examples.shoppingcart.modules.Cart.CartDispatcher;
+import haxevx.vuex.examples.shoppingcart.store.AppMutator;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
 
@@ -23,9 +24,12 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 		// ensure you call call super() last...because _Init() must be called last!
 		super();
 		
+		
+		
 
 	}
 	
+	@:mutator static var mutator:AppMutator<Dynamic>; 
 	@:action static var action:CartDispatcher<Dynamic>; 
 	
 
@@ -53,7 +57,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	// Methods
 	public function checkout (products:Array<ProductInCart>) {
-		action.checkout(products);
+		action._checkout(store, products);
     }
 	
 	

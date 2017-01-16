@@ -1,5 +1,6 @@
 package haxevx.vuex.util;
 import haxe.ds.StringMap;
+import haxe.rtti.Meta;
 import haxe.rtti.Rtti;
 import haxevx.vuex.core.VComponent;
 
@@ -23,6 +24,7 @@ class ActionFactory
 		};
 	}
 	
+	/*	// depreciated
 	public static function finaliseClass(cls:Class<Dynamic>, store:Dynamic):Void {
 		var fields:Array<String> = Type.getInstanceFields(cls); 
 		for (f in fields) {
@@ -31,6 +33,7 @@ class ActionFactory
 		ReflectUtil.setPrototypeField(cls, "$store", store);
 	
 	}
+	*/
 	
 	
 	public static function reflectFunctionCall(func:Dynamic):String {
@@ -103,30 +106,36 @@ class ActionFactory
 		// setup instance fields
 		var fields:Array<String> = Type.getInstanceFields(cls);  // TODO: get all derived instnace fields as well as part of entire collection
 
+		var metaFields = Meta.getFields(cls);
+		var metaStrMap = ["ignore" => true];
+		
 		for (f in fields) {
 			
 			var checkF =  Reflect.field(instance, f) ;
 			if  ( Reflect.isFunction(checkF)) {
 				
+				if (!ReflectUtil.hasMetaTag(f, metaFields, metaStrMap ) ) {
 				
-				// RESOLVE HANDLER
-				// todo: check from rtti or metadata, whether got specific return data type is  that is handler function or not.
-				
-				// Assumed function call will return handler
-				// javascript allows executing function without supplygng explicit parameters
-				handler = checkF();
-				if (handler == null) continue;
-				
-				if (!Reflect.isFunction(handler)) {
-					throw "Could not resolve handler for field: " + f;
+					
+					// RESOLVE HANDLER
+					// todo: check from rtti or metadata, whether got specific return data type is  that is handler function or not.
+					
+					// Assumed function call will return handler
+					// javascript allows executing function without supplygng explicit parameters
+					handler = ReflectUtil.getPrototypeField(cls, f);
+					
+					if (!Reflect.isFunction(handler)) {
+						throw "Could not resolve handler for field: " + f;
+					}
+					
+					// Assign Handler to 
+					var fieldName:String = getDispatchString(cls, f);
+					if (!Reflect.hasField(over, fieldName)) 
+						Reflect.setField(over, fieldName, handler);
+					else	
+						trace("Exception occured repeated field handler set");
+					
 				}
-				
-				// Assign Handler to 
-				var fieldName:String = getDispatchString(cls, f);
-				if (!Reflect.hasField(over, fieldName)) 
-					Reflect.setField(over, fieldName, handler);
-				else	
-					trace("Exception occured repeated field handler set");
 			}
 			else {
 				trace("Warning!! Action classes should only contain function fields! Fieldname: " + f);

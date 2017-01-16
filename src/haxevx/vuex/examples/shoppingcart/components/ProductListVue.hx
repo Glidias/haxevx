@@ -34,7 +34,8 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	// Methods
 	function addToCart(p:ProductInStore):Void {
-		actionDispatcher.addToCart(p);
+	
+		actionDispatcher._addToCart(store, p);
 	}
 	
 	
@@ -44,7 +45,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	override public function Created():Void {	
 		//trace(ReflectUtil.getSingletonByClassName(Type.getClassName(Type.getClass(dispatcher))) == dispatcher);
-		dispatcher.getAllProducts();
+		dispatcher._getAllProducts(store);
 	}
 
 	
