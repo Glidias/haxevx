@@ -18,11 +18,15 @@ class App extends VxComponent<AppStore, NoneT, NoneT>
 		super();
 	}
 	
+	 static inline var ProductList:String = "product-list";
+	 static inline var Cart:String = "cart";
+	 
+	
 	override function Components():Dynamic<VComponent<Dynamic,Dynamic>> {
-		return {
-			"product-list": new ProductListVue(),
-			"cart": new CartVue("My Haxe Cart")
-		};
+		return [
+			'$ProductList'=> new ProductListVue(),
+			'$Cart'=> new CartVue("My Haxe Cart")
+		];
 	}
 	
 	override public function Template():String {
@@ -30,9 +34,9 @@ class App extends VxComponent<AppStore, NoneT, NoneT>
 				<h1>Shopping Cart Example</h1>
 				<hr>
 				<h2>Products</h2>
-				<product-list></product-list>
+				<$ProductList></$ProductList>
 				<hr>
-				<cart></cart>
+				<$Cart></$Cart>
 			  </div>';
 	}
 	

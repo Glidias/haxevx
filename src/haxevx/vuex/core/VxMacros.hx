@@ -273,7 +273,13 @@ class VxMacros
 					}
 					
 					if ( illegalReferences.exists(field.name) ) {
+						
+						if (field.name == "Components") {
+							f.expr = ExprTools.map(f.expr, checkReturnStrMap);
+						}
 						addMethodHookToInitBlock(field.name, initBlock);
+						
+						
 					}
 					else if ( (metadataEntry = getMetaTagEntry(field.meta, ":watch")) != null) {
 						
@@ -612,7 +618,7 @@ class VxMacros
 		strMap;
 	};
 	
-	public static function checkIllegalAccess(e:Expr):Void {
+	 static function checkIllegalAccess(e:Expr):Void {
 	
 		var errMsg:String = "Vue param keyword access is reserved: ";
 		 switch(e.expr) {
@@ -624,6 +630,57 @@ class VxMacros
 				 ExprTools.iter(e, checkIllegalAccess);		
 				 
 		}
+	}
+	
+	
+	static function checkReturnStrMap(e:Expr):Expr {
+	
+		var errMsg:String = "Vue param keyword access is reserved: ";
+		 switch(e.expr) {
+			case ExprDef.EReturn({expr:EArrayDecl(values), pos:pos }):
+				return convertStrMapToObjectSetup(values);
+			
+			case _:
+				//trace(e.expr);
+				return e;
+				// ExprTools.iter(e, checkIllegalAccess);			 
+		}
+	}
+	
+	static function convertStrMapToObjectSetup(values:Array<Expr>):Expr {
+		//var blockExpr:ExprDef.EBlock
+		var statement:Expr =  macro var macroGeneratedObj = {};
+		var initBlock:Array<Expr> = [];
+		var fields:Array<{field:String, exprDef:ExprDef}> = [];
+			//${ {expr:EObjectDecl(computedAssignments), pos:pos} }
+		for (i in 0...values.length) {
+			switch( values[i].expr ) {
+				case EBinop(OpArrow, {expr:key, pos:keyPos }, {expr:value, pos:_}):
+				//	trace(  Context.getPosInfos(keyPos) );
+					switch( key) {
+						case EConst(CString(keyStr)):
+							fields.push({field:keyStr, exprDef:value } );
+						default:
+							Context.fatalError("Only accept string keys for String Map!", values[i].pos );
+					}
+				default:
+					Context.fatalError("Couldn't resolve string map keys to ObjDecl! Please use OpArrow for String map!", values[i].pos );
+					
+			}	
+		}
+		
+		var assignments = [for (f in fields) {
+			var field_name:String = f.field;
+			var val:Expr = {expr:f.exprDef, pos:Context.currentPos()};
+			macro  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSet(_m_, '$field_name', ${val}); // _m_.awfawff =  ${val};    
+		}];
+		
+		var retExpr:Expr = macro {
+			var _m_:Dynamic<VComponent<Dynamic,Dynamic>> = {};
+			$b{assignments};
+			return _m_;
+		};
+		return retExpr;
 	}
 	
 	// for data
@@ -783,3 +840,10 @@ typedef PropBinding = {
 
 #end
 
+
+
+class VxMacroUtil {
+	public static inline function dynamicSet<T>(dyn:Dynamic<T>, key:String, value:T):Void {
+		untyped dyn[key] = value;
+	}
+}
