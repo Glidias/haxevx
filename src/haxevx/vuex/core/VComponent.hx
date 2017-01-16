@@ -81,7 +81,7 @@ class VComponent<D, P> extends VueBase
 	 *  override this register components locally. 
 	 * You can optionally return an inline StringMap declaration like: `return [  'someKey'=>value1, '$someTokenisedKey'=>value2 ]` as well,
 	 * which will allow you to tokenise your string-based component keys to any variables you declared, to avoid mispellings. 
-	 * Remember, tokenisation isn't available for regular Dynamic object.
+	 * Remember, tokenisation isn't available for regular Dynamic object keys.
 	 */
 	function Components():Dynamic<VComponent<Dynamic,Dynamic>>  {
 		return null;
