@@ -6,6 +6,7 @@ package haxevx.vuex.core;
  * 
  * @author Glidias
  */
+@:autoBuild(haxevx.vuex.core.VuexMacros.buildVModuleGetters())
 class VModule<T>
 {
 	 var state:T;

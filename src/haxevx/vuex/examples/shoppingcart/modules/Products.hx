@@ -22,25 +22,10 @@ class Products extends VModule<ProductListModel>
 	}
 
 	// Getters
-	
-	// eg. A single store/module getter implementation defined as a paragraph of 3 declarations.
-	//  Admittingly, rather verbose to ensure compile type strict typing and code-hinting, but macros can easily shorten this...
-	
-	// Consider using macro generation compile with static function Get_allProducts(state)... to define getter implementations
-	public var allProducts(get, null):Array<ProductInStore>;	// 1. helper haxe getter property for module reference instance
-	function get_allProducts():Array<ProductInStore> 		// 2. Haxe+JS proxy function to link to VueJS getter function via simple return statement
-	{
-		return getAllProducts(state);
-	}
-	static function getAllProducts(state:ProductListModel):Array<ProductInStore> {  // 3. Static getter function to be registered under Vuex store under current class's namespace
+	static function Get_allProducts(state:ProductListModel):Array<ProductInStore> { 
 		return state.all;
 	}  
 
-	// (For the Haxe+JS proxy getter function, at runtime initialization, it uses runtime function body string sniffing to determine linked static getter function via return StaticClassPath.staticGetterName)
-	//  For the Static getter function, You aren't restricted to only returning static getter method references in this class. 
-	// Referencing any other class's static getter method is also possible.
-		// eg. return getAllProducts -versus- return SomeClass.genericStaticGetter(state).
-		
 	
 	// Actions
 	@action static var action:ProductListDispatcher;

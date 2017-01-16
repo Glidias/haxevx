@@ -1,4 +1,5 @@
 package haxevx.vuex.core;
+import haxe.ds.StringMap;
 import haxe.macro.Expr.Field;
 import haxe.macro.ComplexTypeTools;
 import haxe.macro.Context;
@@ -21,8 +22,7 @@ class VuexMacros
 {
 
 	/**
-	 * Generate public inlined "$store.commit" methods for mutator class which consists of private function handlers, among other things.
-	 * @param	prefix	Prefix you want to append to the public commit function name 
+	 * Generate public inlined "$store.commit" methods for mutator class which consists of private function handlers.
 	 * @return
 	 */
 	macro public static function buildMutator():Array<Field>  {
@@ -31,13 +31,81 @@ class VuexMacros
 	
 		
 	/**
-	 * Generate public inlined "$store.dispatch" methods for action (aka action-dispatcher) classes which consists of private function handlers,  among other things.
-	 * @param	prefix	Prefix you want to append to the public dispatch function name 
+	 * Generate public inlined "$store.dispatch" methods for action (aka action-dispatcher) classes which consists of private function handlers.
 	 * @return
 	 */
 	macro public static function buildActions():Array<Field>  {
 		
 		return buildActionCalls("_", Context.getBuildFields(), "dispatch");
+	}
+	
+	/**
+	 * Generate locally accessible VModule Haxe getters from static functions in the form of `Get_getterFieldrName(store)` (representing Vuex-style store getters) for a given VModule extended class
+	 * @return
+	 */
+	macro public static function buildVModuleGetters():Array<Field> {
+		var fields = Context.getBuildFields();
+		
+		var contextPos:Position = Context.currentPos();
+		// ensure store data type if extending from VModule??
+		var fieldsToAdd:Array<Field> = [];
+		
+		var alreadyDeclaredGetters:StringMap<Bool> = new StringMap<Bool>();
+		
+		for (field in fields) {
+			if (field.access.indexOf(Access.AStatic) >= 0) {
+				continue;
+			}
+			switch( field.kind ) {
+				case FieldType.FProp("get", "never", _, _):
+					alreadyDeclaredGetters.set(field.name, true);
+				
+				default:
+					
+			}
+		}
+		
+		for (field in fields) {
+			if (field.access.indexOf(Access.AStatic) < 0) {
+				continue;
+			}
+			
+			switch( field.kind ) {
+				case FieldType.FFun(f):
+				
+					if (field.name.indexOf("Get_") == 0) {
+						var fieldName:String = field.name;
+						var addFieldName:String = field.name.substr(4);
+						if (f.args.length == 0) {
+							Context.error("Static store getters need to  accept 1 or 2 parameter which is store states ", field.pos);
+						}
+						if (!alreadyDeclaredGetters.get(addFieldName) ) {
+							fieldsToAdd.push( {
+								name:addFieldName,
+								access: [Access.APublic],
+								kind: FieldType.FProp("get", "never", f.ret),
+								pos:contextPos
+							});
+						}
+						fieldsToAdd.push( {
+							name:"get_" + addFieldName,
+							kind: FieldType.FFun({
+								args:[],
+								ret:f.ret,
+								expr: macro return $i{fieldName}(state)
+							}),
+							pos:contextPos
+						});
+						
+					}
+				default:
+					
+			}
+			
+			
+		}
+		
+		return fields.concat(fieldsToAdd);
 	}
 	
 	
@@ -52,6 +120,8 @@ class VuexMacros
 		}
 		return  moduleStack.join("_") + "|";
 	}
+
+	
 
 	
 	static function ensureNoReturn(e:Expr):Void {
