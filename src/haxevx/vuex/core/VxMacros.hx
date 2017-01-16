@@ -657,6 +657,7 @@ class VxMacros
 			switch( values[i].expr ) {
 				case EBinop(OpArrow, {expr:key, pos:keyPos }, {expr:value, pos:_}):
 				//	trace(  Context.getPosInfos(keyPos) );
+		
 					switch( key) {
 						case EConst(CString(keyStr)):
 							fields.push({field:keyStr, exprDef:value } );
