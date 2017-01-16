@@ -14,7 +14,7 @@ class ShoppingCartMain
 {
 	public function new() 
 	{
-	//	ReflectUtil.NAMESPACE = ReflectUtil.getPackagePathForInstance(this);
+
 		
 		VxBoot.startStore( new AppStore() );
 		VxBoot.startVueWithRootComponent("#app", new App() );
