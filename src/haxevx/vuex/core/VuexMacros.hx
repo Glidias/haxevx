@@ -40,14 +40,14 @@ class VuexMacros
 	}
 	
 	/**
-	 * Generate locally accessible VModule Haxe getters from static functions in the form of `Get_getterFieldrName(store)` (representing Vuex-style store getters) for a given VModule extended class
+	 * Generate locally accessible VModule Haxe getters from static functions in the form of `Get_getterFieldrName(state:T)` (representing Vuex-style store getters) for a given VModule extended class
 	 * @return
 	 */
 	macro public static function buildVModuleGetters():Array<Field> {
 		var fields = Context.getBuildFields();
 		
 		var contextPos:Position = Context.currentPos();
-		// todo: ensure store data type from VModule<T> is matching all getter parameters!
+		// todo: ensure state data type from VModule<T> is matching all getter parameters!
 		var fieldsToAdd:Array<Field> = [];
 		
 		var alreadyDeclaredGetters:StringMap<Bool> = new StringMap<Bool>();
