@@ -47,7 +47,7 @@ class VuexMacros
 		var fields = Context.getBuildFields();
 		
 		var contextPos:Position = Context.currentPos();
-		// ensure store data type if extending from VModule??
+		// todo: ensure store data type from VModule<T> is matching all getter parameters!
 		var fieldsToAdd:Array<Field> = [];
 		
 		var alreadyDeclaredGetters:StringMap<Bool> = new StringMap<Bool>();
