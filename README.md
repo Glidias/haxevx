@@ -10,7 +10,7 @@ With HaxeVx, you get the benefit of massive access-control/type-hinting/type-che
 
 - Automatic mixing-in of typed Props and Data (classes/typedefs) fields into your Vue instance with full type-safety during development. eg. `class MyComponent extends VComponent<DataType, PropType>`. Unlike regular VueJS, mixed-in fields in HaxeVx can be accessed locally within your Vue instance class definition with full strict-typing. Thus, if Props+Data fields conflict in name-clashes, the compiler will know it 
 
-- Unlike Typescript decorators that execute at run-time, all HaxeVx metadata (if any), in components, are compile-time-only metadata  used to facilitate pre-generation of initialization code. There is no further iteration processing done at runtime beyond calling a single automatically-called internal macro-generated function that exposes all pre-compiled component options to Vue already. So, based on the class you write (fields/data-types, etc.), the necessary Vue-related initialization options will automatically be pre-generated for you already.
+- Unlike Typescript decorators that execute at run-time, all HaxeVx metadata (if any), in components, are compile-time-only metadata  used to facilitate pre-generation of initialization code. There is no further iteration processing done at runtime beyond calling a single automatically-called internal macro-generated function that exposes all pre-compiled component options to Vue already. So, based on the class you write (props/data-types/functions, etc.), the necessary Vue-related initialization options will automatically be pre-generated for you already.
 
 - Fully strict typed access on `$data` reference as well.
 
