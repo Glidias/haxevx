@@ -1,15 +1,17 @@
 package haxevx.vuex.core;
-import haxe.rtti.Rtti;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue;
 import haxevx.vuex.util.ActionFactory;
 import haxevx.vuex.util.MutatorFactory;
-import haxevx.vuex.util.RttiUtil;
 
 import haxevx.vuex.native.Vuex.Store;
 import haxevx.vuex.util.GetterFactory;
 import haxevx.vuex.util.ReflectUtil;
 
+#if  !(production || skip_singleton_check )
+import haxe.rtti.Rtti;
+import haxevx.vuex.util.RttiUtil;
+#end
 
 /**
  * Standard Boot utility to initialize Haxe codebase to convert it to native VueJS/Vuex App!
@@ -106,12 +108,12 @@ class VxBoot
 		
 		var sg:Dynamic;
 		
-		// finalise singleton initializations from Mutators and Actions accordingly, and re-rout their methods
-		
+		// perform singleton reference checks
+		#if  !(production || skip_singleton_check )
 		for (c in  MutatorFactory.getClasses()) {
 			// check that all mutator singletons in factory  can be found
-			sg = ReflectUtil.findSingletonByClassName(Type.getClassName(c));
-			if (sg == null) throw "Fatal exception occured could not find mutator singleton by class name:" + Type.getClassName(c);
+			ReflectUtil.checkForSingletonByClassName(Type.getClassName(c));
+		
 			
 			//MutatorFactory.finaliseClass(c, store);
 			
@@ -119,17 +121,17 @@ class VxBoot
 		
 		for (c in  ActionFactory.getClasses()) {
 			// check that all action signletons in factory can be found
-			sg = ReflectUtil.findSingletonByClassName(Type.getClassName(c));
-			if (sg == null) throw "Fatal exception occured could not find action singleton by class name:" + Type.getClassName(c);
+			ReflectUtil.checkForSingletonByClassName(Type.getClassName(c));
+			
 			
 			// inject mutators into action singletons 
 			if (ReflectUtil.requiresInjection(null, ActionFactory.get_META_INJECTIONS(), c)) {
-			
-				RttiUtil.injectFoundSingletonInstances(c, Rtti.getRtti(c), null, ActionFactory.get_META_INJECTIONS());
+				RttiUtil.injectCheckedSingletonInstances(c, Rtti.getRtti(c), null, ActionFactory.get_META_INJECTIONS());
 			}
 			
 			//ActionFactory.finaliseClass(c, store);
 		}
+		#end
 		
 		STORE = store;
 		return store;

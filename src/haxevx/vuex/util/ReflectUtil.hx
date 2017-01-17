@@ -146,6 +146,12 @@ class ReflectUtil
 		return null;
 	}
 	
+	public static  function checkForSingletonByClassName(name:String):Dynamic {
+		if ( SINGLETON_CACHE.exists(name) ) return SINGLETON_CACHE.get(name);
+		trace("Warning: Didn't find singleton registered by class name: " + name);
+		return null;
+	}
+	
 	static var PACKAGE_NAMESPACE:String = "";
 	static public inline var MODULE_FRACTAL_SEP:String = ">";
 	static public inline var MODULES_SEPERATOR:String = "/";

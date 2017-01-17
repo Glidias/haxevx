@@ -1852,24 +1852,14 @@ haxevx_vuex_core_VxBoot.startStore = function(storeInstance) {
 			}
 		}
 	}
-	var sg;
 	var tmp = haxevx_vuex_util_MutatorFactory.getClasses();
-	while(tmp.hasNext()) {
-		var c = tmp.next();
-		sg = haxevx_vuex_util_ReflectUtil.findSingletonByClassName(Type.getClassName(c));
-		if(sg == null) {
-			throw new js__$Boot_HaxeError("Fatal exception occured could not find mutator singleton by class name:" + Type.getClassName(c));
-		}
-	}
+	while(tmp.hasNext()) haxevx_vuex_util_ReflectUtil.checkForSingletonByClassName(Type.getClassName(tmp.next()));
 	var tmp1 = haxevx_vuex_util_ActionFactory.getClasses();
 	while(tmp1.hasNext()) {
-		var c1 = tmp1.next();
-		sg = haxevx_vuex_util_ReflectUtil.findSingletonByClassName(Type.getClassName(c1));
-		if(sg == null) {
-			throw new js__$Boot_HaxeError("Fatal exception occured could not find action singleton by class name:" + Type.getClassName(c1));
-		}
-		if(haxevx_vuex_util_ReflectUtil.requiresInjection(null,haxevx_vuex_util_ActionFactory.get_META_INJECTIONS(),c1)) {
-			haxevx_vuex_util_RttiUtil.injectFoundSingletonInstances(c1,haxe_rtti_Rtti.getRtti(c1),null,haxevx_vuex_util_ActionFactory.get_META_INJECTIONS());
+		var c = tmp1.next();
+		haxevx_vuex_util_ReflectUtil.checkForSingletonByClassName(Type.getClassName(c));
+		if(haxevx_vuex_util_ReflectUtil.requiresInjection(null,haxevx_vuex_util_ActionFactory.get_META_INJECTIONS(),c)) {
+			haxevx_vuex_util_RttiUtil.injectCheckedSingletonInstances(c,haxe_rtti_Rtti.getRtti(c),null,haxevx_vuex_util_ActionFactory.get_META_INJECTIONS());
 		}
 	}
 	haxevx_vuex_core_VxBoot.STORE = store;
@@ -2278,12 +2268,6 @@ haxevx_vuex_examples_shoppingcart_components_CartVue.prototype = $extend(haxevx_
 		this.template = this.Template();
 		this.computed = { total : clsP.get_total, products : clsP.get_products, checkoutStatus : clsP.get_checkoutStatus};
 		this.methods = { get_total : clsP.get_total, get_products : clsP.get_products, get_checkoutStatus : clsP.get_checkoutStatus, checkout : clsP.checkout};
-		if(cls.mutator == null) {
-			cls.mutator = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.store.AppMutator");
-		}
-		if(cls.action == null) {
-			cls.action = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.modules.CartDispatcher");
-		}
 	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_CartVue
 });
@@ -2316,12 +2300,6 @@ haxevx_vuex_examples_shoppingcart_components_ProductListVue.prototype = $extend(
 		this.template = this.Template();
 		this.computed = { products : clsP.get_products};
 		this.methods = { get_products : clsP.get_products, addToCart : clsP.addToCart};
-		if(cls.dispatcher == null) {
-			cls.dispatcher = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.modules.ProductListDispatcher");
-		}
-		if(cls.actionDispatcher == null) {
-			cls.actionDispatcher = haxevx_vuex_util_ReflectUtil.findSingletonByClassName("haxevx.vuex.examples.shoppingcart.store.AppActions");
-		}
 	}
 	,__class__: haxevx_vuex_examples_shoppingcart_components_ProductListVue
 });
@@ -2949,6 +2927,19 @@ haxevx_vuex_util_ReflectUtil.findSingletonByClassName = function(name) {
 	}
 	throw new js__$Boot_HaxeError("Could not find registered singleton by class name: " + name);
 };
+haxevx_vuex_util_ReflectUtil.checkForSingletonByClassName = function(name) {
+	var _this = haxevx_vuex_util_ReflectUtil.SINGLETON_CACHE;
+	if(__map_reserved[name] != null?_this.existsReserved(name):_this.h.hasOwnProperty(name)) {
+		var _this1 = haxevx_vuex_util_ReflectUtil.SINGLETON_CACHE;
+		if(__map_reserved[name] != null) {
+			return _this1.getReserved(name);
+		} else {
+			return _this1.h[name];
+		}
+	}
+	console.log("Warning: Didn't find singleton registered by class name: " + name);
+	return null;
+};
 haxevx_vuex_util_ReflectUtil.getPackagePathForInstance = function(instance) {
 	var clas = instance == null?null:js_Boot.getClass(instance);
 	if(clas == null) {
@@ -3229,6 +3220,9 @@ haxevx_vuex_util_RttiUtil.injectSingletonInstance = function(instance,rtti,forFi
 };
 haxevx_vuex_util_RttiUtil.injectFoundSingletonInstances = function(instance,rtti,forFields,forMeta) {
 	haxevx_vuex_util_RttiUtil.injectNewInstance(instance,rtti,forFields,forMeta,haxevx_vuex_util_ReflectUtil.findSingletonByClassName);
+};
+haxevx_vuex_util_RttiUtil.injectCheckedSingletonInstances = function(instance,rtti,forFields,forMeta) {
+	haxevx_vuex_util_RttiUtil.injectNewInstance(instance,rtti,forFields,forMeta,haxevx_vuex_util_ReflectUtil.checkForSingletonByClassName);
 };
 haxevx_vuex_util_RttiUtil.getRttiOfInstance = function(instance) {
 	return haxe_rtti_Rtti.getRtti(instance == null?null:js_Boot.getClass(instance));

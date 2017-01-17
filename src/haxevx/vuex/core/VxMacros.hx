@@ -138,7 +138,7 @@ class VxMacros
 		var constructorFieldPos:Position;
 		var metadataEntry:MetadataEntry;
 		
-		var injections:Array<{fieldName:String, className:String}> = [];
+		
 		
 		for ( i in 0...fields.length)
 		{
@@ -146,27 +146,7 @@ class VxMacros
 			var field = fields[i];
 			if (  field.access.indexOf( Access.AStatic) >= 0 ) {
 				
-				if (hasMetaTags(field.meta, META_INJECTIONS)) {
-					
-					switch (field.kind) {
-						case FieldType.FVar(t, _):	
-							
-							var tt;
-							switch( tt=ComplexTypeTools.toType(t)) {
-								case TInst(t, _):
-									//trace(t.toString());
-									injections.push({fieldName:field.name, className: t.toString() });				
-								default:
-									Context.error("Can't resolve class injection path for:"+tt, field.pos);
-							}
-							
-						default:
-							Context.error("Fieldname with injectable metadata is incorrect format:"+field.kind, field.pos);
-							//trace( "" + field.kind);
-					}
-					
-					
-				}
+
 				
 				continue;
 			}
@@ -450,15 +430,7 @@ class VxMacros
 			initBlock.push( macro  untyped this.watch = ${ {expr:EObjectDecl(watchAssignments), pos:pos} } );
 		}
 		
-		if (injections.length != 0) {
-			for (inj in injections ) {
-				var fieldName = inj.fieldName;
-				var className = inj.className;
-				//trace(fieldName + ", " + className);
-				initBlock.push( macro if (cls.$fieldName == null) cls.$fieldName = haxevx.vuex.util.ReflectUtil.findSingletonByClassName($v{className}) );
-			}
-			
-		}
+
 		
 		var theInitExpr:Expr = macro {
 			var cls:Dynamic = untyped $p{cls1.split('.')};
@@ -601,11 +573,6 @@ class VxMacros
 		]);
 		strMap;
 	};
-	
-	static var META_INJECTIONS:StringMap<Bool> = {
-		var strMap = createStringSetFromArray([":mutator", ":action"]);
-		strMap;
-	}
 	
 	
 	
