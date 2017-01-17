@@ -2,6 +2,7 @@ package haxevx.vuex.core;
 
 import haxevx.vuex.native.Vue.CreateElement;
 import haxevx.vuex.native.Vue.VNode;
+import haxevx.vuex.native.Vue.VcPropSetting;
 import haxevx.vuex.native.Vue.VueBase;
 /**
  * ...
@@ -87,6 +88,14 @@ class VComponent<D, P> extends VueBase
 		return null;
 	}
 	
+	
+	function GetDefaultPropSettings():Dynamic<VcPropSetting> {
+		return null;
+	}
+	
+	function GetDefaultPropValues():P {
+		return null;
+	}
 
 	
 }

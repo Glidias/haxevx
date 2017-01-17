@@ -159,6 +159,10 @@ typedef FunctionalComponentOptions =  {
 }
 
 
+typedef VcPropSetting = {
+	@:optional var type:Dynamic;
+	@:optional var required:Bool;
+};
 
 typedef Component = Dynamic;  // typeof Vue | ComponentOptions<Vue> | FunctionalComponentOptions;
 

@@ -24,6 +24,9 @@ class VxMacros
 	// prop validator support
 	
 	
+	static inline var FLAG_PROP_DEFAULTVAL_CUSTOM:Int = 1;
+	static inline var FLAG_PROPSETTING_CUSTOM:Int = 2;
+	
 	macro public static function buildComponent():Array<Field>  {
 		var fields = Context.getBuildFields();
 		
@@ -39,6 +42,8 @@ class VxMacros
 		var typeParamProps:Type;
 		var typeParamStore:Type = null;
 		var retTypeStore:ComplexType = null;
+	
+		
 		
 		if (classTypeParams.length == 3) {  // assumed extending VxComponent
 			typeParamStore = TypeTools.follow( classTypeParams[0] );
@@ -74,6 +79,7 @@ class VxMacros
 		var injectBlock:Array<Expr> = [];
 		var computedAssignments:Array<FieldExprPair> = [];
 		var propAssignments:Array<FieldExprPair> = [];
+		var propHash:StringMap<Bool> = new StringMap<Bool>();
 		var methodAssignments:Array<FieldExprPair> = [];
 		var watchAssignments:Array<FieldExprPair> = [];
 		var setWatches:StringMap< Bool> = new StringMap<Bool>();
@@ -137,8 +143,9 @@ class VxMacros
 		var constructorFieldExpr:Expr;
 		var constructorFieldPos:Position;
 		var metadataEntry:MetadataEntry;
-		
-		
+		var propSettingFlags:Int = 0;
+		var propSettingKVs:Array<FieldExprPair> = null;
+		var propDefaultValueKVs:Array<FieldExprPair> = null;
 		
 		for ( i in 0...fields.length)
 		{
@@ -256,6 +263,24 @@ class VxMacros
 						
 						if (field.name == "Components") {
 							f.expr = ExprTools.map(f.expr, checkReturnStrMap);
+						}
+						else if (field.name == "GetDefaultPropSettings") {
+							propSettingFlags |= FLAG_PROPSETTING_CUSTOM;
+							switch( f.expr.expr) {
+								case ExprDef.EBlock([{expr:EReturn({expr:EObjectDecl(kvs), pos:_} ), pos:_}]):
+									propSettingKVs = kvs;
+								default:
+									
+							}
+						}
+						else if (field.name == "GetDefaultPropValues") {
+							propSettingFlags |= FLAG_PROP_DEFAULTVAL_CUSTOM;
+							switch( f.expr.expr) {
+								case ExprDef.EBlock([{expr:EReturn({expr:EObjectDecl(kvs), pos:_} ), pos:_}]):
+									propDefaultValueKVs = kvs;
+								default:
+									
+							}
 						}
 						addMethodHookToInitBlock(field.name, initBlock);
 						
@@ -379,6 +404,7 @@ class VxMacros
 						
 						var p = Context.currentPos();
 						propAssignments.push({field:f.name, expr:getPropMetadata(f.meta.get(), f.type, f.pos, p )});
+						propHash.set(f.name, true);
 						fields.push({
 							name: f.name,
 							doc: f.doc,
@@ -425,6 +451,44 @@ class VxMacros
 		}
 		if (propAssignments.length != 0) {
 			initBlock.push( macro  untyped this.props = ${ {expr:EObjectDecl(propAssignments), pos:pos} } );
+			if ((propSettingFlags & FLAG_PROPSETTING_CUSTOM) != 0) {
+				// todo: does it return plain object as only statement? if so, can inline assignments
+				if (propSettingKVs != null) {
+					for (kv in propSettingKVs) {
+						var k:String = kv.field;
+						var v:Expr = kv.expr;
+						
+						if (!propHash.exists(k) ) {
+							Context.warning("Unknown prop for VcPropSetting setting key: "+k, v.pos);
+						}
+						
+						switch(v.expr) {
+							case ExprDef.EObjectDecl(sFields): 
+								for (vs in sFields) {
+									var vsk:String = vs.field;
+									var vsv:Expr = vs.expr;
+									
+									initBlock.push( macro untyped this.props.$k.$vsk = ${vsv}   );
+								}
+							case ExprDef.EConst(CIdent("null")):
+								Context.warning("Null supplied for VcPropSetting. Will be ignored.", v.pos);
+								//initBlock.push(macro untyped this.props.$k = $v);
+							default:
+						}
+					}
+				}
+				else initBlock.push( macro haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropSettingInto( (untyped this.props), GetDefaultPropSettings() )   );
+			}
+			if ((propSettingFlags & FLAG_PROP_DEFAULTVAL_CUSTOM) != 0) {
+				if (propDefaultValueKVs != null) {
+					for (kv in propDefaultValueKVs) {
+						var k:String = kv.field;
+						var v:Expr = kv.expr;
+						initBlock.push( macro untyped this.props.$k["default"] = ${v} );
+					}
+				}
+				else initBlock.push( macro haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropValueInto( (untyped this.props), "default", GetDefaultPropValues() )   );
+			}
 		}
 		if (watchAssignments.length != 0) {
 			initBlock.push( macro  untyped this.watch = ${ {expr:EObjectDecl(watchAssignments), pos:pos} } );
@@ -569,7 +633,7 @@ class VxMacros
 		var strMap:StringMap<Bool> = createStringSetFromArray([
 			"Created", "BeforeCreate", "BeforeDestroy", "Destroy", "BeforeMount", 
 			"Mounted", "BeforeUpdate", "Updated", "Activated", "Deactivated",
-			"El", "Data", "PropsData", "Render", "Template", "Components"
+			"El", "Data", "PropsData", "Render", "Template", "Components", "GetDefaultPropSettings", "GetDefaultPropValues"
 		]);
 		strMap;
 	};
@@ -813,5 +877,31 @@ typedef PropBinding = {
 class VxMacroUtil {
 	public static inline function dynamicSet<T>(dyn:Dynamic<T>, key:String, value:T):Void {
 		untyped dyn[key] = value;
+	}
+	
+	public static function dynamicSetPropValueInto(into:Dynamic, propSettingField:String, from:Dynamic):Void {
+		for (f in Reflect.fields(from)) {
+			var curSetting:Dynamic = Reflect.field(into, f)  ;
+			if (curSetting == null) {
+				curSetting = {};
+				Reflect.setField(into, f, curSetting);
+			}
+			Reflect.setField(curSetting, propSettingField,  Reflect.field(from, f));
+		}
+	}
+	
+	public static function dynamicSetPropSettingInto(into:Dynamic, from:Dynamic):Void {
+		for (f in Reflect.fields(from)) {
+			var setting:Dynamic = Reflect.field(from, f);
+			var curSetting:Dynamic = Reflect.field(into, f)  ;
+			if (curSetting != null) {
+				for (d in Reflect.fields(setting)) {
+					Reflect.setField(curSetting, d, Reflect.field(setting, d));
+				}
+			}
+			else {
+				Reflect.setField(into, f, setting);
+			}
+		}
 	}
 }
