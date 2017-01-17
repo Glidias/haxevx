@@ -79,10 +79,11 @@ class VxMacros
 		var injectBlock:Array<Expr> = [];
 		var computedAssignments:Array<FieldExprPair> = [];
 		var propAssignments:Array<FieldExprPair> = [];
-		var propHash:StringMap<Bool> = new StringMap<Bool>();
 		var methodAssignments:Array<FieldExprPair> = [];
 		var watchAssignments:Array<FieldExprPair> = [];
+		var propValidateAssignments:StringMap<Expr> =  null;// new StringMap<Expr>();
 		var setWatches:StringMap< Bool> = new StringMap<Bool>();
+		var setPropValidators:StringMap< Bool> = new StringMap<Bool>();
 		//var data
 		
 		switch ( fg=TypeTools.follow(typeParamData) ) {
@@ -286,10 +287,51 @@ class VxMacros
 						
 						
 					}
+					else if ( (metadataEntry = getMetaTagEntry(field.meta, ":propValidate")) != null) {
+						if (field.access.indexOf(Access.APublic) >= 0) {
+							Context.error("Prop validator functions must be private", field.pos);
+						}
+						
+						var mFieldName:String = metadataEntry.params != null  && metadataEntry.params.length != 0 ?  getMetaStrValueFromExpr(metadataEntry.params[0], metadataEntry.params.length == 1 ? field.name.split("_").pop() : null) : field.name.split("_").pop();
+						
+						
+						if (mFieldName == null || (propFieldsToAdd == null || !propFieldsToAdd.exists(mFieldName)) ) {
+							
+							Context.fatalError("Could not find prop for validator function: " + mFieldName, field.pos);
+						}
+						
+						if (setPropValidators.exists(mFieldName)) {
+							Context.fatalError("Duplicate prop validation field target detected: " + mFieldName, field.pos);
+						}
+						
+						if ( !isEqualComplexTypes(f.args[0].type, TypeTools.toComplexType( propFieldsToAdd.get(mFieldName).type) ) ) {
+							Context.fatalError("Prop validation method parameter type  must match against target prop", field.pos);
+						}
+						if (f.ret == null) f.ret = MacroStringTools.toComplex("Bool");
+						switch(f.ret) {
+							case ComplexType.TPath({name:"Bool", pack:_, params:_}):
+						
+							default:
+								
+								Context.fatalError("Validator function must return Bool", field.pos);
+						}
+						
+						if (f.args.length !=1) {
+							Context.fatalError("Prop validation method need 1 argument: " + field.name, field.pos);
+						}
+						
+						var methodName:String = field.name;
+						if (propValidateAssignments == null) propValidateAssignments = new StringMap<Expr>();
+						
+						propValidateAssignments.set(mFieldName, macro clsP.$methodName);
+						setPropValidators.set(mFieldName, true);
+						
+						
+					}
 					else if ( (metadataEntry = getMetaTagEntry(field.meta, ":watch")) != null) {
 						
 						if (field.access.indexOf(Access.APublic) >= 0) {
-							Context.error("Watcher fields must be private", field.pos);
+							Context.error("Watcher functions must be private", field.pos);
 						}
 						
 						var mFieldName:String = metadataEntry.params != null  && metadataEntry.params.length != 0 ?  getMetaStrValueFromExpr(metadataEntry.params[0], metadataEntry.params.length == 1 ? field.name.split("_").pop() : null) : field.name.split("_").pop();
@@ -404,7 +446,6 @@ class VxMacros
 						
 						var p = Context.currentPos();
 						propAssignments.push({field:f.name, expr:getPropMetadata(f.meta.get(), f.type, f.pos, p )});
-						propHash.set(f.name, true);
 						fields.push({
 							name: f.name,
 							doc: f.doc,
@@ -450,6 +491,7 @@ class VxMacros
 			initBlock.push( macro  untyped this.methods = ${ {expr:EObjectDecl(methodAssignments), pos:pos} } );
 		}
 		if (propAssignments.length != 0) {
+			
 			initBlock.push( macro  untyped this.props = ${ {expr:EObjectDecl(propAssignments), pos:pos} } );
 			if ((propSettingFlags & FLAG_PROPSETTING_CUSTOM) != 0) {
 				// todo: does it return plain object as only statement? if so, can inline assignments
@@ -458,7 +500,7 @@ class VxMacros
 						var k:String = kv.field;
 						var v:Expr = kv.expr;
 						
-						if (!propHash.exists(k) ) {
+						if ( propFieldsToAdd == null || !propFieldsToAdd.exists(k) ) {
 							Context.warning("Unknown prop for VcPropSetting setting key: "+k, v.pos);
 						}
 						
@@ -469,6 +511,8 @@ class VxMacros
 									var vsv:Expr = vs.expr;
 									
 									initBlock.push( macro untyped this.props.$k.$vsk = ${vsv}   );
+									
+									
 								}
 							case ExprDef.EConst(CIdent("null")):
 								Context.warning("Null supplied for VcPropSetting. Will be ignored.", v.pos);
@@ -489,7 +533,17 @@ class VxMacros
 				}
 				else initBlock.push( macro haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropValueInto( (untyped this.props), "default", GetDefaultPropValues() )   );
 			}
+			
+			
+			if (propValidateAssignments != null) {
+				for (k in propValidateAssignments.keys()){
+					initBlock.push( macro untyped this.props.$k.validator = ${propValidateAssignments.get(k)}   );
+					
+				}
+			}
 		}
+		
+	
 		if (watchAssignments.length != 0) {
 			initBlock.push( macro  untyped this.watch = ${ {expr:EObjectDecl(watchAssignments), pos:pos} } );
 		}
@@ -674,6 +728,25 @@ class VxMacros
 			case _:
 				//trace(e.expr);
 				return e;
+				// ExprTools.iter(e, checkIllegalAccess);			 
+		}
+	}
+	
+	static var CHECK_RETURN_BOOL:Bool = false;
+	static function checkReturnBool(e:Expr):Bool {
+		CHECK_RETURN_BOOL = false;
+		ExprTools.iter(e, checkReturnBoolI );
+		return CHECK_RETURN_BOOL;
+	}
+	static function checkReturnBoolI(e:Expr):Void {
+	
+		 switch(e.expr) {
+			case ExprDef.EReturn({expr:EArrayDecl(values), pos:pos }):
+				
+			
+			case _:
+				trace(e.expr);
+			
 				// ExprTools.iter(e, checkIllegalAccess);			 
 		}
 	}
