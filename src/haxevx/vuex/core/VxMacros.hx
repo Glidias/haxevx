@@ -19,10 +19,6 @@ import haxe.macro.TypeTools;
  */
 class VxMacros
 {
-	// TODO:
-	//  ensure supplied default types with given default values! Type checking for prop default metadata!!
-	// prop validator support
-	
 	
 	static inline var FLAG_PROP_DEFAULTVAL_CUSTOM:Int = 1;
 	static inline var FLAG_PROPSETTING_CUSTOM:Int = 2;
@@ -200,10 +196,7 @@ class VxMacros
 						Context.warning("Computed field: '" + field.name+"' needs to adopt [(get)/(set/never)] convention..(ie. non physical)", field.pos );
 					}
 					
-					if ( hasMetaTag(field.meta, "mapGetterProp") ) {
-						trace("TODO: mapGetterProp implementation");
-						break;
-					}
+				
 					
 					// Add fields  as type matches getter function return type
 					var func:Function = funcLookup.get(name);
@@ -237,10 +230,8 @@ class VxMacros
 					}
 				case FieldType.FVar(t, e):
 					//field.meta.
-					if (!hasMetaTag(field.meta, "mapGetterProp")) Context.error("Components not allowed to declare member variables", field.pos)
-					else {
-						trace("TODO: mapGetterProp implementation");
-					}
+					Context.error("Components not allowed to declare member variables", field.pos);
+					
 					
 					
 				//	TypeTools.
@@ -426,7 +417,7 @@ class VxMacros
 			}
 		}
 		
-		// @mapGetterProp
+
 		
 
 	
