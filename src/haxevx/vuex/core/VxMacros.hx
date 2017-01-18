@@ -415,7 +415,7 @@ class VxMacros
 							access: [Access.APrivate],
 							pos: p ,
 							kind:  FieldType.FProp("null", "null",  TypeTools.toComplexType( f.type) ),
-							meta: [ {name:"_data", pos:p } ] // only add relavant metatag _data
+							
 						});
 					default:
 						// suppress?
