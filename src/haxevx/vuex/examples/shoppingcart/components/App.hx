@@ -18,14 +18,13 @@ class App extends VxComponent<AppStore, NoneT, NoneT>
 		super();
 	}
 	
-	 static inline var ProductList:String = "product-list";
-	 static inline var Cart:String = "cart";
-	 
+	static inline var ProductList:String = "product-list";
+	static inline var Cart:String = "cart";
 	
 	override function Components():Dynamic<VComponent<Dynamic,Dynamic>> {
 		return [
-			'$ProductList'=> new ProductListVue(),
-			'$Cart'=> new CartVue("My Haxe Cart")
+			ProductList => new ProductListVue(),
+			Cart => new CartVue("My Haxe Cart")
 		];
 	}
 	

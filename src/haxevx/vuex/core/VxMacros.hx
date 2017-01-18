@@ -765,6 +765,8 @@ class VxMacros
 					switch( key) {
 						case EConst(CString(keyStr)):
 							fields.push({field:keyStr, exprDef:value } );
+						case EConst(CIdent(s)):
+							fields.push({field:"$"+s, exprDef:value } );
 						default:
 							Context.fatalError("Only accept string keys for String Map!", values[i].pos );
 					}
