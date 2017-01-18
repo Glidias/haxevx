@@ -5,7 +5,12 @@ package haxevx.vuex.native;
  * wip
  * @author Glidias
  */
-@:native("Vuex.Store") extern class Store<S>
+#if !vue_global
+@:jsRequire("vuex", "Store") 
+#else
+@:native("Vuex.Store") 
+#end
+extern class Store<S>
 {
 	public var getters:Dynamic;
 

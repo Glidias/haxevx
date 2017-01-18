@@ -60,7 +60,11 @@ extern class VueBase {	// a base of private fields
 }
 
 // The native class alias for Vue to support it's constructor and defining your own class-specific _vData:D type and includes basic Vue api fields with public access.
-@:native("Vue")
+#if !vue_global
+@:jsRequire("vue") 
+#else
+@:native("Vue") 
+#end
 @:build( haxevx.vuex.native.NativeMacro.mixin() )
 extern class VueInstance  { 
 	public function new(options:ComponentOptions);
@@ -90,7 +94,11 @@ export type CreateElement = {
 
 // This native class for Vue with untyped public var_vData:Dynamic included in (for simplicity, as defining <D> is rather verbose,
 // and all Vue instance api fields with public access.
-@:native("Vue")
+#if !vue_global
+@:jsRequire("vue") 
+#else
+@:native("Vue") 
+#end
 @:build( haxevx.vuex.native.NativeMacro.mixin() )
 extern class Vue		// For simplicity, Native Vue will consider _vData as Dynamic, 
 {
