@@ -2,6 +2,10 @@
 
 ## HaxeVX - Haxe-powered VueJS/Vuex development
 
+Pre-release is available on Haxelib. 
+
+	haxelib install haxevx
+
 ### Type-safe coding to target Vuex/VueJS environments using Haxe compile-time Macros and Classes.
 
 With HaxeVx, you get the benefit of massive access-control/type-hinting/type-checking/compile-time safety, etc. inherant within Haxe when developing your VueJS/Vuex stuff. Compile-time mixins/macros/checks are provided specifically for your Haxe classes to ensure they conform to the necessary VueJS conventions.
