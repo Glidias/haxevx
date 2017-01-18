@@ -5,6 +5,8 @@
 Pre-release is available on Haxelib. 
 
 	haxelib install haxevx
+	
+**Important Note:** If your Vue/Vuex externs are loaded into your project globally (ie. not using `require()` modules ), you need to compile your Haxe code with the flag `-D vue_global`, in order to reference them globally as well. 
 
 ### Type-safe coding to target Vuex/VueJS environments using Haxe compile-time Macros and Classes.
 
