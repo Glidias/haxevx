@@ -47,7 +47,7 @@ _____
 
 Deployment info:
 	
-The current package is under haxevx.* namespace. Examples folder can be omitted for deployment.
+The current package is under haxevx.vuex* namespace. Examples folder can be omitted for deployment.
 
 ______
 
