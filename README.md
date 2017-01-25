@@ -8,7 +8,7 @@ Pre-release is available on Haxelib.
 	
 **Important Note:** If your Vue/Vuex externs are loaded into your project globally (ie. not using `require()` modules ), you need to compile your Haxe code with the flag `-D vue_global`, in order to reference them globally as well. 
 
-### Type-safe coding to target Vuex/VueJS environments using Haxe compile-time Macros and Classes.
+### Type-safe coding to target Vuex/VueJS environments using Haxe pre-compile-time Macros and Classes.
 
 With HaxeVx, you get the benefit of massive access-control/type-hinting/type-checking/compile-time safety, etc. inherant within Haxe when developing your VueJS/Vuex stuff. Compile-time mixins/macros/checks are provided specifically for your Haxe classes to ensure they conform to the necessary VueJS conventions.
 	
