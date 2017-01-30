@@ -1,4 +1,5 @@
 package haxevx.vuex.examples.shoppingcart.store;
+import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VModule;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes; 
 import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;
@@ -8,13 +9,13 @@ import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;
  * @author Glidias
  */
 @:rtti
-class AppGetters extends VModule<AppState>
+class AppGetters extends VModule<AppState, NoneT>
 {
 
 	public function new() {	}
 	
 
-	public static function Get_cartProducts<S:AppState>(state:S):Array<ProductInCart> {
+	public static function Get_cartProducts(state:AppState):Array<ProductInCart> {
 
 		var exceptions:Array<String> = null;
 		var resultOfMap =  state.cart.added.map( function( cp:ProductAdded) {

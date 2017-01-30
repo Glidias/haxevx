@@ -6,9 +6,9 @@ package haxevx.vuex.core;
  * 
  * @author Glidias
  */
-@:autoBuild(haxevx.vuex.core.VuexMacros.buildVModuleGetters())
-class VModule<T>
+
+class VModule<S, RS> implements IModule<S, RS>
 {
-	 var state:T;
+	private var state:S;
 
 }

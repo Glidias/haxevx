@@ -28,7 +28,6 @@ class VuexMacros
 	macro public static function buildMutator():Array<Field>  {
 		return buildActionCalls("_", Context.getBuildFields(), "commit");
 	}
-	
 		
 	/**
 	 * Generate public inlined "$store.dispatch" methods for action (aka action-dispatcher) classes which consists of private function handlers.
@@ -38,12 +37,14 @@ class VuexMacros
 		
 		return buildActionCalls("_", Context.getBuildFields(), "dispatch");
 	}
+	static private function hasMetaTag(metaData:Metadata, tag:String):Bool {
+		for ( m in metaData) {
+			if (m.name == tag) return true;
+		}
+		return false;
+	}
 	
-	/**
-	 * Generate locally accessible VModule Haxe getters from static functions in the form of `Get_getterFieldrName(state:T)` (representing Vuex-style store getters) for a given VModule extended class
-	 * @return
-	 */
-	macro public static function buildVModuleGetters():Array<Field> {
+	macro public static function buildVModuleGettersBackup():Array<Field> {
 		var fields = Context.getBuildFields();
 		
 		var contextPos:Position = Context.currentPos();
@@ -56,6 +57,8 @@ class VuexMacros
 			if (field.access.indexOf(Access.AStatic) >= 0) {
 				continue;
 			}
+			
+			
 			switch( field.kind ) {
 				case FieldType.FProp("get", "never", _, _):
 					alreadyDeclaredGetters.set(field.name, true);
@@ -107,6 +110,209 @@ class VuexMacros
 		
 		return fields.concat(fieldsToAdd);
 	}
+	
+	static function getInterfaceTypParamsFrom(array:Array<{ t : haxe.macro.Ref<haxe.macro.ClassType>, params : Array<haxe.macro.Type> }>, interfaceName:String):Array<Type> {
+		for ( i in 0...array.length) {
+			if (array[i].t.toString() == interfaceName) return array[i].params;
+		}
+		return null;
+	}
+	
+	static function getModuleStateTypes(cls:ClassType):Array<ComplexType> {
+		
+		while ( cls != null) {
+			var params =  cls.superClass != null && cls.superClass.t.get().module == "haxevx.vuex.core.VModule" ?  cls.superClass.params : getInterfaceTypParamsFrom(cls.interfaces, "haxevx.vuex.core.IModule");
+			if ( params != null ) {
+				
+				return [TypeTools.toComplexType(params[0]), TypeTools.toComplexType(params[1])];
+			}
+			cls = cls.superClass.t.get();
+		}
+		
+		return null;
+	}
+	
+	
+	/**
+	 * Generate locally accessible VModule Haxe getters from static functions in the form of `Get_getterFieldrName(state:T)` (representing Vuex-style store getters) for a given VModule extended class
+	 * @return
+	 */
+	macro public static function buildVModuleGetters():Array<Field> {
+		var fields = Context.getBuildFields();
+		
+		var localClasse = Context.getLocalClass().get();
+		if (localClasse.module == "haxevx.vuex.core.VModule") {
+			return fields;
+		}
+
+		var isBase:Bool = localClasse.superClass == null || localClasse.superClass.t.get().module == "haxevx.vuex.core.VModule";
+
+		var noneT:ComplexType = MacroStringTools.toComplex("haxevx.vuex.core.NoneT");
+		
+
+		var stateTypes:Array<ComplexType> = getModuleStateTypes(Context.getLocalClass().get());
+		
+	
+		var contextPos:Position = Context.currentPos();
+		// todo: ensure state data type from VModule<T> is matching all getter parameters!
+		var fieldsToAdd:Array<Field> = [];
+		
+		var alreadyDeclaredGetters:StringMap<Bool> = new StringMap<Bool>();
+		
+		for (field in fields) {
+			if (field.access.indexOf(Access.AStatic) >= 0) {
+				continue;
+			}
+			switch( field.kind ) {
+				case FieldType.FProp("get", "never", _, _):
+					alreadyDeclaredGetters.set(field.name, true);
+				case FieldType.FProp("default", "never", _, _):
+					//TODO: be able to switch
+					//alreadyDeclaredGetters.set(field.name, true);
+				default:
+					
+			}
+		}
+		
+		var getterAssignments:Array<Expr> = [];
+		
+		
+		// TODO: :mutator for IMutator, :action for IAction,  :getter
+		
+		
+		for (field in fields) {
+			if (field.access.indexOf(Access.AStatic) < 0) {
+				continue;
+			}
+			
+			switch( field.kind ) {
+				
+				case FieldType.FFun(f):
+				
+					if (field.name.indexOf("Get_") == 0) {
+						var fieldName:String = field.name;
+						var addFieldName:String = field.name.substr(4);
+						if (f.args.length == 0) {
+							Context.error("Static store getters needs at least 1 parameter for store state", field.pos);
+						}
+						// TODO: check parameter types for static method "Get_"
+						
+						
+					 
+						if (!alreadyDeclaredGetters.get(addFieldName) ) {
+							fieldsToAdd.push( {
+								name:addFieldName,
+								access: [Access.APublic],
+								kind: FieldType.FProp("get", "never", f.ret),
+								pos:contextPos
+							});
+						}
+						else {
+							
+						}
+						
+						// TODO: if IStoreGetters, switch it out to default
+						
+						
+						fieldsToAdd.push( {
+							name:"get_" + addFieldName,
+							kind: FieldType.FFun({
+								args:[],
+								ret:f.ret,
+								expr: macro return untyped this._stg[_ +$v{addFieldName}] //$i{fieldName}(state)
+							}),
+							pos:contextPos
+						});
+						
+						getterAssignments.push( macro untyped d.$addFieldName = cls.$fieldName );
+						
+					}
+				default:
+					// TODO:
+					if (hasMetaTag(field.meta, ":mutator")) {
+						
+					}
+					else if (hasMetaTag(field.meta, ":action")) {
+						
+					}
+					else if (hasMetaTag(field.meta, ":getter")) {
+						
+					}
+					
+			}
+			
+			
+		}
+		
+		var strType:ComplexType = MacroStringTools.toComplex("String");
+		
+		if (isBase) {
+			fieldsToAdd.push({
+				name:"_",
+				kind:FieldType.FProp("default", "never", strType ),
+				access: [Access.APublic],
+				pos:contextPos
+			});
+			
+		}
+		
+		
+			
+		var initBlock:Array<Expr> = [];
+		if (!isBase) {
+			initBlock.push( macro super._Init(ns) );
+		}
+		if (isBase) initBlock.push( macro untyped this._ = ns );
+		if (hasMetaTag(localClasse.meta.get(), ":namespaced")) {
+			initBlock.push( macro {
+				untyped this.namespaced = true;
+				var useNS:String = "";
+			});
+		}
+		else {
+			initBlock.push( macro {
+				
+				var useNS:String = ns;
+			});
+		}
+		
+		var cls1 = Context.getLocalClass().toString();
+		
+		initBlock.push(macro {
+			
+			var cls:Dynamic = untyped $p{cls1.split('.')};
+			var clsP:Dynamic = cls.prototype;
+			var key:String;
+			
+		});
+		
+		if (getterAssignments.length != 0) {
+			if ( isBase) initBlock.push( macro { 
+				var d = {};
+				untyped this.getters = d;
+			} );
+			else initBlock.push( macro var d  = untyped this.getters  );
+			
+			for ( i in 0...getterAssignments.length) {
+				initBlock.push ( getterAssignments[i] );
+			}
+		}
+		
+		fieldsToAdd.push({
+			name:"_Init",
+			kind: FieldType.FFun({
+				args:[{name:"ns", type:strType }],
+				ret:null,
+				expr: macro $b{initBlock}
+			}),
+			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
+			pos:contextPos
+		});
+		
+		return fields.concat(fieldsToAdd);
+	}
+	
+	
 	
 	
 	static function getClassNamespace():String {

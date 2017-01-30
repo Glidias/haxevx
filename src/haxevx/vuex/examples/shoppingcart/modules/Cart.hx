@@ -1,6 +1,8 @@
 package haxevx.vuex.examples.shoppingcart.modules;
 import haxevx.vuex.core.IAction;
+import haxevx.vuex.core.IModule;
 import haxevx.vuex.core.IVxStoreContext;
+import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VModule;
 import haxevx.vuex.examples.shoppingcart.api.Shop;
 import haxevx.vuex.examples.shoppingcart.store.AppMutator;
@@ -14,7 +16,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * @author Glidias
  */
 @:rtti
-class Cart extends VModule<CartState>
+class Cart implements IModule<CartState, NoneT> // extends VModule<CartState, NoneT>
 {
 	
 	public function new() 
@@ -27,6 +29,11 @@ class Cart extends VModule<CartState>
 		}
 		
 	}
+	
+	
+	/* INTERFACE haxevx.vuex.core.IModule.IModule<S,RS> */
+	
+	public var state:CartState;
 	
 	
 	// Getters
