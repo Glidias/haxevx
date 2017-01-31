@@ -43,10 +43,10 @@ class Cart implements IModule<CartState, NoneT> // extends VModule<CartState, No
 	}
 	
 	// Actions
-	@action static var action:CartDispatcher<CartState>;
+	@action @:action static var action:CartDispatcher<CartState>;
 	
 	// Mutators
-	@mutator static var mutator:CartMutator;
+	@mutator @:mutator static var mutator:CartMutator;
 }
 
 typedef CartState =  {	//eg. typedef style store module state

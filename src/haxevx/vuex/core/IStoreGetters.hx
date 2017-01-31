@@ -3,7 +3,8 @@ package haxevx.vuex.core;
 /**
  * @author Glidias
  */
-interface IStoreGetters<S> extends IGetters<S, NoneT>
+@:autoBuild(haxevx.vuex.core.VuexMacros.buildIGetters(true))
+interface IStoreGetters<S> 
 {
   
 }

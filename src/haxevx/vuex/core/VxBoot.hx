@@ -34,15 +34,18 @@ class VxBoot
 		var storeParams = storeInstance._toNative();
 		
 		
+
 		
 		var metaFields:Dynamic<Array<Dynamic>>;
 		var md:Dynamic;
 		var noNamespaceGetterProps:Dynamic;
 		// use Vuex
 		//Vue.use(Vuex);
-		
-		var store = new Store(storeParams);
 	
+
+		var store = new Store(storeParams);
+			
+				
 		if ( storeParams.getters!= null) {
 			// define get_ utility functions under store.getters ( for non-namespced
 			
@@ -50,18 +53,7 @@ class VxBoot
 			// define get_utility functions under store.customGetters to store.getters namespaced
 			//Reflect.field(opts.storeParams.getters
 			var storeGetters:Dynamic = store.getters;
-			GetterFactory.hookupGettersFromPropsOver(storeParams.getters, storeGetters);
-			
-			// find the fields with @getters under STORE and treat them as namespaced mixins
-			// for each getter field instance
-			metaFields = ReflectUtil.getMetaDataFieldsWithTag(Type.getClass(storeInstance), "getter");
-			if (metaFields != null) {
-				for (p in Reflect.fields(metaFields)) {
-					md = Reflect.field(storeInstance, p);
-					noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
-					GetterFactory.hookupGettersFromPropsOver2(noNamespaceGetterProps, md, storeGetters);
-				}
-			}
+			//GetterFactory.hookupGettersFromPropsOver(storeParams.getters, storeGetters);
 			
 				
 			if (storeParams.modules != null) {  // todo: modules and fractal depth first traversal
@@ -72,8 +64,7 @@ class VxBoot
 					
 					var m:NativeModule<Dynamic,Dynamic> = Reflect.field(o, p);
 					md = Reflect.field(storeInstance, p); //VModule<Dynamic>
-						ReflectUtil.setHiddenField(store,  p,  md );
-				
+					Reflect.setField(store, p, md);
 						/*  // why i included this;.. i dunno.
 						if ( Reflect.field(md, "state") == null ) {
 							trace("Setting state on native module:"+p);
@@ -84,8 +75,9 @@ class VxBoot
 						
 					if (m.getters != null) {
 										
-						noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
-						GetterFactory.hookupGettersFromPropsOver2(noNamespaceGetterProps, md, storeGetters, moduleNameStack.join(ReflectUtil.MODULE_FRACTAL_SEP) + ReflectUtil.MODULES_SEPERATOR);
+					//	noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
+						
+						GetterFactory.hookupGettersFromPropsOver( md, storeGetters);
 						
 
 					}
@@ -105,7 +97,7 @@ class VxBoot
 			}
 			
 		}
-		
+
 		var sg:Dynamic;
 		
 		// perform singleton reference checks
@@ -132,7 +124,7 @@ class VxBoot
 			//ActionFactory.finaliseClass(c, store);
 		}
 		#end
-		
+
 		STORE = store;
 		return store;
 	}

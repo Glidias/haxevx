@@ -29,11 +29,11 @@ class Products extends VModule<ProductListModel, NoneT>
 
 	
 	// Actions
-	@action static var action:ProductListDispatcher;
+	@action @:action static var action:ProductListDispatcher;
 	
 	
 	// Mutations
-	@mutator static var mutator:ProductListMutator; 
+	@mutator @:mutator static var mutator:ProductListMutator; 
 	
 }
 

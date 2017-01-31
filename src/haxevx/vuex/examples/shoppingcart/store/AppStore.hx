@@ -12,17 +12,17 @@ import haxevx.vuex.examples.shoppingcart.modules.Products;
 class AppStore extends VxStore<AppState>  
 {	
 	// Actions
-	@action static var actions:AppActions<AppState>;
+	@action @:action static var actions:AppActions<AppState>;
 	
 	// Mutators
-	@mutator static var mutator:AppMutator<AppState>;
+	@mutator @:mutator static var mutator:AppMutator<AppState>;
 	
 	// Modules
-	@module public var cart:Cart;
-	@module public var products:Products;
+	@module @:module public var cart:Cart;
+	@module @:module public var products:Products;
 	
 	// Getters
-	public var getters(default, null):AppGetters;
+	public var getters(default, never):AppGetters;
 	
 	
 	public function new() {

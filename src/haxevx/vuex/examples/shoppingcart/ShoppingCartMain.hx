@@ -15,8 +15,8 @@ class ShoppingCartMain
 	public function new() 
 	{
 
-		
 		VxBoot.startStore( new AppStore() );
+		
 		VxBoot.startVueWithRootComponent("#app", new App() );
 
 		// if not using VueX and App is a self-contained Vue instance (which isn't in this case, however), can forego VxBoot and simply call:

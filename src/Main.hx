@@ -18,6 +18,7 @@ class Main
 	
 	static function main() 
 	{
+	
 		new ShoppingCartMain();
 		//new HelloWorldMain();
 	}

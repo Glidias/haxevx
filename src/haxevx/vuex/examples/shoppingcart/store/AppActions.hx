@@ -1,7 +1,7 @@
 package haxevx.vuex.examples.shoppingcart.store;
 import haxevx.vuex.core.IAction;
+import haxevx.vuex.core.IVxContext.IVxContext1;
 
-import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
 
@@ -14,7 +14,7 @@ class AppActions<S:AppState> implements IAction
 {
 	@mutator static var mutator:AppMutator<Dynamic>;
 	
-	 function addToCart(context:IVxStoreContext<S>, payload:ProductInStore):Void { 
+	 function addToCart(context:IVxContext1<S>, payload:ProductInStore):Void { 
 		if (payload.inventory > 0) {
 			
 			mutator._addToCart(context, {id:payload.id});			

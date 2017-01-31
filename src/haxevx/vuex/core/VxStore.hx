@@ -6,7 +6,7 @@ import haxe.rtti.Rtti;
 import haxevx.vuex.core.NativeTypes.NativeModule;
 import haxevx.vuex.core.NativeTypes.NativeStore;
 import haxevx.vuex.util.ActionFactory;
-import haxevx.vuex.util.GetterFactory;
+
 import haxevx.vuex.util.MutatorFactory;
 import haxevx.vuex.util.ReflectUtil;
 import haxevx.vuex.util.RttiUtil;
@@ -75,23 +75,11 @@ class VxStore<T> implements IVxStoreContext<T>
 
 		storeParams.mutations = mutators;
 		storeParams.actions = actions;
-		storeParams.getters = getters;
+		storeParams.getters = untyped this.getters;
 		storeParams.modules = modules;
 		
 		// getters
-		if ( storeInstanceFields.indexOf("getters") >=0 ) {
-			if ( Reflect.field(this, "getters") == null) {
-				if (storeRTTI == null) {
-					throw "Failed to initialize store's getters! Need RTTI to dynamically instatiate getters!";
-				}
-				
-				lookupMap.set("getters", true);
-				RttiUtil.injectNewInstance(this, storeRTTI, lookupMap);		
-				if (Reflect.field(this, "getters") == null) throw "Couldn't dynamically instantiate getters for unknown reason!";
-			}
-			GetterFactory.setupGettersFromInstance( Reflect.field(this, "getters"), getters );
-			
-		}
+	
 		
 		if (storeRTTI != null) {
 			RttiUtil.injectNewInstance(this, storeRTTI, RttiUtil.NO_FIELDS, metaMap);
@@ -118,9 +106,9 @@ class VxStore<T> implements IVxStoreContext<T>
 		for (f in Reflect.fields(storeInstanceMetas)) {
 			m = Reflect.field(storeInstanceMetas, f);
 			insta = Reflect.field(this, f);
-			if (Reflect.hasField(m, "getter")) {
-				GetterFactory.setupGettersFromInstance( insta, getters, ReflectUtil.getNamespaceForClass(Type.getClass(insta) ) );
-			}
+			//if (Reflect.hasField(m, "getter")) {
+				//GetterFactory.setupGettersFromInstance( insta, getters, ReflectUtil.getNamespaceForClass(Type.getClass(insta) ) );
+			//}
 			if (Reflect.hasField(m, "module")) {
 				Reflect.setField(modules, f, getModuleTree(insta, f) );
 		
@@ -172,37 +160,16 @@ class VxStore<T> implements IVxStoreContext<T>
 			var cls = Type.getClass(curModule);
 			var fields:Dynamic<Array<Dynamic>>;
 			
-			var state = Reflect.field(curModuleInstance, "state");
-			if ( state == null) {
-				
-				if (!Rtti.hasRtti(cls)) {
-					throw "Failed to initialize store's state! Need RTTI to dynamically instatiate state! Class:" + Type.getClassName(cls);
-				}
 		
-				var moduleRTTI = Rtti.getRtti(cls);
-				var typeIter =  moduleRTTI.superClass.params.iterator();
-				var typeParam:CType =typeIter.next();
-				
-				if (state == null) {
-					switch(typeParam) {
-						case CType.CClass(name, params):
-							state = ReflectUtil.getNewInstanceByClassName(name);
-						default: throw "Could not resolve for state CType:" + typeParam.getName();
-					}
-				}
-			}
 			
-			curModule.state = state;
+			curModule.state = curModuleInstance.state;
 			
 			cls = Type.getClass(curModuleInstance);
 			if (cls == null) throw "COuld not resolve class of module instance:" + curModuleInstance;
 			
 			// Dynamically instantiate any required getters, mutators, and actions
 			
-			if ( ReflectUtil.requiresInjection(null, dynInsMap, curModuleInstance) ) {
-				
-				RttiUtil.injectNewInstance(curModuleInstance, Rtti.getRtti(cls), RttiUtil.NO_FIELDS, dynInsMap);
-			}
+	
 			
 			if ( ReflectUtil.requiresInjection(null, dynStaticMap, cls) ) {
 				
@@ -233,17 +200,10 @@ class VxStore<T> implements IVxStoreContext<T>
 			}
 			
 			// retrieve local getters under module namespace
-			var newModuleNamespace =  moduleNameStack.concat([curModuleName]).join(ReflectUtil.MODULE_FRACTAL_SEP) + ReflectUtil.MODULES_SEPERATOR;
-			curModule.getters = GetterFactory.setupGettersFromInstance(curModuleInstance, null, newModuleNamespace);
+			// temporary for testing now
+			curModule.getters =  curModuleInstance.getters;
 			
-			// retrieve getter mixins under module+classed namespace
-			fields =  ReflectUtil.getMetaDataFieldsWithTag(cls, "getter"); 
-			if (fields != null) {
-				for ( f  in Reflect.fields(fields) ) {
-					insta = Reflect.field(curModuleInstance, f);
-					GetterFactory.setupGettersFromInstance( insta, curModule.getters, newModuleNamespace +  ReflectUtil.getNamespaceForClass(Type.getClass(insta) ) );
-				}
-			}
+		
 		
 			// additional modules to recurse into
 			fields =  ReflectUtil.getMetaDataFieldsWithTag(cls, "module");
