@@ -364,7 +364,7 @@ class VuexMacros
 							
 						}
 						
-						// TODO: if IStoreGetters, switch it out to default
+
 						
 						
 						fieldsToAdd.push( {
@@ -633,7 +633,7 @@ class VuexMacros
 						funcExpr = payload != null ?   macro context.$commitString($v{namespacedValue}) : macro context.$commitString($v{namespacedValue});
 					}
 					else {
-						funcExpr = payload != null ?   macro return context.$commitString($v{namespacedValue}, payload) :  macro return context.$commitString($v{namespacedValue});  // TODO: allow for return case
+						funcExpr = payload != null ?   macro return context.$commitString($v{namespacedValue}, payload) :  macro return context.$commitString($v{namespacedValue}); 
 					}
 
 
