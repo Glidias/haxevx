@@ -15,7 +15,6 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * 
  * @author Glidias
  */
-@:rtti
 class Cart implements IModule<CartState, NoneT> // extends VModule<CartState, NoneT>
 {
 	
@@ -43,10 +42,10 @@ class Cart implements IModule<CartState, NoneT> // extends VModule<CartState, No
 	}
 	
 	// Actions
-	@action @:action static var action:CartDispatcher<CartState>;
+	@:action static var action:CartDispatcher<CartState>;
 	
 	// Mutators
-	@mutator @:mutator static var mutator:CartMutator;
+	@:mutator static var mutator:CartMutator;
 }
 
 typedef CartState =  {	//eg. typedef style store module state
@@ -55,7 +54,7 @@ typedef CartState =  {	//eg. typedef style store module state
 	var lastCheckout:String;
 }
 
-@:rtti
+
 class CartDispatcher<S:CartState> implements IAction {
 	
 	@mutator static var mutator:CartMutator;

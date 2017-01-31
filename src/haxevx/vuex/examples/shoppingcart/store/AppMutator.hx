@@ -11,7 +11,6 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * 
  * @author Glidias
  */
-@:rtti
 class AppMutator<S> implements IMutator		// all mutators imply a "S" generic property indicating the state type it is interested in modifying.
 {
 	

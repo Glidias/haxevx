@@ -9,7 +9,6 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * port of store/actions.js
  * @author Glidias
  */
-@:rtti
 class AppActions<S:AppState> implements IAction
 {
 	@mutator static var mutator:AppMutator<Dynamic>;

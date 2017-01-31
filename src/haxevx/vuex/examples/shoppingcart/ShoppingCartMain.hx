@@ -2,7 +2,6 @@ package haxevx.vuex.examples.shoppingcart;
 import haxevx.vuex.core.VxBoot;
 import haxevx.vuex.examples.shoppingcart.components.App;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
-import haxevx.vuex.util.ReflectUtil;
 
 
 /**

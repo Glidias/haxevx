@@ -8,18 +8,17 @@ import haxevx.vuex.examples.shoppingcart.modules.Products;
  * 
  * @author Glidias
  */
-@:rtti
 class AppStore extends VxStore<AppState>  
 {	
 	// Actions
-	@action @:action static var actions:AppActions<AppState>;
+	 @:action static var action:AppActions<AppState>;
 	
 	// Mutators
-	@mutator @:mutator static var mutator:AppMutator<AppState>;
+	@:mutator static var mutator:AppMutator<AppState>;
 	
 	// Modules
-	@module @:module public var cart:Cart;
-	@module @:module public var products:Products;
+	@:module public var cart:Cart;
+	@:module public var products:Products;
 	
 	// Getters
 	public var getters(default, never):AppGetters;
@@ -34,7 +33,6 @@ class AppStore extends VxStore<AppState>
 
 }
 
-@:rtti
 class AppState { 
 	
 	// CAN'T BE HELPED. Need to explicitly declare matching module states within AppState if it needs to be referenced.

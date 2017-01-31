@@ -1,15 +1,13 @@
 package haxevx.vuex.core;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue;
-import haxevx.vuex.util.ActionFactory;
-import haxevx.vuex.util.MutatorFactory;
-
 import haxevx.vuex.native.Vuex.Store;
-import haxevx.vuex.util.GetterFactory;
-import haxevx.vuex.util.ReflectUtil;
 
 #if  !(production || skip_singleton_check )
+import haxevx.vuex.util.ActionFactory;
+import haxevx.vuex.util.MutatorFactory;
 import haxe.rtti.Rtti;
+import haxevx.vuex.util.ReflectUtil;
 import haxevx.vuex.util.RttiUtil;
 #end
 
@@ -31,9 +29,9 @@ class VxBoot
 		}
 		
 		
-		var storeParams = storeInstance._toNative();
-		
-		
+		var storeParams = untyped storeInstance;// ._toNative();
+
+	
 
 		
 		var metaFields:Dynamic<Array<Dynamic>>;
@@ -65,32 +63,17 @@ class VxBoot
 					var m:NativeModule<Dynamic,Dynamic> = Reflect.field(o, p);
 					md = Reflect.field(storeInstance, p); //VModule<Dynamic>
 					Reflect.setField(store, p, md);
-						/*  // why i included this;.. i dunno.
-						if ( Reflect.field(md, "state") == null ) {
-							trace("Setting state on native module:"+p);
-							Reflect.setField(md, "state", opts.storeParams.state);
-						
-						}	
-						*/
-						
+
 					if (m.getters != null) {
 										
 					//	noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
 						
-						GetterFactory.hookupGettersFromPropsOver( md, storeGetters);
-						
+
+							Reflect.setField(md, "_stg", storeGetters  );
+
 
 					}
-					if (m.mutations != null) {
-						
-						
-					}
-					if (m.actions != null) {
-						
-					}
-					if (m.modules != null) {
-						// push to iterative stack..lol
-					}					
+			
 					moduleNameStack.pop();
 					
 				}
@@ -117,7 +100,7 @@ class VxBoot
 			
 			
 			// inject mutators into action singletons 
-			if (ReflectUtil.requiresInjection(null, ActionFactory.get_META_INJECTIONS(), c)) {
+			if (RttiUtil.requiresInjection(null, ActionFactory.get_META_INJECTIONS(), c)) {
 				RttiUtil.injectCheckedSingletonInstances(c, Rtti.getRtti(c), null, ActionFactory.get_META_INJECTIONS());
 			}
 			
@@ -158,10 +141,3 @@ class VxBoot
 	}
 	
 }
-
-/*
-typedef VxBootParams<T> = {
-	var storeParams:NativeStore<T>;
-	var vueParams:Dynamic;
-}
-*/

@@ -190,12 +190,20 @@ class VuexMacros
 		"haxevx.vuex.core.VxStore" => true,
 	];
 	
+	static var ILLEGAL_MODULE_FIELDNAMES:StringMap<Bool> = [
+		"mutations" => true,
+		"modules" => true,
+		"actions" =>true,
+	];
 	
 	static var MODULE_INTERFACES:StringMap<Bool> = [
 		"haxevx.vuex.core.IModule" => true,
 		"haxevx.vuex.core.IStore" => true,
 		"haxevx.vuex.core.IStoreGetters" => true,
 		"haxevx.vuex.core.IGetters" => true,
+		
+		"haxevx.vuex.core.IMutator" => true,
+		"haxevx.vuex.core.IAction" => true,
 	];
 	
 	
@@ -258,6 +266,9 @@ class VuexMacros
 		var alreadyDeclaredGetters:StringMap<Bool> = new StringMap<Bool>();
 		
 		for (field in fields) {
+			if (ILLEGAL_MODULE_FIELDNAMES.exists(field.name)) {
+				Context.error("Illegal fieldname used: " + field.name, field.pos);
+			}
 			if (field.access.indexOf(Access.AStatic) >= 0) {
 				continue;
 			}
@@ -274,11 +285,13 @@ class VuexMacros
 		
 		var getterAssignments:Array<Expr> = [];
 		var moduleAssignments:Array<Expr> = [];
+		var mutationAssignments:Array<Expr> = [];
+		var actionAssignments:Array<Expr> = [];
 		var constructorFieldExpr:Expr;
 		var constructorFieldPos:Position;
 		
 		var rootGettersField:Field = null;
-		// TODO: :mutator for IMutator, :action for IAction,  :getter
+
 
 		
 		for (field in fields) {
@@ -293,14 +306,19 @@ class VuexMacros
 							continue;
 						}
 					default:
-						if (isRoot && field.name == "getters") {
-							switch(field.kind) {
-								case FieldType.FProp("default", "never", _, _):
-									
-								default:
-									Context.error("Getters field type for store should be getters(default,never)", field.pos);
+						if ( field.name == "getters") {
+							if (isRoot) {
+								switch(field.kind) {
+									case FieldType.FProp("default", "never", _, _):
+										
+									default:
+										Context.error("Getters field type for store should be getters(default,never)", field.pos);
+								}
+								rootGettersField = field;
 							}
-							rootGettersField = field;
+							else {
+									Context.error("getters field not allowed in modules", field.pos);
+							}
 							
 						}
 						else if (hasMetaTag(field.meta, ":module")) {
@@ -382,12 +400,18 @@ class VuexMacros
 					}
 				default:
 				
-					// TODO:
+					
 					if (hasMetaTag(field.meta, ":mutator")) {
-						
+						if (hasMetaTag(field.meta, ":useNamespacing")) mutationAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
+						else {
+							mutationAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, "") );
+						}
 					}
 					else if (hasMetaTag(field.meta, ":action")) {
-						
+						if (hasMetaTag(field.meta, ":useNamespacing")) actionAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
+						else {
+							actionAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, "") );
+						}
 					}
 			
 					
@@ -468,11 +492,30 @@ class VuexMacros
 		}
 		
 
-		// TOOD: @:mutator addons
-		
-		// TODO: @action addons
-		
-		// TODO: @:module addons
+	
+		// TODO: check mutation/module type assignments with state
+		if (mutationAssignments.length != 0) {
+			if ( isBase) initBlock.push( macro { 
+				untyped d = {};
+				untyped this.mutations = d;
+			} );
+			else initBlock.push( macro untyped d  = untyped this.mutations  );
+			for ( i in 0...mutationAssignments.length) {
+				initBlock.push ( mutationAssignments[i] );
+			}
+		}
+
+		if (actionAssignments.length != 0) {
+			if ( isBase) initBlock.push( macro { 
+				untyped d = {};
+				untyped this.actions = d;
+			} );
+			else initBlock.push( macro untyped d  = untyped this.actions  );
+			for ( i in 0...actionAssignments.length) {
+				initBlock.push ( actionAssignments[i] );
+			}
+		}
+	
 		if (moduleAssignments.length != 0) {
 			
 			// TODO: check module type assignments with state
@@ -553,6 +596,18 @@ class VuexMacros
 		return  moduleStack.join("_") + "|";
 	}
 
+		static function getClassNamespaceOf(clsType:ClassType):String {
+		var str:String = clsType.module;
+		var className:String = clsType.name;
+		var moduleStack:Array<String> = str.split(".");
+		
+		if (className != moduleStack[moduleStack.length-1]) {
+			moduleStack.pop();
+			moduleStack.push(className);
+		}
+		return  moduleStack.join("_") + "|";
+	}
+
 	
 
 	
@@ -564,14 +619,18 @@ class VuexMacros
 		}
 	}
 	
-	static function buildActionCalls(prefix:String, fields:Array<Field>, commitString:String ):Array<Field>  {
+	 static function buildActionCalls(prefix:String, fields:Array<Field>, commitString:String ):Array<Field>  {
 
 		var fieldsToAdd:Array<Field> = [];
 		var contextPos:Position = Context.currentPos();
 		
 		var classeNamespace:String = getClassNamespace();
 
-	
+		var isBase:Bool = Context.getLocalClass().get().superClass == null;
+		var actionAssignments:Array<Expr> = [];
+		var gotConstructor:Bool = false;
+		var constructorFieldExpr:Expr;
+		var constructorFieldPos:Position;
 		
 		for (field in fields ){
 			if (field.access.indexOf(Access.AStatic) >= 0) {
@@ -580,10 +639,30 @@ class VuexMacros
 			
 			switch(field.kind) {
 				case FieldType.FFun(f):
+					
+					if (field.name == "_new" || field.name == "new") {
+						// constructor found
+						constructorFieldExpr = f.expr;
+						gotConstructor = true;
+						
+						constructorFieldPos = field.pos;
+						if (field.name == "_new") {
+							field.name = "new";
+							field.access = [Access.APublic];
+							//field.access = [Access.APublic];
+						}
+						continue;
+					}
 				
 					if (field.access.indexOf(Access.APublic) >= 0) {
 						Context.error("Functions in mutator/action classes cannot be public: "+field.name, field.pos);
 					}
+					
+					// TODO: temp for now unntil figure out best way to determine
+				
+						var namespacedValue:String = (field.access.indexOf(Access.AOverride) >= 0 ? getClassNamespaceOf( Context.getLocalClass().get().superClass.t.get())  : classeNamespace) + field.name;
+					var fieldName:String = field.name;
+					actionAssignments.push( macro { untyped d[ns + $v{namespacedValue}] = clsP.$fieldName; }  );
 					
 					if (field.access.indexOf(Access.AOverride) >= 0) {  // deemed to inherit namespace
 						continue;
@@ -599,7 +678,7 @@ class VuexMacros
 						Context.error("Functions in mutator/action classes can have max 2 parameters at the most: "+field.name, field.pos);	
 					}
 					
-					
+					namespacedValue = classeNamespace + field.name;
 					var gotRetType:Bool = false;
 					if (f.ret == null) {
 						ExprTools.iter(f.expr, ensureNoReturn);
@@ -625,8 +704,7 @@ class VuexMacros
 					
 								// todo: ensure IVxContext should be args[0]. IVxContext type param  should resolve to target store's state data type.
 					
-					var namespacedValue:String = classeNamespace + field.name;
-					
+				
 					
 					
 					if (gotRetType) {
@@ -659,6 +737,44 @@ class VuexMacros
 				default: 
 					Context.error("Only private handler functions are allowed in mutator classes: "+field.name, field.pos);
 			}
+		}
+		
+		var dynType:ComplexType = MacroStringTools.toComplex("Dynamic");
+		var strType:ComplexType = MacroStringTools.toComplex("String");
+		
+		var initBlock:Array<Expr> = [];
+		/*
+		if (!isBase) {
+			initBlock.push( macro super._SetInto(d, ns) );
+		}
+		*/
+		
+		var cls1 = Context.getLocalClass().toString();
+		
+		initBlock.push(macro {
+			var cls:Dynamic = untyped $p{cls1.split('.')};
+			var clsP:Dynamic = cls.prototype;
+		});
+		
+		
+		for ( i in 0...actionAssignments.length) {
+			initBlock.push ( actionAssignments[i] );
+		}
+		
+		
+		fieldsToAdd.push({
+			name:"_SetInto",
+			kind: FieldType.FFun({
+				args:   [{name:"d", type:dynType},{name:"ns", type:strType }],
+				ret:null,
+				expr: macro $b{initBlock}
+			}),
+			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
+			pos:contextPos
+		});
+		
+		if (!gotConstructor) {
+				fields.push(  { access:[Access.APublic], name: "new",  kind:FieldType.FFun({args:[], ret:null, expr:(!isBase ? macro { super(); } : macro null) }) , pos:Context.getLocalClass().get().pos } );
 		}
 		
 		return fields.concat(fieldsToAdd);

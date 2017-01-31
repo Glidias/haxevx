@@ -12,7 +12,6 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * port to Haxe
  * @author Glidias
  */
-@:rtti
 class Products extends VModule<ProductListModel, NoneT>
 {
 	// Initial State
@@ -29,33 +28,33 @@ class Products extends VModule<ProductListModel, NoneT>
 
 	
 	// Actions
-	@action @:action static var action:ProductListDispatcher;
+	@:action static var action:ProductListDispatcher;
 	
 	
 	// Mutations
-	@mutator @:mutator static var mutator:ProductListMutator; 
+	@:mutator static var mutator:ProductListMutator; 
 	
 }
 
-@:rtti
 class ProductListDispatcher implements IAction { 
 	
 	@mutator static var mutator:ProductListMutator;
 	static var shop:Shop = Shop.getInstance();
 	
 	function getAllProducts(context:IVxStoreContext<ProductListModel>):Void {  
-		shop.getProducts( function(products) {
 			
+		shop.getProducts( function(products) {
+		
 			mutator._receiveProducts(context, products);
 		});
 		
 	}
 }
 
-@:rtti
+
 class ProductListMutator extends AppMutator<ProductListModel> {
 	override function receiveProducts(state:ProductListModel, payload:Array<ProductInStore>):Void {
-		
+	
 		state.all = payload;
 		
 	}
@@ -71,7 +70,6 @@ class ProductListMutator extends AppMutator<ProductListModel> {
 }
 
 
-@:rtti
 class ProductListModel {  //eg. class style store module state
 	
 	// ensure class's reactive states have all their properties initialized beforehand (even null references "=null"), in order to be reactive to VueJS.

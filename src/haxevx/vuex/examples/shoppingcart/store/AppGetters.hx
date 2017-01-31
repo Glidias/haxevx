@@ -9,7 +9,6 @@ import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;
  * port of store/getters.js
  * @author Glidias
  */
-@:rtti
 class AppGetters implements IStoreGetters<AppState> //extends VModule<AppState, NoneT>
 {
 

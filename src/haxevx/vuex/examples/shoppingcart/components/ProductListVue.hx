@@ -5,8 +5,6 @@ import haxevx.vuex.examples.shoppingcart.modules.Products.ProductListDispatcher;
 import haxevx.vuex.examples.shoppingcart.store.AppActions;
 import haxevx.vuex.examples.shoppingcart.store.AppStore;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
-import haxevx.vuex.util.ReflectUtil;
-
 /**
  * components/ProductList.vue port
  * 

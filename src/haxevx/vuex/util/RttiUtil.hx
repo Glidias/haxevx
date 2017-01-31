@@ -18,6 +18,63 @@ class RttiUtil
 {
 	public static var NO_FIELDS:StringMap<Bool> = new StringMap<Bool>();
 	
+	/**
+	 * Useful method for filtering out cases where class instances opted out of using RTTI, but instead manually instantiated it's own dependencies.
+	 * 
+	 * @param	dynInsMap	(Optional) A Stringmap<require:true> set of property field names that require injections 
+	 * @param	metaMap		(Optional) A Stringmap<require:true> set of metadata tag names to mark fields that require injections 
+	 * @param	something	The object to inspect to determine if need dependency injection or not
+	 * @return	Whether any one of the searched-for properties under the given object are null/undefined, and thus require injections.
+	 * @throws 	If the object requires injection, but no RTTI is available for the object's class to facilitate injections, it'll throw an error!
+	 */
+	static public function requiresInjection(dynInsMap:StringMap<Bool>, metaMap:StringMap<Bool>, something:Dynamic) :Bool
+	{
+		var requireInject:Bool = false;
+			
+		var classBased:Bool = ReflectUtil.isClass(something);
+		var cls =classBased  ? something : Type.getClass(something);
+		if (cls == null) throw "COuld not resolve class of:" + something;
+		
+		
+		
+		if (dynInsMap != null) {
+			for (f in dynInsMap.keys()) {
+				
+				if ( dynInsMap.get(f) && Reflect.field(something, f) == null) {
+					requireInject = true;
+					break;
+				}
+			}
+		}
+	
+			
+		if (requireInject  ) {
+			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI!: For class"+Type.getClassName(cls);
+			return true;
+		}
+		
+		
+		
+		if (metaMap != null) {
+			var method = classBased ? ReflectUtil.getStaticMetaDataFieldsWithTag  : ReflectUtil.getMetaDataFieldsWithTag;
+			for (t in metaMap.keys()) {
+				
+				var props = method( cls, t);
+				for (f in Reflect.fields(props)) {
+					if (  Reflect.field(something, f) == null) {
+						requireInject = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (requireInject  ) {
+			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI! For class:"+ Type.getClassName(cls);
+			return true;
+		}
+		return requireInject;
+	}
 
 	public static function resetFieldSet(fields:StringMap<Bool>):Void {
 		for (s in fields.keys()) {

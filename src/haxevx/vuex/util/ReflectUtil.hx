@@ -2,7 +2,7 @@ package haxevx.vuex.util;
 import haxe.ds.ObjectMap;
 import haxe.ds.StringMap;
 import haxe.rtti.Meta;
-import haxe.rtti.Rtti;
+
 
 /**
  * Generic reflection utilities
@@ -16,6 +16,7 @@ class ReflectUtil
 	static var SINGLETON_CACHE:StringMap<Dynamic> = new StringMap<Dynamic>();
 	static var METAFIELD_CACHE: StringMap<MetaFieldRemap> = new StringMap<MetaFieldRemap>();
 	static var METAFIELD_CACHE_STATICS: StringMap<MetaFieldRemap> =  new StringMap<MetaFieldRemap>();
+	
 	
 	public static function getMetaFieldsOfClass(cls:Class<Dynamic>): Dynamic<Dynamic<Array<Dynamic>>> {
 		var rt = Meta.getFields(cls);
@@ -262,63 +263,7 @@ class ReflectUtil
 		Reflect.setField(o, field, value);
 	}
 	
-	/**
-	 * Useful method for filtering out cases where class instances opted out of using RTTI, but instead manually instantiated it's own dependencies.
-	 * 
-	 * @param	dynInsMap	(Optional) A Stringmap<require:true> set of property field names that require injections 
-	 * @param	metaMap		(Optional) A Stringmap<require:true> set of metadata tag names to mark fields that require injections 
-	 * @param	something	The object to inspect to determine if need dependency injection or not
-	 * @return	Whether any one of the searched-for properties under the given object are null/undefined, and thus require injections.
-	 * @throws 	If the object requires injection, but no RTTI is available for the object's class to facilitate injections, it'll throw an error!
-	 */
-	static public function requiresInjection(dynInsMap:StringMap<Bool>, metaMap:StringMap<Bool>, something:Dynamic) :Bool
-	{
-		var requireInject:Bool = false;
-			
-		var classBased:Bool = isClass(something);
-		var cls =classBased  ? something : Type.getClass(something);
-		if (cls == null) throw "COuld not resolve class of:" + something;
-		
-		
-		
-		if (dynInsMap != null) {
-			for (f in dynInsMap.keys()) {
-				
-				if ( dynInsMap.get(f) && Reflect.field(something, f) == null) {
-					requireInject = true;
-					break;
-				}
-			}
-		}
 	
-			
-		if (requireInject  ) {
-			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI!: For class"+Type.getClassName(cls);
-			return true;
-		}
-		
-		
-		
-		if (metaMap != null) {
-			var method = classBased ? getStaticMetaDataFieldsWithTag  : getMetaDataFieldsWithTag;
-			for (t in metaMap.keys()) {
-				
-				var props = method( cls, t);
-				for (f in Reflect.fields(props)) {
-					if (  Reflect.field(something, f) == null) {
-						requireInject = true;
-						break;
-					}
-				}
-			}
-		}
-		
-		if (requireInject  ) {
-			if (!Rtti.hasRtti(cls)) throw "Requires injection but lacks RTTI! For class:"+ Type.getClassName(cls);
-			return true;
-		}
-		return requireInject;
-	}
 	
 	static public inline function isClass(instance:Dynamic):Bool
 	{
