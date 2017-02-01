@@ -6,6 +6,7 @@ import haxevx.vuex.core.IVxContext.IVxContext1;
  * @author Glidias
  */
 @:autoBuild(haxevx.vuex.core.VuexMacros.buildVModuleGetters(true))
+@:remove
 interface IVxStoreContext<S> extends IVxContext1<S>
 {
   var state:S;

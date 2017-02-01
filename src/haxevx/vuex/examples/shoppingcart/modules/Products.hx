@@ -36,7 +36,7 @@ class Products extends VModule<ProductListModel, NoneT>
 	
 }
 
-class ProductListDispatcher implements IAction { 
+class ProductListDispatcher implements IAction<ProductListModel, NoneT> { 
 	
 	@:mutator static var mutator:ProductListMutator;
 	static var shop:Shop = Shop.getInstance();

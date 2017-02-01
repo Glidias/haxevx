@@ -686,7 +686,7 @@ class VuexMacros
 						Context.error("Functions in mutator/action classes cannot be public: "+field.name, field.pos);
 					}
 					
-					// TODO: temp for now unntil figure out best way to determine
+					// TODO Important!: temp for now unntil figure out best way to determine
 				
 						var namespacedValue:String = (field.access.indexOf(Access.AOverride) >= 0 ? getClassNamespaceOf( Context.getLocalClass().get().superClass.t.get())  : classeNamespace) + field.name;
 					var fieldName:String = field.name;

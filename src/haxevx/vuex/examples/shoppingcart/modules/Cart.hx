@@ -1,7 +1,7 @@
 package haxevx.vuex.examples.shoppingcart.modules;
 import haxevx.vuex.core.IAction;
 import haxevx.vuex.core.IModule;
-import haxevx.vuex.core.IVxStoreContext;
+import haxevx.vuex.core.IVxContext.IVxContext1;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VModule;
 import haxevx.vuex.examples.shoppingcart.api.Shop;
@@ -55,14 +55,14 @@ typedef CartState =  {	//eg. typedef style store module state
 }
 
 
-class CartDispatcher<S:CartState> implements IAction {
+class CartDispatcher<S:CartState> implements IAction<S, NoneT> {
 	
 	@:mutator static var mutator:CartMutator;
 	
 	static var shop:Shop = Shop.getInstance();
 	
 	
-	function checkout(context:IVxStoreContext<S>, payload:Array<ProductAdded>):Void {  //
+	function checkout(context:IVxContext1<S>, payload:Array<ProductAdded>):Void {  //
 		var savedCartItems:Array<ProductAdded> = context.state.added.concat([]);  
 		mutator._checkoutRequest(context);
 		shop.buyProducts( payload, function() { 

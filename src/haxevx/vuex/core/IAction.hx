@@ -5,7 +5,7 @@ package haxevx.vuex.core;
  */
 @:autoBuild(haxevx.vuex.core.VuexMacros.buildActions())
 @:remove
-interface IAction
+interface IAction<S, RS>
 {
   
 }

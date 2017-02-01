@@ -6,7 +6,7 @@ package haxevx.vuex.core;
  */
 @:autoBuild(haxevx.vuex.core.VuexMacros.buildMutator())
 @:remove
-interface IMutator 
+interface IMutator<S>
 {
   
 }

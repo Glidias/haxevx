@@ -1,6 +1,7 @@
 package haxevx.vuex.examples.shoppingcart.store;
 import haxevx.vuex.core.IAction;
 import haxevx.vuex.core.IVxContext.IVxContext1;
+import haxevx.vuex.core.NoneT;
 
 import haxevx.vuex.examples.shoppingcart.store.AppStore.AppState;
 import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
@@ -9,7 +10,7 @@ import haxevx.vuex.examples.shoppingcart.store.ObjTypes;
  * port of store/actions.js
  * @author Glidias
  */
-class AppActions<S:AppState> implements IAction
+class AppActions<S:AppState> implements IAction<S,NoneT>
 {
 	@:mutator static var mutator:AppMutator<Dynamic>;
 	

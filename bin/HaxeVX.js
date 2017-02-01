@@ -156,31 +156,26 @@ haxevx_vuex_core_IVxContext.prototype = {
 };
 var haxevx_vuex_core_IVxContext1 = function() { };
 haxevx_vuex_core_IVxContext1.__name__ = ["haxevx","vuex","core","IVxContext1"];
-haxevx_vuex_core_IVxContext1.__interfaces__ = [haxevx_vuex_core_IVxContext];
 haxevx_vuex_core_IVxContext1.prototype = {
 	__class__: haxevx_vuex_core_IVxContext1
 };
 var haxevx_vuex_core_IVxContext2 = function() { };
 haxevx_vuex_core_IVxContext2.__name__ = ["haxevx","vuex","core","IVxContext2"];
-haxevx_vuex_core_IVxContext2.__interfaces__ = [haxevx_vuex_core_IVxContext1];
 haxevx_vuex_core_IVxContext2.prototype = {
 	__class__: haxevx_vuex_core_IVxContext2
 };
 var haxevx_vuex_core_IVxContext3 = function() { };
 haxevx_vuex_core_IVxContext3.__name__ = ["haxevx","vuex","core","IVxContext3"];
-haxevx_vuex_core_IVxContext3.__interfaces__ = [haxevx_vuex_core_IVxContext2];
 haxevx_vuex_core_IVxContext3.prototype = {
 	__class__: haxevx_vuex_core_IVxContext3
 };
 var haxevx_vuex_core_IVxContext4 = function() { };
 haxevx_vuex_core_IVxContext4.__name__ = ["haxevx","vuex","core","IVxContext4"];
-haxevx_vuex_core_IVxContext4.__interfaces__ = [haxevx_vuex_core_IVxContext3];
 haxevx_vuex_core_IVxContext4.prototype = {
 	__class__: haxevx_vuex_core_IVxContext4
 };
 var haxevx_vuex_core_IVxStoreContext = function() { };
 haxevx_vuex_core_IVxStoreContext.__name__ = ["haxevx","vuex","core","IVxStoreContext"];
-haxevx_vuex_core_IVxStoreContext.__interfaces__ = [haxevx_vuex_core_IVxContext1];
 haxevx_vuex_core_IVxStoreContext.prototype = {
 	__class__: haxevx_vuex_core_IVxStoreContext
 };
@@ -427,7 +422,6 @@ var haxevx_vuex_core_VxStore = function() {
 	this.strict = false;
 };
 haxevx_vuex_core_VxStore.__name__ = ["haxevx","vuex","core","VxStore"];
-haxevx_vuex_core_VxStore.__interfaces__ = [haxevx_vuex_core_IVxStoreContext];
 haxevx_vuex_core_VxStore.prototype = {
 	dispatch: function(type,payload) {
 	}
@@ -827,7 +821,6 @@ haxevx_vuex_examples_shoppingcart_store_AppActions.prototype = {
 var haxevx_vuex_examples_shoppingcart_store_AppGetters = function() {
 };
 haxevx_vuex_examples_shoppingcart_store_AppGetters.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppGetters"];
-haxevx_vuex_examples_shoppingcart_store_AppGetters.__interfaces__ = [haxevx_vuex_core_IStoreGetters];
 haxevx_vuex_examples_shoppingcart_store_AppGetters.Get_cartProducts = function(state) {
 	var exceptions = null;
 	var resultOfMap = state.cart.added.map(function(cp) {
