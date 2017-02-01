@@ -1,4 +1,6 @@
 package haxevx.vuex.core;
+import haxevx.vuex.native.Vuex.CommitOptions;
+import haxevx.vuex.native.Vuex.DispatchOptions;
 
 /**
  * Empty marker class atm
@@ -7,8 +9,8 @@ package haxevx.vuex.core;
 @:remove
 interface IVxContext 
 {
-  function dispatch(type:String, payload:Dynamic=null):Void;
-  function commit(type:String, payload:Dynamic = null):Void;
+  function dispatch(type:String, ?payload:Dynamic, ?opts:DispatchOptions):Void;
+  function commit(type:String, ?payload:Dynamic, ?opts:CommitOptions):Void;
 }
 
 @:remove

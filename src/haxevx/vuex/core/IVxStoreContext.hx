@@ -9,7 +9,6 @@ import haxevx.vuex.core.IVxContext.IVxContext1;
 @:remove
 interface IVxStoreContext<S> extends IVxContext1<S>
 {
-  var state:S;
-  function dispatch(type:String, payload:Dynamic=null):Void;
-  function commit(type:String, payload:Dynamic = null):Void;
+
+
 }

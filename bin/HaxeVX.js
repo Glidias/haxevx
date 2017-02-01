@@ -147,6 +147,11 @@ haxevx_vuex_core_IModule.prototype = {
 };
 var haxevx_vuex_core_IMutator = function() { };
 haxevx_vuex_core_IMutator.__name__ = ["haxevx","vuex","core","IMutator"];
+var haxevx_vuex_core_IPayload = function() { };
+haxevx_vuex_core_IPayload.__name__ = ["haxevx","vuex","core","IPayload"];
+haxevx_vuex_core_IPayload.prototype = {
+	__class__: haxevx_vuex_core_IPayload
+};
 var haxevx_vuex_core_IPrefixedState = function() { };
 haxevx_vuex_core_IPrefixedState.__name__ = ["haxevx","vuex","core","IPrefixedState"];
 haxevx_vuex_core_IPrefixedState.prototype = {
@@ -181,9 +186,6 @@ haxevx_vuex_core_IVxContext4.prototype = {
 };
 var haxevx_vuex_core_IVxStoreContext = function() { };
 haxevx_vuex_core_IVxStoreContext.__name__ = ["haxevx","vuex","core","IVxStoreContext"];
-haxevx_vuex_core_IVxStoreContext.prototype = {
-	__class__: haxevx_vuex_core_IVxStoreContext
-};
 var haxevx_vuex_core_NoneT = function() { };
 haxevx_vuex_core_NoneT.__name__ = ["haxevx","vuex","core","NoneT"];
 haxevx_vuex_core_NoneT.prototype = {
@@ -428,9 +430,9 @@ var haxevx_vuex_core_VxStore = function() {
 };
 haxevx_vuex_core_VxStore.__name__ = ["haxevx","vuex","core","VxStore"];
 haxevx_vuex_core_VxStore.prototype = {
-	dispatch: function(type,payload) {
+	dispatch: function(type,payload,opts) {
 	}
-	,commit: function(type,payload) {
+	,commit: function(type,payload,opts) {
 	}
 	,__class__: haxevx_vuex_core_VxStore
 };
@@ -913,6 +915,11 @@ var haxevx_vuex_examples_shoppingcart_store_AppState = function() {
 haxevx_vuex_examples_shoppingcart_store_AppState.__name__ = ["haxevx","vuex","examples","shoppingcart","store","AppState"];
 haxevx_vuex_examples_shoppingcart_store_AppState.prototype = {
 	__class__: haxevx_vuex_examples_shoppingcart_store_AppState
+};
+var haxevx_vuex_native_ActionContext = function() { };
+haxevx_vuex_native_ActionContext.__name__ = ["haxevx","vuex","native","ActionContext"];
+haxevx_vuex_native_ActionContext.prototype = {
+	__class__: haxevx_vuex_native_ActionContext
 };
 var js__$Boot_HaxeError = function(val) {
 	Error.call(this);

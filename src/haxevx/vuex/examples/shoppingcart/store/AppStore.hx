@@ -25,20 +25,16 @@ class AppStore extends VxStore<AppState>
 	
 	
 	public function new() {
-		//state = new AppState();  // manual instantiation is optional if constructor has no parameters & RTTI is available
-		// getters = new Getters(); // manual instantiation is optional if constructor has no parameters & RTTI is available
-		
-		strict = true; // for demo purposes, use compile time flags to determine whether this should be false or true.
+		strict = true; 
 	}
 
 }
 
 class AppState { 
 	
-	// CAN'T BE HELPED. Need to explicitly declare matching module states within AppState if it needs to be referenced.
-	// Only runtime-init checking of matching module state types with above Appstore @module fields will be done.
-	public var cart(default, null):CartState;
-	public var products(default, null):ProductListModel;
+	// CAN'T BE HELPED. Need to explicitly declare matching module states within store state manually. Macro will check if state matches.
+	@:module public var cart(default, never):CartState;
+	@:module public var products(default, never):ProductListModel;
 	
 	public function new() {
 		

@@ -1,19 +1,32 @@
 package haxevx.vuex.core;
+import haxevx.vuex.native.Vuex.CommitOptions;
+import haxevx.vuex.native.Vuex.DispatchOptions;
 
 /**
  *  Base generic class for Vuex Store instance helpers
  * @author Glidias
  */
 
-class VxStore<T> implements IVxStoreContext<T>
+class VxStore<S> implements IVxStoreContext<S>
 {
 	
-	public var state:T;
-	
-	public function dispatch(type:String, payload:Dynamic=null):Void {}
-	public function commit(type:String, payload:Dynamic = null):Void {}
-	
+
 	public var strict:Bool = false;
+	
+	
+	/* INTERFACE haxevx.vuex.core.IVxStoreContext.IVxStoreContext<S> */
+	
+	public var state:S;
+	
+	public function dispatch(type:String, ?payload:Dynamic, ?opts:DispatchOptions):Void 
+	{
+		
+	}
+	
+	public function commit(type:String, ?payload:Dynamic, ?opts:CommitOptions):Void 
+	{
+		
+	}
 	
 	
 	

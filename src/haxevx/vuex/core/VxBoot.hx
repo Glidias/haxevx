@@ -1,6 +1,7 @@
 package haxevx.vuex.core;
 import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue;
+import haxevx.vuex.native.Vuex.Payload;
 import haxevx.vuex.native.Vuex.Store;
 
 /**
@@ -69,13 +70,11 @@ class VxBoot
 			}
 			
 		}
-		
-		
-		
 
 		STORE = store;
 		return store;
 	}
+	
 	
 
 	
