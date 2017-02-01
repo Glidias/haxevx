@@ -1,5 +1,6 @@
 package haxevx.vuex.examples.shoppingcart.modules;
 import haxevx.vuex.core.IAction;
+import haxevx.vuex.core.IPrefixedState;
 import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VModule;
@@ -70,7 +71,7 @@ class ProductListMutator extends AppMutator<ProductListModel> {
 }
 
 
-class ProductListModel {  //eg. class style store module state
+class ProductListModel implements IPrefixedState {  //eg. class style store module state
 	
 	// ensure class's reactive states have all their properties initialized beforehand (even null references "=null"), in order to be reactive to VueJS.
 	public var all:Array<ProductInStore> = [];
@@ -78,4 +79,9 @@ class ProductListModel {  //eg. class style store module state
 	public function new() {
 		
 	}
+	
+	
+	/* INTERFACE haxevx.vuex.core.IPrefixedState */
+	
+	public var _(default, never):String;
 }

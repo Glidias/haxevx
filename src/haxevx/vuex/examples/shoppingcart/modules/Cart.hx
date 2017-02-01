@@ -27,6 +27,7 @@ class Cart implements IModule<CartState, NoneT> // extends VModule<CartState, No
 			lastCheckout:null  // why initials tate did not include hthis?
 		}
 		
+	
 	}
 	
 	
@@ -48,10 +49,12 @@ class Cart implements IModule<CartState, NoneT> // extends VModule<CartState, No
 	@:mutator static var mutator:CartMutator;
 }
 
+
 typedef CartState =  {	//eg. typedef style store module state
 	var added:Array<ProductAdded>;
 	var checkoutStatus:String;
 	var lastCheckout:String;
+	@:optional public var _(default, never):String;
 }
 
 

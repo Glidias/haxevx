@@ -44,6 +44,17 @@ class VuexMacros
 		return false;
 	}
 	
+	macro public static function addPrefixStateUnderscore():Array<Field> {
+		var fields:Array<Field> = Context.getBuildFields();
+		fields.push({
+			name:"_",
+			kind:FieldType.FProp("default", "never", MacroStringTools.toComplex("String") ),
+			access: [Access.APublic],
+			pos:Context.getLocalClass().get().pos
+		});
+		return fields;
+	}
+	
 	/**
 	 * Build the IStoreGetters/IGetters mixin implementation
 	 * @param	isStoreGetters	Whether is root store getters
