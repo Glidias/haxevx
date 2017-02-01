@@ -18,12 +18,12 @@ class VxStore<S> implements IVxStoreContext<S>
 	
 	public var state:S;
 	
-	public function dispatch(type:String, ?payload:Dynamic, ?opts:DispatchOptions):Void 
+	@:final public function dispatch(type:String, ?payload:Dynamic, ?opts:DispatchOptions):Void 
 	{
 		
 	}
 	
-	public function commit(type:String, ?payload:Dynamic, ?opts:CommitOptions):Void 
+	@:final  public function commit(type:String, ?payload:Dynamic, ?opts:CommitOptions):Void 
 	{
 		
 	}
