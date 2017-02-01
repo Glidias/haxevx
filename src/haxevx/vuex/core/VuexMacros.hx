@@ -26,7 +26,7 @@ class VuexMacros
 	 * @return
 	 */
 	macro public static function buildMutator():Array<Field>  {
-		return buildActionCalls("_", Context.getBuildFields(), "commit");
+		return buildActionCalls("_", Context.getBuildFields(), "commit", false);
 	}
 		
 	/**
@@ -35,7 +35,7 @@ class VuexMacros
 	 */
 	macro public static function buildActions():Array<Field>  {
 		
-		return buildActionCalls("_", Context.getBuildFields(), "dispatch");
+		return buildActionCalls("_", Context.getBuildFields(), "dispatch", true);
 	}
 	static private function hasMetaTag(metaData:Metadata, tag:String):Bool {
 		for ( m in metaData) {
@@ -221,7 +221,7 @@ class VuexMacros
 		return null;
 	}
 	
-	static function autoInstantiateNewExprOf(field:Field):Expr {
+	public static function autoInstantiateNewExprOf(field:Field):Expr {
 		var iName2:String;
 		var iPack2:Array<String>;
 		switch(field.kind) {
@@ -236,6 +236,14 @@ class VuexMacros
 		}
 
 		return  { expr:ExprDef.ENew({name:iName2 , pack:iPack2}, []), pos:field.pos };
+	}
+	
+	static function singletonSetNewExprOf(field:Field):Expr {
+		#if  !(production || skip_singleton_check )
+			return macro haxevx.vuex.core.Singletons.setAsSingleton($e{autoInstantiateNewExprOf(field)});
+		#else
+			return autoInstantiateNewExprOf(field);
+		#end
 	}
 	
 	
@@ -402,15 +410,17 @@ class VuexMacros
 				
 					
 					if (hasMetaTag(field.meta, ":mutator")) {
-						if (hasMetaTag(field.meta, ":useNamespacing")) mutationAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
+						if (hasMetaTag(field.meta, ":useNamespacing")) {
+							mutationAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
+						}
 						else {
-							mutationAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, "") );
+							mutationAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, "") );
 						}
 					}
 					else if (hasMetaTag(field.meta, ":action")) {
-						if (hasMetaTag(field.meta, ":useNamespacing")) actionAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
+						if (hasMetaTag(field.meta, ":useNamespacing")) actionAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
 						else {
-							actionAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, "") );
+							actionAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, "") );
 						}
 					}
 			
@@ -583,6 +593,18 @@ class VuexMacros
 	
 	
 	
+	static function getClassNameOf(clsType:ClassType):String {
+		var str:String = clsType.module;
+		var className:String = clsType.name;
+		var moduleStack:Array<String> = str.split(".");
+		
+		if (className != moduleStack[moduleStack.length-1]) {
+			moduleStack.pop();
+			moduleStack.push(className);
+		}
+		return  moduleStack.join(".");
+	}
+	
 	
 	static function getClassNamespace():String {
 		var str:String =  Context.getLocalClass().get().module;
@@ -619,10 +641,11 @@ class VuexMacros
 		}
 	}
 	
-	 static function buildActionCalls(prefix:String, fields:Array<Field>, commitString:String ):Array<Field>  {
+	 static function buildActionCalls(prefix:String, fields:Array<Field>, commitString:String, isActionContext:Bool):Array<Field>  {
 
 		var fieldsToAdd:Array<Field> = [];
 		var contextPos:Position = Context.currentPos();
+
 		
 		var classeNamespace:String = getClassNamespace();
 
@@ -632,8 +655,13 @@ class VuexMacros
 		var constructorFieldExpr:Expr;
 		var constructorFieldPos:Position;
 		
+		var singletonFields:Array<Field> = [];
+		
 		for (field in fields ){
 			if (field.access.indexOf(Access.AStatic) >= 0) {
+				if (hasMetaTag(field.meta, ":mutator") || hasMetaTag(field.meta, ":action"))  {
+					singletonFields.push(field);
+				}
 				continue;
 			}
 			
@@ -761,6 +789,22 @@ class VuexMacros
 			initBlock.push ( actionAssignments[i] );
 		}
 		
+
+	
+		if (singletonFields.length > 0) {
+			if (isActionContext) {
+				#if  !(production || skip_singleton_check )
+				for (f in singletonFields) {
+					
+					initBlock.push( macro haxevx.vuex.core.Singletons.addLookup( haxevx.vuex.core.Singletons.getClassNameOfInstance($e{autoInstantiateNewExprOf(f)}), $v{cls1} ) );
+				}
+				#end
+			}
+			else {
+				Context.error("Singleton mutator/action fields not allowed in Mutator classes", singletonFields[0].pos);
+			}
+		}
+	
 		
 		fieldsToAdd.push({
 			name:"_SetInto",
@@ -776,7 +820,7 @@ class VuexMacros
 		if (!gotConstructor) {
 				fields.push(  { access:[Access.APublic], name: "new",  kind:FieldType.FFun({args:[], ret:null, expr:(!isBase ? macro { super(); } : macro null) }) , pos:Context.getLocalClass().get().pos } );
 		}
-		
+	
 		return fields.concat(fieldsToAdd);
 
 	}
@@ -794,3 +838,4 @@ class VuexMacros
 
 
 #end
+

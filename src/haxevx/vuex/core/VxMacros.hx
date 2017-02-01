@@ -143,15 +143,16 @@ class VxMacros
 		var propSettingFlags:Int = 0;
 		var propSettingKVs:Array<FieldExprPair> = null;
 		var propDefaultValueKVs:Array<FieldExprPair> = null;
+		var singletonFields:Array<Field> = [];
 		
 		for ( i in 0...fields.length)
 		{
 			
 			var field = fields[i];
 			if (  field.access.indexOf( Access.AStatic) >= 0 ) {
-				
-
-				
+				if (hasMetaTag(field.meta, ":mutator") || hasMetaTag(field.meta, ":action"))  {
+					singletonFields.push(field);
+				}
 				continue;
 			}
 			if (reservedCompFieldNames.exists(field.name)) {  //  todo note: this check can be foregoed for explicit Vue instances (ie. non components)
@@ -539,7 +540,12 @@ class VxMacros
 			initBlock.push( macro  untyped this.watch = ${ {expr:EObjectDecl(watchAssignments), pos:pos} } );
 		}
 		
-
+	
+		#if  !(production || skip_singleton_check )
+			for (f in singletonFields) {
+				initBlock.push( macro haxevx.vuex.core.Singletons.addLookup( haxevx.vuex.core.Singletons.getClassNameOfInstance($e{VuexMacros.autoInstantiateNewExprOf(f)}), $v{cls1} ) );
+			}
+		#end
 		
 		var theInitExpr:Expr = macro {
 			var cls:Dynamic = untyped $p{cls1.split('.')};

@@ -57,7 +57,7 @@ typedef CartState =  {	//eg. typedef style store module state
 
 class CartDispatcher<S:CartState> implements IAction {
 	
-	@mutator static var mutator:CartMutator;
+	@:mutator static var mutator:CartMutator;
 	
 	static var shop:Shop = Shop.getInstance();
 	

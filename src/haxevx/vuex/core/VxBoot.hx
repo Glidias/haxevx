@@ -3,36 +3,23 @@ import haxevx.vuex.core.NativeTypes;
 import haxevx.vuex.native.Vue;
 import haxevx.vuex.native.Vuex.Store;
 
-#if  !(production || skip_singleton_check )
-import haxevx.vuex.util.ActionFactory;
-import haxevx.vuex.util.MutatorFactory;
-import haxe.rtti.Rtti;
-import haxevx.vuex.util.ReflectUtil;
-import haxevx.vuex.util.RttiUtil;
-#end
-
 /**
  * Standard Boot utility to initialize Haxe codebase to convert it to native VueJS/Vuex App!
  * @author Glidias
  */
 class VxBoot
 {
+	public function new() {
+		
+	}
 	// saved parameter cache
-	 static var STORE:Store<Dynamic>;
+	 var STORE:Store<Dynamic>;
 	//public static var VUE:VComponent<Dynamic,Dynamic>;
-
-
 	
-	public static function startStore<T>(storeInstance:VxStore<Dynamic>):Store<Dynamic>  {
+	public function startStore<T>(storeParams:Dynamic):Store<Dynamic>  {
 		if (STORE != null) {
 			throw "Vuex store already started! Only 1 store is allowed";
 		}
-		
-		
-		var storeParams = untyped storeInstance;// ._toNative();
-
-	
-
 		
 		var metaFields:Dynamic<Array<Dynamic>>;
 		var md:Dynamic;
@@ -42,7 +29,8 @@ class VxBoot
 	
 
 		var store = new Store(storeParams);
-			
+		
+		// below will depeeciate
 				
 		if ( storeParams.getters!= null) {
 			// define get_ utility functions under store.getters ( for non-namespced
@@ -61,16 +49,17 @@ class VxBoot
 					moduleNameStack.push(p);
 					
 					var m:NativeModule<Dynamic,Dynamic> = Reflect.field(o, p);
-					md = Reflect.field(storeInstance, p); //VModule<Dynamic>
-					Reflect.setField(store, p, md);
+					md = Reflect.field(storeParams, p); //VModule<Dynamic>
+					
+					
+					untyped store[p] = md;
 
 					if (m.getters != null) {
 										
 					//	noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
 						
-
-							Reflect.setField(md, "_stg", storeGetters  );
-
+						untyped md._stg = storeGetters;
+						
 
 					}
 			
@@ -80,39 +69,17 @@ class VxBoot
 			}
 			
 		}
-
-		var sg:Dynamic;
 		
-		// perform singleton reference checks
-		#if  !(production || skip_singleton_check )
-		for (c in  MutatorFactory.getClasses()) {
-			// check that all mutator singletons in factory  can be found
-			ReflectUtil.checkForSingletonByClassName(Type.getClassName(c));
 		
-			
-			//MutatorFactory.finaliseClass(c, store);
-			
-		}
 		
-		for (c in  ActionFactory.getClasses()) {
-			// check that all action signletons in factory can be found
-			ReflectUtil.checkForSingletonByClassName(Type.getClassName(c));
-			
-			
-			// inject mutators into action singletons 
-			if (RttiUtil.requiresInjection(null, ActionFactory.get_META_INJECTIONS(), c)) {
-				RttiUtil.injectCheckedSingletonInstances(c, Rtti.getRtti(c), null, ActionFactory.get_META_INJECTIONS());
-			}
-			
-			//ActionFactory.finaliseClass(c, store);
-		}
-		#end
 
 		STORE = store;
 		return store;
 	}
 	
-	public static function startVueWithRootComponent<T>(el:String, rootComponent:VComponent<Dynamic, Dynamic>):Vue {
+
+	
+	public function startVueWithRootComponent<T>(el:String, rootComponent:VComponent<Dynamic, Dynamic>):Vue {
 		var bootVueParams:Dynamic = {};
 		bootVueParams.el = el;
 		if (STORE != null) {
@@ -121,23 +88,23 @@ class VxBoot
 
 		bootVueParams.render = getRenderComponentMethod(rootComponent);
 		var vm =  new Vue(bootVueParams);
-		
+		notifyStarted();
 		return vm;
 	}
 	
-	static function getRenderComponentMethod(nativeComp:Dynamic):CreateElement->VNode {
+	public static function notifyStarted():Void {
+		#if  !(production || skip_singleton_check )
+			haxevx.vuex.core.Singletons.clearLookups( );
+		#end
+	}
+	
+	public  static function getRenderComponentMethod(nativeComp:Dynamic):CreateElement->VNode {
 		return function(h:CreateElement):VNode {
 			return h(nativeComp,null,null);
 		}
 	}
 	
 	
-	public static function registerGlobalHxComponents( otherComponents:Dynamic):Void {  // originally otherComponents:Dynamic<VComponent<Dynamic,Dynamic>>
-		for (i in Reflect.fields( otherComponents) ) {
-			var comp:VComponent<Dynamic, Dynamic> = cast(Reflect.field( otherComponents, i));
-			var compParams =  comp;
-			Vue.component( i, compParams);
-		}
-	}
+
 	
 }

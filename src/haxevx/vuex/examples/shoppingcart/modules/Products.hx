@@ -38,7 +38,7 @@ class Products extends VModule<ProductListModel, NoneT>
 
 class ProductListDispatcher implements IAction { 
 	
-	@mutator static var mutator:ProductListMutator;
+	@:mutator static var mutator:ProductListMutator;
 	static var shop:Shop = Shop.getInstance();
 	
 	function getAllProducts(context:IVxStoreContext<ProductListModel>):Void {  
