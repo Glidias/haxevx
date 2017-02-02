@@ -2,6 +2,7 @@ package haxevx.vuex.native;
 import haxevx.vuex.core.IPayload;
 import haxevx.vuex.native.Vue.WatchOptions;
 import haxevx.vuex.native.Vuex.Module;
+import js.Promise;
 
 /**
  * Port of https://github.com/vuejs/vuex/tree/dev/types 
@@ -21,7 +22,7 @@ extern class Store<S>
 	
 	@:overload(function(payloadWithType:IPayload, ?options:DispatchOptions):Void {} )
 	@:overload(function(payloadWithType:Payload, ?options:DispatchOptions):Void {} )
-	public function dispatch(type:String, ?payload:Dynamic, ?options:DispatchOptions):Void;
+	public function dispatch<T>(type:String, ?payload:Dynamic, ?options:DispatchOptions):Promise<T>;
 	 
 	@:overload(function(payloadWithType:IPayload, ?options:CommitOptions):Void {} )
 	@:overload(function(payloadWithType:Payload, ?options:CommitOptions):Void {} )

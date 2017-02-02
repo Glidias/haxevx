@@ -12,14 +12,21 @@ import haxe.macro.ExprTools;
 import haxe.macro.MacroStringTools;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
+import haxevx.vuex.native.CommitOptions;
+import haxevx.vuex.native.DispatchOptions;
 
-#if macro
+
 /**
  * Haxe Macros for Vuex
  * @author Glidias
  */
 class VuexMacros
 {
+	
+	#if macro
+	
+	static var DISPATCH_STRINGS:StringMap<StringMap<Bool>> = new StringMap<StringMap<Bool>>();
+	static var MODULE_TYPE_PARAMS:StringMap<Array<ComplexType>> = new StringMap<Array<ComplexType>>();
 
 	/**
 	 * Generate public inlined "$store.commit" methods for mutator class which consists of private function handlers.
@@ -68,13 +75,18 @@ class VuexMacros
 			return fields;
 		}
 		
+		
+		
 
 		var isBase:Bool = localClasse.superClass == null ||  MODULE_CLASSES.exists( localClasse.superClass.t.get().module);
 
-		var noneT:ComplexType = MacroStringTools.toComplex("haxevx.vuex.core.NoneT");
+		var noneT:ComplexType = NONE_T;
 		var clsSuffix:String =  "_"+Context.getLocalClass().toString().split(".").join("_");
 
 		var stateTypes:Array<ComplexType> = getModuleStateTypes(Context.getLocalClass().get());
+			
+		var cls1 = Context.getLocalClass().toString();
+		MODULE_TYPE_PARAMS.set(cls1, stateTypes);
 		
 		var contextPos:Position = Context.currentPos();
 		// todo: ensure state data type from VModule<T> is matching all getter parameters!
@@ -153,7 +165,7 @@ class VuexMacros
 			
 		}
 		
-		var dynType:ComplexType = MacroStringTools.toComplex("Dynamic");
+		var dynType:ComplexType = DYNAMIC_T;
 		var strType:ComplexType = MacroStringTools.toComplex("String");
 		
 		var initBlock:Array<Expr> = [];
@@ -221,15 +233,31 @@ class VuexMacros
 	static function getModuleStateTypes(cls:ClassType):Array<ComplexType> {
 		
 		while ( cls != null) {
+		
 			var params =  cls.superClass != null && MODULE_CLASSES.exists(cls.superClass.t.get().module) ?  cls.superClass.params : getInterfaceTypParamsFrom(cls.interfaces);
 			if ( params != null ) {
-				
-				return params.length >= 2 ? [TypeTools.toComplexType(params[0]), TypeTools.toComplexType(params[1])] : [TypeTools.toComplexType(params[0]),null];
+				//trace( TypeTools.follow(params[0]) );
+				//trace(params);
+				return params.length >= 2 ? [TypeTools.toComplexType(params[0]), TypeTools.toComplexType(params[1])] : [TypeTools.toComplexType(params[0]),NONE_T ];
 			}
 			cls = cls.superClass.t.get();
 		}
 		
 		return null;
+	}
+	
+	 static function getComplexTypeFromField(field:Field):ComplexType {
+	
+		switch(field.kind) {
+			case FieldType.FVar(t, _):
+				return t;
+			case FieldType.FProp(_, set, t):
+				return t;
+			default:
+				Context.error("Failed to resolve auto-instantiatable getComplexTypeFromField:" + field.name, field.pos);
+		}
+
+		return  null;
 	}
 	
 	public static function autoInstantiateNewExprOf(field:Field):Expr {
@@ -257,7 +285,9 @@ class VuexMacros
 		#end
 	}
 	
-	
+	static var NONE_T:ComplexType = MacroStringTools.toComplex( "haxevx.vuex.core.NoneT" );
+	static var ANY_T:ComplexType = MacroStringTools.toComplex( "Dynamic" );
+	static var DYNAMIC_T:ComplexType = MacroStringTools.toComplex( "Dynamic" );
 	/**
 	 * Generic method to generate store/module parameters
 	 * @param isRoot	Flag to indicate root store
@@ -270,16 +300,23 @@ class VuexMacros
 		if ( MODULE_CLASSES.exists(localClasse.module) ) {
 			return fields;
 		}
+		
+		
 
 		var isBase:Bool = localClasse.superClass == null ||  MODULE_CLASSES.exists( localClasse.superClass.t.get().module);
 
-		var noneT:ComplexType = MacroStringTools.toComplex("haxevx.vuex.core.NoneT");
+		var noneT:ComplexType = NONE_T;//  MacroStringTools.toComplex(NONE_T);
 		
-
+		
 		var stateTypes:Array<ComplexType> = getModuleStateTypes(Context.getLocalClass().get());
+		var moduleStateTypeMatch:Array<ComplexType> = [ANY_T, stateTypes[1]];
+		var cls1 = Context.getLocalClass().toString();
+		
+		MODULE_TYPE_PARAMS.set(cls1, stateTypes);
+		
 	
 		var contextPos:Position = Context.currentPos();
-		// todo: ensure state data type from VModule<T> is matching all getter parameters!
+
 		var fieldsToAdd:Array<Field> = [];
 		
 		var alreadyDeclaredGetters:StringMap<Bool> = new StringMap<Bool>();
@@ -293,10 +330,11 @@ class VuexMacros
 			}
 			switch( field.kind ) {
 				case FieldType.FProp("get", "never", _, _):
-					alreadyDeclaredGetters.set(field.name, true);
+					if (!isRoot) alreadyDeclaredGetters.set(field.name, true);
+					else Context.error("Root getters should be using read (default)", field.pos);
 				case FieldType.FProp("default", "never", _, _):
-					//TODO: be able to switch
-					//alreadyDeclaredGetters.set(field.name, true);
+					if (isRoot) alreadyDeclaredGetters.set(field.name, true);
+					else Context.error("Module getters should be using read (get)", field.pos);
 				default:
 					
 			}
@@ -333,6 +371,12 @@ class VuexMacros
 									default:
 										Context.error("Getters field type for store should be getters(default,never)", field.pos);
 								}
+								/*
+								if (!isMatchingStateTypePairs(getStateTypesOf(getComplexTypeFromField(field)), stateTypes) ) {
+									Context.warning("State type mismatch:", field.pos);
+								}
+								*/
+							
 								rootGettersField = field;
 							}
 							else {
@@ -341,8 +385,14 @@ class VuexMacros
 							
 						}
 						else if (hasMetaTag(field.meta, ":module")) {
-							//	trace("TO add module");
+					
 							var fieldName:String = field.name;
+							/*
+							if (!isMatchingStateTypePairs(getStateTypesOf(getComplexTypeFromField(field)), moduleStateTypeMatch) ) {
+								Context.warning("State type mismatch:"+stateTypes, field.pos);
+							}
+							*/
+							
 							if (!hasMetaTag(field.meta, ":manual")) {
 					
 								
@@ -356,18 +406,20 @@ class VuexMacros
 								});
 							}
 							moduleAssignments.push( macro {
+								
 								if (this.$fieldName != null) {
 									untyped d.$fieldName  = this.$fieldName;
-								
-									this.$fieldName._Init(ns + $v{fieldName+"/"}  );  
-									
-									
+									this.$fieldName._Init(ns + $v{fieldName+"/"}  );  	
 								}
 								
 							});
 						}
 						else if (hasMetaTag(field.meta, ":getter")) {
-	
+							/*
+							if (!isMatchingStateTypePairs(getStateTypesOf(getComplexTypeFromField(field)), stateTypes) ) {
+								Context.warning("State type mismatch:"+stateTypes, field.pos);
+							}
+							*/
 							getterAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, untyped useNS) );
 						}
 						
@@ -386,8 +438,7 @@ class VuexMacros
 							Context.error("Static store getters needs at least 1 parameter for store state", field.pos);
 						}
 						// TODO: check parameter types for static method "Get_"
-						
-						
+				
 					 
 						if (!alreadyDeclaredGetters.get(addFieldName) ) {
 							fieldsToAdd.push( {
@@ -421,7 +472,15 @@ class VuexMacros
 				
 					
 					if (hasMetaTag(field.meta, ":mutator")) {
+						var stateTypesExpr = getStateTypesOf(getComplexTypeFromField(field));
+						//trace(stateTypesExpr[0]);
+						//trace( ComplexTypeTools.toType( stateTypesExpr[0]  ));
 						
+						//trace(getStateTypesOf(getComplexTypeFromField(field)));
+						//if (!isMatchingStateTypePairs(getStateTypesOf(getComplexTypeFromField(field)), moduleStateTypeMatch) ) {
+						//	Context.warning("State type mismatch:"+stateTypes, field.pos);
+						//}
+					
 						if (hasMetaTag(field.meta, ":useNamespacing")) {
 							mutationAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
 						}
@@ -430,6 +489,9 @@ class VuexMacros
 						}
 					}
 					else if (hasMetaTag(field.meta, ":action")) {
+						//if (!isMatchingStateTypePairs(getStateTypesOf(getComplexTypeFromField(field)), moduleStateTypeMatch) ) {
+						//	Context.warning("State type mismatch:"+stateTypes, field.pos);
+						//}
 						if (hasMetaTag(field.meta, ":useNamespacing")) actionAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
 						else {
 							actionAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, "") );
@@ -478,7 +540,7 @@ class VuexMacros
 			});
 		}
 		
-		var cls1 = Context.getLocalClass().toString();
+	
 		
 		
 		
@@ -603,7 +665,12 @@ class VuexMacros
 		return fields.concat(fieldsToAdd);
 	}
 	
+	static function isMatchingStateTypePairs(pair1:Array<ComplexType>, pair2:Array<ComplexType>):Bool {
 	
+		return ( ( isEqualComplexTypes(pair1[0], ANY_T) || isEqualComplexTypes(pair2[0], ANY_T)) || isEqualComplexTypes(pair1[0], pair2[0]) ) 
+		&& (   ( isEqualComplexTypes(pair1[1], ANY_T) || isEqualComplexTypes(pair2[1], ANY_T))  || isEqualComplexTypes(pair1[1], pair2[1])  );
+	
+	}
 	
 	static function getClassNameOf(clsType:ClassType):String {
 		var str:String = clsType.module;
@@ -641,6 +708,64 @@ class VuexMacros
 		}
 		return  moduleStack.join("_") + "|";
 	}
+	
+	static function getStateTypesOf(complexType:ComplexType):Array<ComplexType> {
+		var type:String = getClassNameFromType(complexType) ;
+		
+		var result =  MODULE_TYPE_PARAMS.get(type);
+		if (result == null) {
+			if ( result == null) trace("Exception:: Failed to get result for type:" + type + " attempting recovery.." );
+			result = getModuleStateTypes(getClassTypeFromType(complexType));
+			MODULE_TYPE_PARAMS.set(getClassNameFromType(complexType), result);
+		}
+	
+		return result;
+	}
+	
+	
+	
+	static function getClassNameFromType(complexType:ComplexType):String {
+		var type:Type = ComplexTypeTools.toType(complexType);
+		switch(type) {
+			case TInst(t, params):
+				return t.toString();
+			default:
+				Context.error("getClassNameFromType :: failed to resolve type", Context.currentPos());
+		}
+		return null;
+	}
+	
+	static function getClassTypeFromType(complexType:ComplexType):ClassType {
+		var type:Type = ComplexTypeTools.toType(complexType);
+		switch(type) {
+			case TInst(t, params):
+				return t.get();
+			default:
+				Context.error("getClassTypeFromType :: failed to resolve type", Context.currentPos());
+		}
+		return null;
+	}
+	
+	static function getClassNamespaceFor(clsType:ClassType, fieldName:String):String {
+		var type:String;
+		
+		var t:ClassType = clsType;
+		while ( t != null) {
+			type = getClassNameOf(t);
+			var theMap:StringMap<Bool> = DISPATCH_STRINGS.get(type);
+			if (theMap == null){
+				trace("getClassNamespaceFor :: Exception ERROR couldn't find theMap");
+				Context.error("getClassNamespaceFor :: Exception ERROR couldn't find theMap", Context.currentPos());
+			}
+			if ( theMap.get(fieldName) ){
+				
+				return  type.split(".").join("_") + "|";
+			}
+			t =t.superClass.t.get();
+		}
+		
+		return null;
+	}
 
 	
 
@@ -668,6 +793,15 @@ class VuexMacros
 		var constructorFieldPos:Position;
 		
 		var singletonFields:Array<Field> = [];
+		
+		var cls1 = Context.getLocalClass().toString();
+		var theMap:StringMap<Bool> = DISPATCH_STRINGS.exists(cls1) ? DISPATCH_STRINGS.get(cls1) : null;
+		if (theMap == null) {
+			theMap = new StringMap<Bool>();
+			DISPATCH_STRINGS.set(cls1, theMap);
+		}
+		var stateTypes:Array<ComplexType> = getModuleStateTypes(Context.getLocalClass().get());
+		MODULE_TYPE_PARAMS.set(cls1, stateTypes);
 		
 		for (field in fields ){
 			if (field.access.indexOf(Access.AStatic) >= 0) {
@@ -698,9 +832,9 @@ class VuexMacros
 						Context.error("Functions in mutator/action classes cannot be public: "+field.name, field.pos);
 					}
 					
-					// TODO Important!: temp for now unntil figure out best way to determine
 				
-						var namespacedValue:String = (field.access.indexOf(Access.AOverride) >= 0 ? getClassNamespaceOf( Context.getLocalClass().get().superClass.t.get())  : classeNamespace) + field.name;
+				
+						var namespacedValue:String = (field.access.indexOf(Access.AOverride) >= 0 ? getClassNamespaceFor( Context.getLocalClass().get().superClass.t.get(), field.name)  : classeNamespace) + field.name;
 					var fieldName:String = field.name;
 					actionAssignments.push( macro { untyped d[ns + $v{namespacedValue}] = clsP.$fieldName; }  );
 					
@@ -734,7 +868,14 @@ class VuexMacros
 							gotRetType = true;
 					}
 					var payload:FunctionArg = f.args.length == 2 ? f.args[1] : null;
-			
+		
+					var contextType:ComplexType = ComplexType.TPath({pack:["haxevx", "vuex", "core"], name:"IVxContext", params:[] });
+					var contextArg:FunctionArg = {
+						name: "context",
+						type:  contextType
+						
+					};
+					
 					// commit/dispatch options + namespacings
 					var contextType:ComplexType = ComplexType.TPath({pack:["haxevx", "vuex", "core"], name:"IVxContext", params:[] });
 					var contextArg:FunctionArg = {
@@ -764,26 +905,28 @@ class VuexMacros
 					};
 					
 					// todo: ensure IVxContext should be args[0]. IVxContext type param  should resolve to target store's state data type.
-
+				
+					var commitString2:String =  commitString + "2";
+					if ( gotRetType && !isActionContext) {
+						Context.warning("Mutation context handlers should not have return value!", field.pos);
+					}
 					
+		
 					// commit/dispatch options + namespacings
 					if (gotRetType) {
-						funcExpr = payload != null ?   macro { if (useNamespacing) context.$commitString(ns + $v{namespacedValue}, payload) else context.$commitString($v{namespacedValue}, payload);  }  
-						: macro { if (useNamespacing) context.$commitString(ns + $v{namespacedValue}) else context.$commitString($v{namespacedValue}); } ;
+						funcExpr = payload != null ?   macro { return haxevx.vuex.core.VuexMacros.$commitString2(context, $v{namespacedValue}, payload, opts, useNamespacing, ns);  }  
+						: macro { return haxevx.vuex.core.VuexMacros.$commitString2(context, $v{namespacedValue}, null, opts, useNamespacing, ns);  } ;
 					}
 					else {
-						funcExpr = payload != null ?   macro { if (useNamespacing) return context.$commitString(ns+$v{namespacedValue}, payload) else return context.$commitString($v{namespacedValue}, payload); }
-						:  macro { if (useNamespacing) return context.$commitString(ns+$v{namespacedValue}) else return context.$commitString($v{namespacedValue}); } ; 
+						funcExpr = payload != null ?   macro {  haxevx.vuex.core.VuexMacros.$commitString(context, $v{namespacedValue}, payload, opts, useNamespacing, ns);  }
+						:  macro {  haxevx.vuex.core.VuexMacros.$commitString(context, $v{namespacedValue}, null, opts, useNamespacing, ns);  } ; 
 					}
 
+
 					
-					switch(f.expr.expr) {
-						
-						case ExprDef.EBlock([]): 
-							field.meta = [{name:"ignore", pos:field.pos}];
-						default:
-							
-					}
+	
+					
+					theMap.set(field.name, true);
 					
 					///*
 					fieldsToAdd.push( {
@@ -800,7 +943,7 @@ class VuexMacros
 			}
 		}
 		
-		var dynType:ComplexType = MacroStringTools.toComplex("Dynamic");
+		var dynType:ComplexType = DYNAMIC_T;
 		var strType:ComplexType = MacroStringTools.toComplex("String");
 		
 		var initBlock:Array<Expr> = [];
@@ -810,7 +953,7 @@ class VuexMacros
 		}
 		*/
 		
-		var cls1 = Context.getLocalClass().toString();
+
 		
 		initBlock.push(macro {
 			var cls:Dynamic = untyped $p{cls1.split('.')};
@@ -863,12 +1006,29 @@ class VuexMacros
 		return ComplexTypeTools.toType(a) + "" == ComplexTypeTools.toType(b) + "";
 	}
 	
+	#end
 	
+	
+	public static macro function commit(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<CommitOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
 
+		return macro { haxevx.vuex.core.Boiler.commit( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing} ); };
+	}
+	
+	public static macro function dispatch(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<DispatchOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
+	
+		
+	return macro { haxevx.vuex.core.Boiler.dispatch( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing} ); };
+	}
+	public static macro function dispatch2(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<DispatchOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
+	
+		return macro { return haxevx.vuex.core.Boiler.dispatch2( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing} ); };
+	}
+	
+	
 	
 }
 
 
 
-#end
+
 

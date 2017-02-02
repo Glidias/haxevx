@@ -1,6 +1,7 @@
 package haxevx.vuex.core;
 import haxevx.vuex.native.CommitOptions;
 import haxevx.vuex.native.DispatchOptions;
+import js.Promise;
 
 /**
  * Empty marker class atm
@@ -9,7 +10,7 @@ import haxevx.vuex.native.DispatchOptions;
 @:remove
 interface IVxContext 
 {
-  function dispatch(type:String, ?payload:Dynamic, ?opts:DispatchOptions):Void;
+  function dispatch<T>(type:String, ?payload:Dynamic, ?opts:DispatchOptions):Promise<T>;
   function commit(type:String, ?payload:Dynamic, ?opts:CommitOptions):Void;
 }
 
