@@ -421,6 +421,7 @@ class VuexMacros
 				
 					
 					if (hasMetaTag(field.meta, ":mutator")) {
+						
 						if (hasMetaTag(field.meta, ":useNamespacing")) {
 							mutationAssignments.push( macro  $e{singletonSetNewExprOf(field)}._SetInto(untyped d, untyped ns ) );
 						}
@@ -733,26 +734,47 @@ class VuexMacros
 							gotRetType = true;
 					}
 					var payload:FunctionArg = f.args.length == 2 ? f.args[1] : null;
-		
+			
+					// commit/dispatch options + namespacings
 					var contextType:ComplexType = ComplexType.TPath({pack:["haxevx", "vuex", "core"], name:"IVxContext", params:[] });
 					var contextArg:FunctionArg = {
 						name: "context",
 						type:  contextType
 						
 					};
+										
+					var optionsArg:FunctionArg = {
+						name: "opts",
+						type:  isActionContext ? ComplexType.TPath({pack:["haxevx","vuex","native"], name:"DispatchOptions" })  :  ComplexType.TPath({pack:["haxevx","vuex","native"], name:"CommitOptions" }),
+						opt: true
+					};
 					
-								// todo: ensure IVxContext should be args[0]. IVxContext type param  should resolve to target store's state data type.
+					var useNamespacingArg:FunctionArg = {
+						name: "useNamespacing",
+						type:  MacroStringTools.toComplex("Bool"),
+						//opt: true,
+						value: macro $v{false}
+					};
 					
-				
+					var namespaceArg:FunctionArg = {
+						name: "ns",
+						type:  MacroStringTools.toComplex("String"),
+						//opt: true,
+						value: macro $v{""}
+					};
 					
+					// todo: ensure IVxContext should be args[0]. IVxContext type param  should resolve to target store's state data type.
+
 					
+					// commit/dispatch options + namespacings
 					if (gotRetType) {
-						funcExpr = payload != null ?   macro context.$commitString($v{namespacedValue}) : macro context.$commitString($v{namespacedValue});
+						funcExpr = payload != null ?   macro { if (useNamespacing) context.$commitString(ns + $v{namespacedValue}, payload) else context.$commitString($v{namespacedValue}, payload);  }  
+						: macro { if (useNamespacing) context.$commitString(ns + $v{namespacedValue}) else context.$commitString($v{namespacedValue}); } ;
 					}
 					else {
-						funcExpr = payload != null ?   macro return context.$commitString($v{namespacedValue}, payload) :  macro return context.$commitString($v{namespacedValue}); 
+						funcExpr = payload != null ?   macro { if (useNamespacing) return context.$commitString(ns+$v{namespacedValue}, payload) else return context.$commitString($v{namespacedValue}, payload); }
+						:  macro { if (useNamespacing) return context.$commitString(ns+$v{namespacedValue}) else return context.$commitString($v{namespacedValue}); } ; 
 					}
-
 
 					
 					switch(f.expr.expr) {
@@ -767,7 +789,7 @@ class VuexMacros
 					fieldsToAdd.push( {
 						name: prefix + field.name,
 						access: [Access.APublic, Access.AInline],
-						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [contextArg, payload] : [contextArg], expr:funcExpr  }),
+						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [contextArg, payload, optionsArg, useNamespacingArg, namespaceArg] : [contextArg, optionsArg, useNamespacingArg, namespaceArg], expr:funcExpr  }),
 						pos: contextPos,
 						meta:  [{name:"ignore", pos:contextPos}] // todo: likely temp for now...
 					});

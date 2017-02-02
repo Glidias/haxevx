@@ -67,14 +67,8 @@ typedef Payload = {
 	var type(default, never):String;
 }
 
-typedef  DispatchOptions= {
-  @:optional var root: Bool;
-}
 
-typedef CommitOptions = {
-  @:optional var silent: Bool;
-  @:optional var root: Bool;
-}
+
 
 typedef StoreOptions<S> = {
 	@:optional var state: S;

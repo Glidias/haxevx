@@ -43,7 +43,7 @@ class ProductListDispatcher implements IAction<ProductListModel, NoneT> {
 	static var shop:Shop = Shop.getInstance();
 	
 	function getAllProducts(context:IVxStoreContext<ProductListModel>):Void {  
-			
+	
 		shop.getProducts( function(products) {
 		
 			mutator._receiveProducts(context, products);

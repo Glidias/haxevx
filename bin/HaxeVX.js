@@ -617,9 +617,20 @@ haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.prototype = {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutFailure",{ savedCartItems : savedCartItems});
 		});
 	}
-	,_checkout: function(context,payload) {
-		context.dispatch("haxevx_vuex_examples_shoppingcart_modules_CartDispatcher|checkout",payload);
-		return;
+	,_checkout: function(context,payload,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.dispatch(ns + "haxevx_vuex_examples_shoppingcart_modules_CartDispatcher|checkout",payload);
+			return;
+		} else {
+			context.dispatch("haxevx_vuex_examples_shoppingcart_modules_CartDispatcher|checkout",payload);
+			return;
+		}
 	}
 	,_SetInto: function(d,ns) {
 		var cls = haxevx_vuex_examples_shoppingcart_modules_CartDispatcher;
@@ -643,25 +654,80 @@ haxevx_vuex_examples_shoppingcart_store_AppMutator.prototype = {
 	}
 	,receiveProducts: function(state,payload) {
 	}
-	,_addToCart: function(context,payload) {
-		context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|addToCart",payload);
-		return;
+	,_addToCart: function(context,payload,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|addToCart",payload);
+			return;
+		} else {
+			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|addToCart",payload);
+			return;
+		}
 	}
-	,_checkoutRequest: function(context) {
-		context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutRequest");
-		return;
+	,_checkoutRequest: function(context,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutRequest");
+			return;
+		} else {
+			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutRequest");
+			return;
+		}
 	}
-	,_checkoutSuccess: function(context) {
-		context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutSuccess");
-		return;
+	,_checkoutSuccess: function(context,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutSuccess");
+			return;
+		} else {
+			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutSuccess");
+			return;
+		}
 	}
-	,_checkoutFailure: function(context,payload) {
-		context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutFailure",payload);
-		return;
+	,_checkoutFailure: function(context,payload,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutFailure",payload);
+			return;
+		} else {
+			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutFailure",payload);
+			return;
+		}
 	}
-	,_receiveProducts: function(context,payload) {
-		context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|receiveProducts",payload);
-		return;
+	,_receiveProducts: function(context,payload,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|receiveProducts",payload);
+			return;
+		} else {
+			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|receiveProducts",payload);
+			return;
+		}
 	}
 	,_SetInto: function(d,ns) {
 		var cls = haxevx_vuex_examples_shoppingcart_store_AppMutator;
@@ -761,9 +827,20 @@ haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.prototype = {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|receiveProducts",products);
 		});
 	}
-	,_getAllProducts: function(context) {
-		context.dispatch("haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher|getAllProducts");
-		return;
+	,_getAllProducts: function(context,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.dispatch(ns + "haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher|getAllProducts");
+			return;
+		} else {
+			context.dispatch("haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher|getAllProducts");
+			return;
+		}
 	}
 	,_SetInto: function(d,ns) {
 		var cls = haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher;
@@ -815,9 +892,20 @@ haxevx_vuex_examples_shoppingcart_store_AppActions.prototype = {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|addToCart",{ id : payload.id});
 		}
 	}
-	,_addToCart: function(context,payload) {
-		context.dispatch("haxevx_vuex_examples_shoppingcart_store_AppActions|addToCart",payload);
-		return;
+	,_addToCart: function(context,payload,opts,useNamespacing,ns) {
+		if(ns == null) {
+			ns = "";
+		}
+		if(useNamespacing == null) {
+			useNamespacing = false;
+		}
+		if(useNamespacing) {
+			context.dispatch(ns + "haxevx_vuex_examples_shoppingcart_store_AppActions|addToCart",payload);
+			return;
+		} else {
+			context.dispatch("haxevx_vuex_examples_shoppingcart_store_AppActions|addToCart",payload);
+			return;
+		}
 	}
 	,_SetInto: function(d,ns) {
 		var cls = haxevx_vuex_examples_shoppingcart_store_AppActions;

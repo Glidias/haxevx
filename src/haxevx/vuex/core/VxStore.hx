@@ -1,6 +1,6 @@
 package haxevx.vuex.core;
-import haxevx.vuex.native.Vuex.CommitOptions;
-import haxevx.vuex.native.Vuex.DispatchOptions;
+import haxevx.vuex.native.CommitOptions;
+import haxevx.vuex.native.DispatchOptions;
 
 /**
  *  Base generic class for Vuex Store instance helpers

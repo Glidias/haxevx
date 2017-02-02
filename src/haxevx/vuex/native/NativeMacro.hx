@@ -36,7 +36,7 @@ class NativeMacro
 			fields.push(f);
 		}
 		
-		
+	
 		return fields;
 	}
 	
