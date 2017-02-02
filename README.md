@@ -32,7 +32,9 @@ A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
 	
 https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingcart
 	
-	
+A guide to using HaxeVx for Vuex.
+
+https://github.com/Glidias/haxevx/wiki/Vuex---HaxeVX-Draft-version-guide
 ____________
 
 Roadmap can be found [here](https://github.com/Glidias/haxevx/issues/2)
