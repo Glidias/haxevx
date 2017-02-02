@@ -1011,17 +1011,17 @@ class VuexMacros
 	
 	public static macro function commit(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<CommitOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
 
-		return macro { haxevx.vuex.core.Boiler.commit( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing} ); };
+		return macro { haxevx.vuex.core.Boiler.commit( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing}, ${ns} ); };
 	}
 	
 	public static macro function dispatch(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<DispatchOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
 	
 		
-	return macro { haxevx.vuex.core.Boiler.dispatch( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing} ); };
+	return macro { haxevx.vuex.core.Boiler.dispatch( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing}, ${ns} ); };
 	}
 	public static macro function dispatch2(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<DispatchOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
 	
-		return macro { return haxevx.vuex.core.Boiler.dispatch2( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing} ); };
+		return macro { return haxevx.vuex.core.Boiler.dispatch2( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing}, ${ns} ); };
 	}
 	
 	
