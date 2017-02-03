@@ -14,6 +14,7 @@ class AppActions<S:AppState> implements IAction<S,NoneT>
 {
 	@:mutator static var mutator:AppMutator<Dynamic>;
 	
+	// todo: to test auto-completion/checking of IVxContext1's S and RS respectively
 	 function addToCart(context:IVxContext1<S>, payload:ProductInStore):Void { 
 		if (payload.inventory > 0) {
 			

@@ -1,6 +1,7 @@
 package haxevx.vuex.examples.shoppingcart.modules;
 import haxevx.vuex.core.IAction;
 import haxevx.vuex.core.IModule;
+import haxevx.vuex.core.IMutator;
 import haxevx.vuex.core.IVxContext.IVxContext1;
 import haxevx.vuex.core.NoneT;
 import haxevx.vuex.core.VModule;
@@ -78,7 +79,7 @@ class CartDispatcher<S:CartState> implements IAction<S, NoneT> {
 }
 
 
-class CartMutator extends AppMutator<CartState>  {
+class CartMutator extends AppMutator<CartState> implements IMutator<CartState> {
 
 	override function addToCart(state:CartState, payload:ProductIdentifier):Void {
 		

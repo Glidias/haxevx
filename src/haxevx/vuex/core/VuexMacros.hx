@@ -887,6 +887,10 @@ class VuexMacros
 	
 	 static function buildActionCalls(prefix:String, fields:Array<Field>, commitString:String, isActionContext:Bool):Array<Field>  {
 
+		 var cls1 = Context.getLocalClass().toString();
+		var theMap:StringMap<Bool> = DISPATCH_STRINGS.exists(cls1) ? DISPATCH_STRINGS.get(cls1) : null;
+		if (theMap != null) return fields;
+		
 		var fieldsToAdd:Array<Field> = [];
 		var contextPos:Position = Context.currentPos();
 		var classPos:Position = Context.getLocalClass().get().pos;
@@ -902,13 +906,11 @@ class VuexMacros
 		var singletonFields:Array<Field> = [];
 		var singletonFieldMap:StringMap<VuexActionOrMutator> = new StringMap<VuexActionOrMutator>();
 		
-		var cls1 = Context.getLocalClass().toString();
-		var theMap:StringMap<Bool> = DISPATCH_STRINGS.exists(cls1) ? DISPATCH_STRINGS.get(cls1) : null;
 		if (theMap == null) {
 			theMap = new StringMap<Bool>();
 			DISPATCH_STRINGS.set(cls1, theMap);
 		}
-		
+
 		var theMap2:StringMap<Bool> = DISPATCH_STRINGS_HAXE.exists(cls1) ? DISPATCH_STRINGS_HAXE.get(cls1) : null;
 		if (theMap2 == null) {
 			theMap2 = new StringMap<Bool>();
