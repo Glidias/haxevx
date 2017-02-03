@@ -58,6 +58,7 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 	// Methods
 	public function checkout (products:Array<ProductInCart>) {
 		action._checkout(store, products);
+
     }
 	
 	

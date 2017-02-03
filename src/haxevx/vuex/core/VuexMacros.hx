@@ -89,6 +89,7 @@ class VuexMacros
 		MODULE_TYPE_PARAMS.set(cls1, stateTypes);
 		
 		var contextPos:Position = Context.currentPos();
+		var classPos:Position = Context.getLocalClass().get().pos;
 		// todo: ensure state data type from VModule<T> is matching all getter parameters!
 		var fieldsToAdd:Array<Field> = [];
 		
@@ -134,7 +135,7 @@ class VuexMacros
 								name:addFieldName,
 								access: [Access.APublic],
 								kind: FieldType.FProp( isStoreGetters ? "default" : "get", "never", f.ret),
-								pos:contextPos
+								pos:field.pos
 							});
 						}
 						
@@ -153,7 +154,7 @@ class VuexMacros
 									ret:f.ret,
 									expr: macro return $i{fieldName}(state)
 								}),
-								pos:contextPos
+								pos:field.pos
 							});
 						}
 						
@@ -194,7 +195,7 @@ class VuexMacros
 				expr: macro $b{initBlock}
 			}),
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
-			pos:contextPos
+			pos:classPos
 		});
 		
 		
@@ -316,7 +317,7 @@ class VuexMacros
 		
 	
 		var contextPos:Position = Context.currentPos();
-
+		var classPos:Position = Context.getLocalClass().get().pos;
 		var fieldsToAdd:Array<Field> = [];
 		
 		var alreadyDeclaredGetters:StringMap<Bool> = new StringMap<Bool>();
@@ -445,7 +446,7 @@ class VuexMacros
 								name:addFieldName,
 								access: [Access.APublic],
 								kind: FieldType.FProp("get", "never", f.ret),
-								pos:contextPos
+								pos:field.pos
 							});
 						}
 						else {
@@ -462,7 +463,7 @@ class VuexMacros
 								ret:f.ret,
 								expr: macro return untyped this._stg[_ +$v{addFieldName}] //$i{fieldName}(state)
 							}),
-							pos:contextPos
+							pos:field.pos
 						});
 						
 						getterAssignments.push( macro untyped d[useNS+$v{addFieldName}] = cls.$fieldName );
@@ -511,7 +512,7 @@ class VuexMacros
 				name:"_",
 				kind:FieldType.FProp("default", "never", strType ),
 				access: [Access.APublic],
-				pos:contextPos
+				pos:classPos
 			});
 			
 		}
@@ -623,7 +624,7 @@ class VuexMacros
 				expr: macro $b{initBlock}
 			}),
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
-			pos:contextPos
+			pos:classPos
 		});
 		
 		if (isBase) {
@@ -637,7 +638,7 @@ class VuexMacros
 					}
 				}),
 				access: [Access.APublic, Access.AInline],
-				pos:contextPos
+				pos:classPos
 			});
 			
 			// Call Init from constructor if required
@@ -653,7 +654,7 @@ class VuexMacros
 					}
 				}
 				else {  // add public constructor with _Init() call
-					fields.push(  { name: "new", kind:FieldType.FFun({args:[], ret:null, expr:macro _Init("") }) , pos:contextPos } );
+					fields.push(  { name: "new", kind:FieldType.FFun({args:[], ret:null, expr:macro _Init("") }) , pos:classPos } );
 				
 				}
 			}
@@ -782,7 +783,7 @@ class VuexMacros
 
 		var fieldsToAdd:Array<Field> = [];
 		var contextPos:Position = Context.currentPos();
-
+		var classPos:Position = Context.getLocalClass().get().pos;
 		
 		var classeNamespace:String = getClassNamespace();
 
@@ -1022,11 +1023,11 @@ class VuexMacros
 				expr: macro $b{initBlock}
 			}),
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
-			pos:contextPos
+			pos:classPos
 		});
 		
 		if (!gotConstructor) {
-				fields.push(  { access:[Access.APublic], name: "new",  kind:FieldType.FFun({args:[], ret:null, expr:(!isBase ? macro { super(); } : macro null) }) , pos:Context.getLocalClass().get().pos } );
+				fields.push(  { access:[Access.APublic], name: "new",  kind:FieldType.FFun({args:[], ret:null, expr:(!isBase ? macro { super(); } : macro null) }) , pos:classPos } );
 		}
 	
 		return fields.concat(fieldsToAdd);
