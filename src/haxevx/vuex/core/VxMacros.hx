@@ -127,9 +127,9 @@ class VxMacros
 					if (field.name.indexOf("get_") == 0) {
 						funcLookup.set( field.name.substr(4), f);
 					}
-				case FieldType.FProp("get", "set", t):
+				case FieldType.FProp("get", "set", t, _):
 					watchableFields.set(field.name, t);
-				case FieldType.FProp("get", "never", t):
+				case FieldType.FProp("get", "never", t, _):
 					watchableFields.set(field.name, t);
 				default:
 				//	trace(field.kind);

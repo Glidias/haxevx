@@ -334,7 +334,7 @@ class VuexMacros
 		switch(field.kind) {
 			case FieldType.FVar(t, _):
 				return t;
-			case FieldType.FProp(_, set, t):
+			case FieldType.FProp(_, set, t, _):
 				return t;
 			default:
 				Context.error("Failed to resolve auto-instantiatable getComplexTypeFromField:" + field.name, field.pos);
@@ -350,7 +350,7 @@ class VuexMacros
 			case FieldType.FVar(TPath({name:iName, pack:iPack}), _):
 				iName2 = iName;
 				iPack2 = iPack;
-			case FieldType.FProp(_, set, TPath({name:iName, pack:iPack})):
+			case FieldType.FProp(_, set, TPath({name:iName, pack:iPack}), _):
 				iName2 = iName;
 				iPack2 = iPack;
 			default:
@@ -1044,15 +1044,15 @@ class VuexMacros
 									return context.$commitString(ns+$v{namespacedValue}, payload, opts);
 								}
 								else {
-									return context.$commitString(type, payload, opts);
+									return context.$commitString($v{namespacedValue}, payload, opts);
 								}
 							} 
 						:  macro {
 								if (ns !="") {
-									return context.$commitString(ns+type, null, opts);
+									return context.$commitString(ns+$v{namespacedValue}, null, opts);
 								}
 								else {
-									return context.$commitString(type, null, opts);
+									return context.$commitString($v{namespacedValue}, null, opts);
 								}
 							}; 
 					}
