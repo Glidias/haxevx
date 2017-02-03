@@ -35,6 +35,7 @@ https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingc
 A guide to using HaxeVx for Vuex.
 
 https://github.com/Glidias/haxevx/wiki/Vuex---HaxeVX-Draft-version-guide
+	
 ____________
 
 Roadmap can be found [here](https://github.com/Glidias/haxevx/issues/2)
@@ -43,7 +44,9 @@ _______
 
 Versioning:
 	
-This was developed under Haxe version 3.3.0.
+HaxeVx was developed under Haxe version 3.3.0.
+
+At the moment, there are some issues with Vuex under Haxe Version 3.4 with regards to production build and typehinting in HaxeDevelop over macro-generated fields. 
 
 _____
 

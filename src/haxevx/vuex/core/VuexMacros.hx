@@ -12,20 +12,23 @@ import haxe.macro.ExprTools;
 import haxe.macro.MacroStringTools;
 import haxe.macro.Type;
 import haxe.macro.TypeTools;
+
 import haxevx.vuex.native.CommitOptions;
 import haxevx.vuex.native.DispatchOptions;
-
 
 /**
  * Haxe Macros for Vuex
  * @author Glidias
  */
+
+import haxevx.vuex.core.VxMacros.VuexActionOrMutator;
+
 class VuexMacros
 {
-	
 	#if macro
-	
 	static var DISPATCH_STRINGS:StringMap<StringMap<Bool>> = new StringMap<StringMap<Bool>>();
+	static var DISPATCH_STRINGS_HAXE:StringMap<StringMap<Bool>> = new StringMap<StringMap<Bool>>();
+	
 	static var MODULE_TYPE_PARAMS:StringMap<Array<ComplexType>> = new StringMap<Array<ComplexType>>();
 
 	/**
@@ -61,6 +64,78 @@ class VuexMacros
 		});
 		return fields;
 	}
+	
+	///*
+	static function remapVuexDispatchParams(params:Array<Expr>, funcName:String, gotPayload:Bool, pos:Position, ns:String):Array<Expr> {
+		
+		var gotNamespaceParam:Bool =  params.length == (gotPayload ? 4 : 3 );
+		var myParams = gotNamespaceParam ?  params.slice(0, params.length - 1) : params.slice(0, params.length);
+		var stringExpr:Expr =  {expr:ExprDef.EConst(CString(ns+funcName)), pos:pos };
+		myParams[0] = !gotNamespaceParam ?   stringExpr : macro {  ${params[params.length-1]}+${stringExpr} };
+		return myParams;
+	}
+	//*/
+	
+
+	
+	static var VUEX_ACTION_OR_MUTATOR:StringMap<VuexActionOrMutator>;
+	public static function checkToRemapVuexDispatch(fieldMap:StringMap<VuexActionOrMutator>, startExpr:Expr):Expr {
+		VUEX_ACTION_OR_MUTATOR = fieldMap;
+		return ExprTools.map(startExpr, remapVuexDispatches);
+
+	}
+	
+	static function remapVuexDispatches(e:Expr):Expr {
+		
+		 switch(e.expr) {
+			case ExprDef.EVars([{name:checkName, type:_, expr:checkExpr}]):
+				if (VUEX_ACTION_OR_MUTATOR.exists(checkName)) {
+					Context.error("CAPTURED illegal @:mutator/@:action var name assign!",  e.pos);
+					return e;
+				}
+				else if (checkExpr!=null) {
+					switch( checkExpr.expr) {
+						case ExprDef.EConst(CIdent(checkName)): 
+							if (VUEX_ACTION_OR_MUTATOR.exists(checkName)) {
+								Context.error("CAPTURED illegal @:mutator/@:action var value assign!", e.pos);
+								return e;
+							}
+						default:
+					}
+				}
+				
+				return e;		
+			
+			#if production
+			case ExprDef.ECall( {expr:EField( {expr:EConst(CIdent(checkName)), pos:fieldPos }, checkFuncName ), pos:callPos}, params):
+				if ( VUEX_ACTION_OR_MUTATOR.exists(checkName) ) {
+					var info:VuexActionOrMutator = VUEX_ACTION_OR_MUTATOR.get(checkName);
+					var vClsName:String = VuexMacros.getClassNameFromType(info.type);
+					var theMapOfPayloads:StringMap<Bool> = DISPATCH_STRINGS_HAXE.get( vClsName );
+					if (theMapOfPayloads == null) {
+						Context.error("Exception error failed to find dispatch map of @:action/@:mutator: "+VuexMacros.getClassNameFromType(info.type), e.pos);
+					}
+					
+					checkFuncName = checkFuncName.substr(1);
+					if (!theMapOfPayloads.exists( checkFuncName)) {
+						Context.error("Failed to find dispatch mapping: "+checkFuncName +  " ...from:"+theMapOfPayloads, e.pos);
+					}
+				
+					return { expr:ExprDef.ECall( {expr:EField( {expr:params[0].expr, pos:fieldPos }, (info.isAction ? "dispatch" : "commit") ), pos:callPos}, remapVuexDispatchParams(params, checkFuncName, theMapOfPayloads.get(checkFuncName), e.pos, VuexMacros.getClassNamespaceFor(info.clsType, checkFuncName) ) ), pos:e.pos };
+				}
+				
+				return  ExprTools.map(e, remapVuexDispatches);
+			#end
+			case _:
+				//trace(e);
+				return  ExprTools.map(e, remapVuexDispatches);
+				// 	
+				 
+		}
+		
+		return e;
+	}
+	
 	
 	/**
 	 * Build the IStoreGetters/IGetters mixin implementation
@@ -101,12 +176,19 @@ class VuexMacros
 				continue;
 			}
 			
-			
 			switch( field.kind ) {
 				case FieldType.FProp("get", "never", _, _):
-					if (!isStoreGetters) alreadyDeclaredGetters.set(field.name, true);
+					
+					if (!isStoreGetters) {
+						field.access = [Access.APublic];
+						
+						alreadyDeclaredGetters.set(field.name, true);
+					
+					}
 				case FieldType.FProp("default", "never", _, _):
 					if (isStoreGetters) {
+						field.access = [Access.APublic];
+						
 						alreadyDeclaredGetters.set(field.name, true);
 					}
 				default:
@@ -247,7 +329,7 @@ class VuexMacros
 		return null;
 	}
 	
-	 static function getComplexTypeFromField(field:Field):ComplexType {
+	public static function getComplexTypeFromField(field:Field):ComplexType {
 	
 		switch(field.kind) {
 			case FieldType.FVar(t, _):
@@ -331,10 +413,17 @@ class VuexMacros
 			}
 			switch( field.kind ) {
 				case FieldType.FProp("get", "never", _, _):
-					if (!isRoot) alreadyDeclaredGetters.set(field.name, true);
+					if (!isRoot) {
+						field.access = [Access.APublic];
+						alreadyDeclaredGetters.set(field.name, true);
+						
+					}
 					else Context.error("Root getters should be using read (default)", field.pos);
 				case FieldType.FProp("default", "never", _, _):
-					if (isRoot) alreadyDeclaredGetters.set(field.name, true);
+					if (isRoot) {
+						field.access = [Access.APublic];
+						alreadyDeclaredGetters.set(field.name, true);
+					}
 					else Context.error("Module getters should be using read (get)", field.pos);
 				default:
 					
@@ -673,7 +762,7 @@ class VuexMacros
 	
 	}
 	
-	static function getClassNameOf(clsType:ClassType):String {
+	public static function getClassNameOf(clsType:ClassType):String {
 		var str:String = clsType.module;
 		var className:String = clsType.name;
 		var moduleStack:Array<String> = str.split(".");
@@ -697,8 +786,12 @@ class VuexMacros
 		}
 		return  moduleStack.join("_") + "|";
 	}
+	
+	public static function getClassNamespaceOfClassName(name:String):String {
+		return name.split(".").join("_") + "|";
+	}
 
-		static function getClassNamespaceOf(clsType:ClassType):String {
+	public static function getClassNamespaceOf(clsType:ClassType):String {
 		var str:String = clsType.module;
 		var className:String = clsType.name;
 		var moduleStack:Array<String> = str.split(".");
@@ -725,7 +818,7 @@ class VuexMacros
 	
 	
 	
-	static function getClassNameFromType(complexType:ComplexType):String {
+	public static function getClassNameFromType(complexType:ComplexType):String {
 		var type:Type = ComplexTypeTools.toType(complexType);
 		switch(type) {
 			case TInst(t, params):
@@ -736,7 +829,7 @@ class VuexMacros
 		return null;
 	}
 	
-	static function getClassTypeFromType(complexType:ComplexType):ClassType {
+	public static function getClassTypeFromType(complexType:ComplexType):ClassType {
 		var type:Type = ComplexTypeTools.toType(complexType);
 		switch(type) {
 			case TInst(t, params):
@@ -747,18 +840,31 @@ class VuexMacros
 		return null;
 	}
 	
+	public static function getClassTypeFromField(field:Field):ClassType {
+		
+		return getClassTypeFromType(getComplexTypeFromField(field));
+		
+	}
+	
+	/**
+	 * Primary method for getting class namespace for dispatching a action/mutation!
+	 * @param	clsType
+	 * @param	fieldName
+	 * @return
+	 */
 	static function getClassNamespaceFor(clsType:ClassType, fieldName:String):String {
 		var type:String;
 		
 		var t:ClassType = clsType;
 		while ( t != null) {
 			type = getClassNameOf(t);
-			var theMap:StringMap<Bool> = DISPATCH_STRINGS.get(type);
-			if (theMap == null){
+			
+			if ( !DISPATCH_STRINGS.exists(type) ){
 				trace("getClassNamespaceFor :: Exception ERROR couldn't find theMap");
 				Context.error("getClassNamespaceFor :: Exception ERROR couldn't find theMap", Context.currentPos());
 			}
-			if ( theMap.get(fieldName) ){
+			var theMap:StringMap<Bool> =DISPATCH_STRINGS.get(type);
+			if ( theMap.exists(fieldName) ){
 				
 				return  type.split(".").join("_") + "|";
 			}
@@ -794,6 +900,7 @@ class VuexMacros
 		var constructorFieldPos:Position;
 		
 		var singletonFields:Array<Field> = [];
+		var singletonFieldMap:StringMap<VuexActionOrMutator> = new StringMap<VuexActionOrMutator>();
 		
 		var cls1 = Context.getLocalClass().toString();
 		var theMap:StringMap<Bool> = DISPATCH_STRINGS.exists(cls1) ? DISPATCH_STRINGS.get(cls1) : null;
@@ -801,13 +908,27 @@ class VuexMacros
 			theMap = new StringMap<Bool>();
 			DISPATCH_STRINGS.set(cls1, theMap);
 		}
+		
+		var theMap2:StringMap<Bool> = DISPATCH_STRINGS_HAXE.exists(cls1) ? DISPATCH_STRINGS_HAXE.get(cls1) : null;
+		if (theMap2 == null) {
+			theMap2 = new StringMap<Bool>();
+			DISPATCH_STRINGS_HAXE.set(cls1, theMap2);
+		}
+		
+		
 		var stateTypes:Array<ComplexType> = getModuleStateTypes(Context.getLocalClass().get());
 		MODULE_TYPE_PARAMS.set(cls1, stateTypes);
 		
 		for (field in fields ){
 			if (field.access.indexOf(Access.AStatic) >= 0) {
-				if (hasMetaTag(field.meta, ":mutator") || hasMetaTag(field.meta, ":action"))  {
+				var isMutator:Bool = hasMetaTag(field.meta, ":mutator");
+				var isActioner:Bool = hasMetaTag(field.meta, ":action");
+				if ( isActioner || isMutator )  {
+					if (isActioner && isMutator) Context.error("Should be either @:mutator OR @:action!", field.pos);
 					singletonFields.push(field);
+					//trace( VuexMacros.getClassNameOf( VuexMacros.getClassTypeFromField(field) ) );
+					var cType:ComplexType = VuexMacros.getComplexTypeFromField(field);
+					singletonFieldMap.set(field.name, {type:cType, isAction:isActioner, clsType: VuexMacros.getClassTypeFromType(cType)  } );
 				}
 				continue;
 			}
@@ -833,12 +954,20 @@ class VuexMacros
 						Context.error("Functions in mutator/action classes cannot be public: "+field.name, field.pos);
 					}
 					
+					#if ( production || !fastcompile )
+						f.expr = VuexMacros.checkToRemapVuexDispatch(singletonFieldMap, f.expr);
+					#end
 				
 				
-						var namespacedValue:String = (field.access.indexOf(Access.AOverride) >= 0 ? getClassNamespaceFor( Context.getLocalClass().get().superClass.t.get(), field.name)  : classeNamespace) + field.name;
+					var namespacedValue:String = (field.access.indexOf(Access.AOverride) >= 0 ? getClassNamespaceFor( Context.getLocalClass().get().superClass.t.get(), field.name)  : classeNamespace) + field.name;
 					var fieldName:String = field.name;
 					actionAssignments.push( macro { untyped d[ns + $v{namespacedValue}] = clsP.$fieldName; }  );
 					
+					var payload:FunctionArg = f.args.length == 2 ? f.args[1] : null;
+					
+		
+					theMap2.set(field.name, payload !=null);
+
 					if (field.access.indexOf(Access.AOverride) >= 0) {  // deemed to inherit namespace
 						continue;
 					}
@@ -868,7 +997,7 @@ class VuexMacros
 						default:
 							gotRetType = true;
 					}
-					var payload:FunctionArg = f.args.length == 2 ? f.args[1] : null;
+					
 		
 					var contextType:ComplexType = ComplexType.TPath({pack:["haxevx", "vuex", "core"], name:"IVxContext", params:[] });
 					var contextArg:FunctionArg = {
@@ -878,6 +1007,8 @@ class VuexMacros
 					};
 					
 					// commit/dispatch options + namespacings
+					#if !production
+					
 					var contextType:ComplexType = ComplexType.TPath({pack:["haxevx", "vuex", "core"], name:"IVxContext", params:[] });
 					var contextArg:FunctionArg = {
 						name: "context",
@@ -902,7 +1033,7 @@ class VuexMacros
 				
 					var commitString2:String =  commitString + "2";
 					if ( gotRetType && !isActionContext) {
-						Context.warning("Mutation context handlers should not have return value!", field.pos);
+						Context.error("Mutation context handlers should not have return value!", field.pos);
 					}
 					
 
@@ -943,26 +1074,23 @@ class VuexMacros
 							}
 						}; 
 					}
-/*
-				
-					fieldsToAdd.push( {
-						name: "___" + field.name,
-						access: [Access.APublic, Access.AMacro],
-						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [] : [], expr:macro {}  }),
-						pos: field.pos
-					});
-	*/
 					
-					theMap.set(field.name, true);
+					
+					
 					
 					///*
 					fieldsToAdd.push( {
 						name: prefix + field.name,
-						access: [Access.APublic, Access.AInline],
+						access: [Access.APublic, Access.AInline],  //,
 						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [contextArg, payload, optionsArg, namespaceArg] : [contextArg, optionsArg, namespaceArg], expr:funcExpr  }),
 						pos: field.pos
 					});
 					//*/
+					
+					#end
+					
+					
+					theMap.set(field.name, payload !=null);
 					
 				default: 
 					Context.error("Only private handler functions are allowed in mutator classes: "+field.name, field.pos);
@@ -1032,29 +1160,11 @@ class VuexMacros
 		return ComplexTypeTools.toType(a) + "" == ComplexTypeTools.toType(b) + "";
 	}
 	
+
 	#end
-	
-	/*
-	public static macro function commit(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<CommitOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
 
-		return macro { haxevx.vuex.core.Boiler.commit( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing}, ${ns} ); };
-	}
-	
-	public static macro function dispatch(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<DispatchOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
-	
-		
-		return macro { haxevx.vuex.core.Boiler.dispatch( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing}, ${ns} ); };
-	}
-	public static macro function dispatch2(context:ExprOf<IVxContext>, type:ExprOf<String>, ?payload:ExprOf<Dynamic>, ?opts:ExprOf<DispatchOptions>, useNamespacing:ExprOf<Bool>, ns:ExprOf<String>):Expr {
-	
-		return macro { return haxevx.vuex.core.Boiler.dispatch2( ${context}, ${type}, ${payload}, ${opts}, ${useNamespacing}, ${ns} ); };
-	}
-	*/
-	
-	
+
 }
-
-
 
 
 

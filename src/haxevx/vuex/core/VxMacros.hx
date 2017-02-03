@@ -145,13 +145,21 @@ class VxMacros
 		var propDefaultValueKVs:Array<FieldExprPair> = null;
 		var singletonFields:Array<Field> = [];
 		
+		var singletonFieldMap:StringMap<VuexActionOrMutator> = new StringMap<VuexActionOrMutator>();
+		
 		for ( i in 0...fields.length)
 		{
 			
 			var field = fields[i];
 			if (  field.access.indexOf( Access.AStatic) >= 0 ) {
-				if (hasMetaTag(field.meta, ":mutator") || hasMetaTag(field.meta, ":action"))  {
+				var isMutator:Bool = hasMetaTag(field.meta, ":mutator");
+				var isActioner:Bool = hasMetaTag(field.meta, ":action");
+				if ( isActioner || isMutator )  {
+					if (isActioner && isMutator) Context.error("Should be either @:mutator OR @:action!", field.pos);
 					singletonFields.push(field);
+					//trace( VuexMacros.getClassNameOf( ) );
+					var cType:ComplexType = VuexMacros.getComplexTypeFromField(field);
+					singletonFieldMap.set(field.name, {type:cType, isAction:isActioner, clsType: VuexMacros.getClassTypeFromType(cType)  } );
 				}
 				continue;
 			}
@@ -242,6 +250,10 @@ class VxMacros
 					#if !fastcompile 
 						ExprTools.iter( f.expr, checkIllegalAccess); 
 					#end
+					#if ( production || !fastcompile )
+						f.expr = VuexMacros.checkToRemapVuexDispatch(singletonFieldMap, f.expr);
+					#end
+					
 					if (field.name == "_new" || field.name == "new") {
 						// constructor found
 						constructorFieldExpr = f.expr;
@@ -940,6 +952,12 @@ typedef PropBinding = {
 	var methodPos:Position;
 }
 
+
+typedef VuexActionOrMutator = {
+	var isAction:Bool;
+	var type:ComplexType;
+	var clsType:ClassType;
+}
 
 
 #end
