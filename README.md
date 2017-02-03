@@ -29,13 +29,13 @@ Here is a guide/spec of features that are supported in HaxeVx for Vue.
 
 https://github.com/Glidias/haxevx/wiki/Vue---HaxeVX-Draft-version-guide
 	
-A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
-	
-https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingcart
-	
 A guide to using HaxeVx for Vuex.
 
 https://github.com/Glidias/haxevx/wiki/Vuex---HaxeVX-Draft-version-guide
+
+A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
+	
+https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingcart
 	
 ____________
 
