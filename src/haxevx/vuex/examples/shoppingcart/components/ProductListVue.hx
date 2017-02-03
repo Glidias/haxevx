@@ -32,7 +32,6 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 	
 	// Methods
 	function addToCart(p:ProductInStore):Void {
-	
 		actionDispatcher._addToCart(store, p);
 	}
 	
