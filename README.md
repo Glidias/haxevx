@@ -26,6 +26,7 @@ With HaxeVx, you get the benefit of massive access-control/type-hinting/type-che
 
 
 Here is a guide/spec of features that are supported in HaxeVx for Vue.
+
 https://github.com/Glidias/haxevx/wiki/Vue---HaxeVX-Draft-version-guide
 	
 A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
