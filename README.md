@@ -46,8 +46,6 @@ Versioning:
 	
 HaxeVx was developed under Haxe version 3.3.0.
 
-At the moment, there are some issues with Vuex under Haxe Version 3.4 with regards to production build and typehinting in HaxeDevelop over macro-generated fields. 
-
 _____
 
 Deployment info:

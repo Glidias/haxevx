@@ -1,4 +1,4 @@
-# production build (only works for Haxe 3.3, issues with 3.4 atm)
+# production build
 
 -cp src
 -js bin/HaxeVX.js
