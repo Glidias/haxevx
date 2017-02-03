@@ -621,14 +621,11 @@ haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.prototype = {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutFailure",{ savedCartItems : savedCartItems},null);
 		});
 	}
-	,_checkout: function(context,payload,opts,useNamespacing,ns) {
+	,_checkout: function(context,payload,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.dispatch(ns + "haxevx_vuex_examples_shoppingcart_modules_CartDispatcher|checkout",payload,opts);
 		} else {
 			context.dispatch("haxevx_vuex_examples_shoppingcart_modules_CartDispatcher|checkout",payload,opts);
@@ -656,66 +653,51 @@ haxevx_vuex_examples_shoppingcart_store_AppMutator.prototype = {
 	}
 	,receiveProducts: function(state,payload) {
 	}
-	,_addToCart: function(context,payload,opts,useNamespacing,ns) {
+	,_addToCart: function(context,payload,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|addToCart",payload,opts);
 		} else {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|addToCart",payload,opts);
 		}
 	}
-	,_checkoutRequest: function(context,opts,useNamespacing,ns) {
+	,_checkoutRequest: function(context,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutRequest",null,opts);
 		} else {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutRequest",null,opts);
 		}
 	}
-	,_checkoutSuccess: function(context,opts,useNamespacing,ns) {
+	,_checkoutSuccess: function(context,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutSuccess",null,opts);
 		} else {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutSuccess",null,opts);
 		}
 	}
-	,_checkoutFailure: function(context,payload,opts,useNamespacing,ns) {
+	,_checkoutFailure: function(context,payload,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutFailure",payload,opts);
 		} else {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|checkoutFailure",payload,opts);
 		}
 	}
-	,_receiveProducts: function(context,payload,opts,useNamespacing,ns) {
+	,_receiveProducts: function(context,payload,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.commit(ns + "haxevx_vuex_examples_shoppingcart_store_AppMutator|receiveProducts",payload,opts);
 		} else {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|receiveProducts",payload,opts);
@@ -818,14 +800,11 @@ haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.prototype = {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|receiveProducts",products,null);
 		});
 	}
-	,_getAllProducts: function(context,opts,useNamespacing,ns) {
+	,_getAllProducts: function(context,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.dispatch(ns + "haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher|getAllProducts",null,opts);
 		} else {
 			context.dispatch("haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher|getAllProducts",null,opts);
@@ -881,14 +860,11 @@ haxevx_vuex_examples_shoppingcart_store_AppActions.prototype = {
 			context.commit("haxevx_vuex_examples_shoppingcart_store_AppMutator|addToCart",{ id : payload.id},null);
 		}
 	}
-	,_addToCart: function(context,payload,opts,useNamespacing,ns) {
+	,_addToCart: function(context,payload,opts,ns) {
 		if(ns == null) {
 			ns = "";
 		}
-		if(useNamespacing == null) {
-			useNamespacing = false;
-		}
-		if(useNamespacing) {
+		if(ns != "") {
 			context.dispatch(ns + "haxevx_vuex_examples_shoppingcart_store_AppActions|addToCart",payload,opts);
 		} else {
 			context.dispatch("haxevx_vuex_examples_shoppingcart_store_AppActions|addToCart",payload,opts);

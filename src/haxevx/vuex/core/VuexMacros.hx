@@ -890,18 +890,11 @@ class VuexMacros
 						type:  isActionContext ? ComplexType.TPath({pack:["haxevx","vuex","native"], name:"DispatchOptions" })  :  ComplexType.TPath({pack:["haxevx","vuex","native"], name:"CommitOptions" }),
 						opt: true
 					};
-					
-					var useNamespacingArg:FunctionArg = {
-						name: "useNamespacing",
-						type:  MacroStringTools.toComplex("Bool"),
-						//opt: true,
-						value: macro $v{false}
-					};
-					
+	
 					var namespaceArg:FunctionArg = {
 						name: "ns",
 						type:  MacroStringTools.toComplex("String"),
-						//opt: true,
+						opt: true,
 						value: macro $v{""}
 					};
 					
@@ -916,7 +909,7 @@ class VuexMacros
 					// commit/dispatch options + namespacings
 					if (gotRetType) {
 						funcExpr = payload != null ?  macro {
-								if (useNamespacing) {
+								if (ns !="") {
 									return context.$commitString(ns+$v{namespacedValue}, payload, opts);
 								}
 								else {
@@ -924,7 +917,7 @@ class VuexMacros
 								}
 							} 
 						:  macro {
-								if (useNamespacing) {
+								if (ns !="") {
 									return context.$commitString(ns+type, null, opts);
 								}
 								else {
@@ -934,7 +927,7 @@ class VuexMacros
 					}
 					else {
 						funcExpr = payload != null ?   macro {
-							if (useNamespacing) {
+							if (ns !="") {
 										context.$commitString(ns+$v{namespacedValue}, payload, opts);
 									}
 									else {
@@ -942,7 +935,7 @@ class VuexMacros
 									}
 							}
 						:  macro { 	
-								if (useNamespacing) {
+								if (ns!="") {
 									context.$commitString(ns+$v{namespacedValue}, null, opts);
 								}
 								else {
@@ -966,7 +959,7 @@ class VuexMacros
 					fieldsToAdd.push( {
 						name: prefix + field.name,
 						access: [Access.APublic, Access.AInline],
-						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [contextArg, payload, optionsArg, useNamespacingArg, namespaceArg] : [contextArg, optionsArg, useNamespacingArg, namespaceArg], expr:funcExpr  }),
+						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [contextArg, payload, optionsArg, namespaceArg] : [contextArg, optionsArg, namespaceArg], expr:funcExpr  }),
 						pos: field.pos
 					});
 					//*/

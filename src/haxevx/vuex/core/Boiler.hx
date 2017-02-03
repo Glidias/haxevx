@@ -14,8 +14,8 @@ class Boiler {
 	/**
 	 * Commit with asserted no return type
 	 */
-	public static inline function commit(context:IVxContext, type:String, ?payload:Dynamic, ?opts:CommitOptions, useNamespacing:Bool=false, ns:String=""):Void {
-		if (useNamespacing) {
+	public static inline function commit(context:IVxContext, type:String, ?payload:Dynamic, ?opts:CommitOptions, ?ns:String=""):Void {
+		if (ns!="") {
 			context.commit(ns+type, payload, opts);
 		}
 		else {
@@ -26,8 +26,8 @@ class Boiler {
 	/**
 	 * Dispatch with asserted no return type
 	 */
-	public static inline function dispatch(context:IVxContext, type:String, ?payload:Dynamic, ?opts:DispatchOptions, useNamespacing:Bool=false, ns:String=""):Void {
-		if (useNamespacing) {
+	public static inline function dispatch(context:IVxContext, type:String, ?payload:Dynamic, ?opts:DispatchOptions, ?ns:String=""):Void {
+		if (ns!="") {
 			context.dispatch(ns+type, payload, opts);
 		}
 		else {
@@ -38,8 +38,8 @@ class Boiler {
 	/**
 	 * Dispatch with enforced return Promise return type
 	 */
-	public static inline function dispatch2<T>(context:IVxContext, type:String, ?payload:Dynamic, ?opts:DispatchOptions, useNamespacing:Bool=false, ns:String=""):Promise<T> {
-		if (useNamespacing) {
+	public static inline function dispatch2<T>(context:IVxContext, type:String, ?payload:Dynamic, ?opts:DispatchOptions, ?ns:String=""):Promise<T> {
+		if (ns!="") {
 			return context.dispatch(ns+type, payload, opts);
 		}
 		else {
