@@ -242,46 +242,6 @@ haxevx_vuex_core_VxComponent.prototype = $extend(haxevx_vuex_core_VComponent.pro
 		return this.$store;
 	}
 });
-var haxevx_vuex_core_VxMacroUtil = function() { };
-haxevx_vuex_core_VxMacroUtil.__name__ = true;
-haxevx_vuex_core_VxMacroUtil.dynamicSet = function(dyn,key,value) {
-	dyn[key] = value;
-};
-haxevx_vuex_core_VxMacroUtil.dynamicSetPropValueInto = function(into,propSettingField,from) {
-	var _g = 0;
-	var _g1 = Reflect.fields(from);
-	while(_g < _g1.length) {
-		var f = _g1[_g];
-		++_g;
-		var curSetting = Reflect.field(into,f);
-		if(curSetting == null) {
-			curSetting = { };
-			into[f] = curSetting;
-		}
-		curSetting[propSettingField] = Reflect.field(from,f);
-	}
-};
-haxevx_vuex_core_VxMacroUtil.dynamicSetPropSettingInto = function(into,from) {
-	var _g = 0;
-	var _g1 = Reflect.fields(from);
-	while(_g < _g1.length) {
-		var f = _g1[_g];
-		++_g;
-		var setting = Reflect.field(from,f);
-		var curSetting = Reflect.field(into,f);
-		if(curSetting != null) {
-			var _g2 = 0;
-			var _g3 = Reflect.fields(setting);
-			while(_g2 < _g3.length) {
-				var d = _g3[_g2];
-				++_g2;
-				curSetting[d] = Reflect.field(setting,d);
-			}
-		} else {
-			into[f] = setting;
-		}
-	}
-};
 var haxevx_vuex_core_VxStore = function() {
 	this.strict = false;
 };
