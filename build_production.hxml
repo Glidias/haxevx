@@ -1,6 +1,7 @@
-# development build 
+# production build (only works for Haxe 3.3, issues with 3.4 atm)
 
 -cp src
 -js bin/HaxeVX.js
 -D vue_global
+-D production
 -main Main
