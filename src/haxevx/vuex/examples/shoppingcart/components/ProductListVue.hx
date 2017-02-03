@@ -41,9 +41,7 @@ class ProductListVue extends VxComponent<AppStore, NoneT, NoneT>
 
 	
 	override public function Created():Void {	
-		//trace(ReflectUtil.getSingletonByClassName(Type.getClassName(Type.getClass(dispatcher))) == dispatcher);
 		dispatcher._getAllProducts(store);
-		
 	}
 
 	
