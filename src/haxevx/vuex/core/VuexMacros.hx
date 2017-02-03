@@ -154,7 +154,7 @@ class VuexMacros
 									ret:f.ret,
 									expr: macro return $i{fieldName}(state)
 								}),
-								pos:field.pos
+								pos:contextPos
 							});
 						}
 						
@@ -463,7 +463,7 @@ class VuexMacros
 								ret:f.ret,
 								expr: macro return untyped this._stg[_ +$v{addFieldName}] //$i{fieldName}(state)
 							}),
-							pos:field.pos
+							pos:contextPos
 						});
 						
 						getterAssignments.push( macro untyped d[useNS+$v{addFieldName}] = cls.$fieldName );
