@@ -44,7 +44,7 @@ _______
 
 Versioning:
 	
-HaxeVx was developed under Haxe version 3.3.0.
+HaxeVx was developed for Haxe version 3.3.0 or later.
 
 _____
 
