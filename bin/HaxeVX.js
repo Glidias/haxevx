@@ -138,47 +138,6 @@ haxe_ds_StringMap.prototype = {
 	}
 	,__class__: haxe_ds_StringMap
 };
-var haxevx_vuex_core_Boiler = function() { };
-haxevx_vuex_core_Boiler.__name__ = ["haxevx","vuex","core","Boiler"];
-haxevx_vuex_core_Boiler.commit = function(context,type,payload,opts,useNamespacing,ns) {
-	if(ns == null) {
-		ns = "";
-	}
-	if(useNamespacing == null) {
-		useNamespacing = false;
-	}
-	if(useNamespacing) {
-		context.commit(ns + type,payload,opts);
-	} else {
-		context.commit(type,payload,opts);
-	}
-};
-haxevx_vuex_core_Boiler.dispatch = function(context,type,payload,opts,useNamespacing,ns) {
-	if(ns == null) {
-		ns = "";
-	}
-	if(useNamespacing == null) {
-		useNamespacing = false;
-	}
-	if(useNamespacing) {
-		context.dispatch(ns + type,payload,opts);
-	} else {
-		context.dispatch(type,payload,opts);
-	}
-};
-haxevx_vuex_core_Boiler.dispatch2 = function(context,type,payload,opts,useNamespacing,ns) {
-	if(ns == null) {
-		ns = "";
-	}
-	if(useNamespacing == null) {
-		useNamespacing = false;
-	}
-	if(useNamespacing) {
-		return context.dispatch(ns + type,payload,opts);
-	} else {
-		return context.dispatch(type,payload,opts);
-	}
-};
 var haxevx_vuex_core_IAction = function() { };
 haxevx_vuex_core_IAction.__name__ = ["haxevx","vuex","core","IAction"];
 var haxevx_vuex_core_IModule = function() { };
@@ -1177,12 +1136,8 @@ haxevx_vuex_core_Singletons.NAMES = new haxe_ds_StringMap();
 haxevx_vuex_core_Singletons.SINGLETON_CACHE = new haxe_ds_StringMap();
 haxevx_vuex_examples_shoppingcart_components_App.ProductList = "product-list";
 haxevx_vuex_examples_shoppingcart_components_App.Cart = "cart";
-haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.__meta__ = { fields : { _checkout : { ignore : null}}};
 haxevx_vuex_examples_shoppingcart_modules_CartDispatcher.shop = haxevx_vuex_examples_shoppingcart_api_Shop.getInstance();
-haxevx_vuex_examples_shoppingcart_store_AppMutator.__meta__ = { fields : { _addToCart : { ignore : null}, _checkoutRequest : { ignore : null}, _checkoutSuccess : { ignore : null}, _checkoutFailure : { ignore : null}, _receiveProducts : { ignore : null}}};
-haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.__meta__ = { fields : { _getAllProducts : { ignore : null}}};
 haxevx_vuex_examples_shoppingcart_modules_ProductListDispatcher.shop = haxevx_vuex_examples_shoppingcart_api_Shop.getInstance();
-haxevx_vuex_examples_shoppingcart_store_AppActions.__meta__ = { fields : { _addToCart : { ignore : null}}};
 js_Boot.__toStr = ({ }).toString;
 Main.main();
 })(typeof window != "undefined" ? window : typeof global != "undefined" ? global : typeof self != "undefined" ? self : this);

@@ -911,20 +911,53 @@ class VuexMacros
 						Context.warning("Mutation context handlers should not have return value!", field.pos);
 					}
 					
-		
+
 					// commit/dispatch options + namespacings
 					if (gotRetType) {
-						funcExpr = payload != null ?   macro { return haxevx.vuex.core.Boiler.$commitString2(context, $v{namespacedValue}, payload, opts, useNamespacing, ns);  }  
-						: macro { return haxevx.vuex.core.Boiler.$commitString2(context, $v{namespacedValue}, null, opts, useNamespacing, ns);  } ;
+						funcExpr = payload != null ?  macro {
+								if (useNamespacing) {
+									return context.$commitString(ns+$v{namespacedValue}, payload, opts);
+								}
+								else {
+									return context.$commitString(type, payload, opts);
+								}
+							} 
+						:  macro {
+								if (useNamespacing) {
+									return context.$commitString(ns+type, null, opts);
+								}
+								else {
+									return context.$commitString(type, null, opts);
+								}
+							}; 
 					}
 					else {
-						funcExpr = payload != null ?   macro {  haxevx.vuex.core.Boiler.$commitString(context, $v{namespacedValue}, payload, opts, useNamespacing, ns);  }
-						:  macro {  haxevx.vuex.core.Boiler.$commitString(context, $v{namespacedValue}, null, opts, useNamespacing, ns);  } ; 
+						funcExpr = payload != null ?   macro {
+							if (useNamespacing) {
+										context.$commitString(ns+$v{namespacedValue}, payload, opts);
+									}
+									else {
+										context.$commitString($v{namespacedValue}, payload, opts);
+									}
+							}
+						:  macro { 	
+								if (useNamespacing) {
+									context.$commitString(ns+$v{namespacedValue}, null, opts);
+								}
+								else {
+									context.$commitString($v{namespacedValue}, null, opts);
+							}
+						}; 
 					}
-
-
-					
-	
+/*
+				
+					fieldsToAdd.push( {
+						name: "___" + field.name,
+						access: [Access.APublic, Access.AMacro],
+						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [] : [], expr:macro {}  }),
+						pos: field.pos
+					});
+	*/
 					
 					theMap.set(field.name, true);
 					
@@ -933,8 +966,7 @@ class VuexMacros
 						name: prefix + field.name,
 						access: [Access.APublic, Access.AInline],
 						kind: FieldType.FFun({ params:f.params, ret:f.ret, args: payload != null ? [contextArg, payload, optionsArg, useNamespacingArg, namespaceArg] : [contextArg, optionsArg, useNamespacingArg, namespaceArg], expr:funcExpr  }),
-						pos: contextPos,
-						meta:  [{name:"ignore", pos:contextPos}] // todo: likely temp for now...
+						pos: field.pos
 					});
 					//*/
 					
