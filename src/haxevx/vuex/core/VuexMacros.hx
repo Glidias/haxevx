@@ -1033,7 +1033,6 @@ class VuexMacros
 					
 					// todo: ensure IVxContext should be args[0]. IVxContext type param  should resolve to target store's state data type.
 				
-					var commitString2:String =  commitString + "2";
 					if ( gotRetType && !isActionContext) {
 						Context.error("Mutation context handlers should not have return value!", field.pos);
 					}
