@@ -1044,10 +1044,10 @@ class VuexMacros
 					if (gotRetType) {
 						funcExpr = payload != null ?  macro {
 								if (ns !="") {
-									return context.$commitString(ns+$v{namespacedValue}, payload, opts);
+									return context.$commitString(ns+$v{namespacedValue}, $i{payload.name}, opts);
 								}
 								else {
-									return context.$commitString($v{namespacedValue}, payload, opts);
+									return context.$commitString($v{namespacedValue}, $i{payload.name}, opts);
 								}
 							} 
 						:  macro {
@@ -1062,10 +1062,10 @@ class VuexMacros
 					else {
 						funcExpr = payload != null ?   macro {
 							if (ns !="") {
-										context.$commitString(ns+$v{namespacedValue}, payload, opts);
+										context.$commitString(ns+$v{namespacedValue}, $i{payload.name}, opts);
 									}
 									else {
-										context.$commitString($v{namespacedValue}, payload, opts);
+										context.$commitString($v{namespacedValue}, $i{payload.name}, opts);
 									}
 							}
 						:  macro { 	
