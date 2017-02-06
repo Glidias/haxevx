@@ -387,7 +387,7 @@ class VuexMacros
 		
 
 		var isBase:Bool = localClasse.superClass == null ||  MODULE_CLASSES.exists( localClasse.superClass.t.get().module);
-
+		var isVModule:Bool = Context.getLocalClass().get().superClass != null && Context.getLocalClass().get().superClass.t + "" == "haxevx.vuex.core.VModule";
 		var noneT:ComplexType = NONE_T;//  MacroStringTools.toComplex(NONE_T);
 		
 		
@@ -717,19 +717,21 @@ class VuexMacros
 		});
 		
 		if (isBase) {
-			fieldsToAdd.push({
-				name:"_InjNative",
-				kind: FieldType.FFun({
-					args:[{name:"g", type:MacroStringTools.toComplex("Dynamic") }],
-					ret:null,
-					expr: macro {
-						untyped this._stg = g;
-					}
-				}),
-				access: [Access.APublic, Access.AInline],
-				pos:classPos
-			});
 			
+			if (!isVModule) {
+				fieldsToAdd.push({
+					name:"_InjNative",
+					kind: FieldType.FFun({
+						args:[{name:"g", type:MacroStringTools.toComplex("Dynamic") }],
+						ret:null,
+						expr: macro {
+							untyped this._stg = g;
+						}
+					}),
+					access: [Access.APublic, Access.AInline],
+					pos:classPos
+				});
+			}
 			// Call Init from constructor if required
 
 			// inject _Init() call into constructor

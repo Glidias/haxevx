@@ -33,7 +33,7 @@ class VxBoot
 		
 		// below will depeeciate
 				
-		if ( storeParams.getters!= null) {
+		//if ( storeParams.getters!= null) {
 			// define get_ utility functions under store.getters ( for non-namespced
 			
 			var o:Dynamic;
@@ -55,21 +55,21 @@ class VxBoot
 					
 					untyped store[p] = md;
 
-					if (m.getters != null) {
+					//if (m.getters != null) {
 										
 					//	noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
 						
-						untyped md._stg = storeGetters;
-						
+						//untyped md._stg = storeGetters;
+						md._InjNative(storeGetters);
 
-					}
+					//}
 			
 					moduleNameStack.pop();
 					
 				}
 			}
 			
-		}
+		//}
 
 		STORE = store;
 		return store;
