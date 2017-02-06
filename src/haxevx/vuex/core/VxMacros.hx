@@ -127,9 +127,9 @@ class VxMacros
 					if (field.name.indexOf("get_") == 0) {
 						funcLookup.set( field.name.substr(4), f);
 					}
-				case FieldType.FProp("get", "set", t):
+				case FieldType.FProp("get", "set", t, _):
 					watchableFields.set(field.name, t);
-				case FieldType.FProp("get", "never", t):
+				case FieldType.FProp("get", "never", t, _):
 					watchableFields.set(field.name, t);
 				default:
 				//	trace(field.kind);
@@ -788,7 +788,7 @@ class VxMacros
 		var assignments = [for (f in fields) {
 			var field_name:String = f.field;
 			var val:Expr = {expr:f.exprDef, pos:Context.currentPos()};
-			macro  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSet(_m_, '$field_name', ${val}); // _m_.awfawff =  ${val};    
+			macro  untyped _m_['$field_name'] = ${val}; // _m_.awfawff =  ${val};    
 		}];
 		
 		var retExpr:Expr = macro {

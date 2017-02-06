@@ -334,7 +334,7 @@ class VuexMacros
 		switch(field.kind) {
 			case FieldType.FVar(t, _):
 				return t;
-			case FieldType.FProp(_, set, t):
+			case FieldType.FProp(_, set, t, _):
 				return t;
 			default:
 				Context.error("Failed to resolve auto-instantiatable getComplexTypeFromField:" + field.name, field.pos);
@@ -350,7 +350,7 @@ class VuexMacros
 			case FieldType.FVar(TPath({name:iName, pack:iPack}), _):
 				iName2 = iName;
 				iPack2 = iPack;
-			case FieldType.FProp(_, set, TPath({name:iName, pack:iPack})):
+			case FieldType.FProp(_, set, TPath({name:iName, pack:iPack}), _):
 				iName2 = iName;
 				iPack2 = iPack;
 			default:
@@ -889,6 +889,10 @@ class VuexMacros
 	
 	 static function buildActionCalls(prefix:String, fields:Array<Field>, commitString:String, isActionContext:Bool):Array<Field>  {
 
+		 var cls1 = Context.getLocalClass().toString();
+		var theMap:StringMap<Bool> = DISPATCH_STRINGS.exists(cls1) ? DISPATCH_STRINGS.get(cls1) : null;
+		if (theMap != null) return fields;
+		
 		var fieldsToAdd:Array<Field> = [];
 		var contextPos:Position = Context.currentPos();
 		var classPos:Position = Context.getLocalClass().get().pos;
@@ -904,13 +908,11 @@ class VuexMacros
 		var singletonFields:Array<Field> = [];
 		var singletonFieldMap:StringMap<VuexActionOrMutator> = new StringMap<VuexActionOrMutator>();
 		
-		var cls1 = Context.getLocalClass().toString();
-		var theMap:StringMap<Bool> = DISPATCH_STRINGS.exists(cls1) ? DISPATCH_STRINGS.get(cls1) : null;
 		if (theMap == null) {
 			theMap = new StringMap<Bool>();
 			DISPATCH_STRINGS.set(cls1, theMap);
 		}
-		
+
 		var theMap2:StringMap<Bool> = DISPATCH_STRINGS_HAXE.exists(cls1) ? DISPATCH_STRINGS_HAXE.get(cls1) : null;
 		if (theMap2 == null) {
 			theMap2 = new StringMap<Bool>();
@@ -1033,7 +1035,6 @@ class VuexMacros
 					
 					// todo: ensure IVxContext should be args[0]. IVxContext type param  should resolve to target store's state data type.
 				
-					var commitString2:String =  commitString + "2";
 					if ( gotRetType && !isActionContext) {
 						Context.error("Mutation context handlers should not have return value!", field.pos);
 					}
@@ -1046,15 +1047,15 @@ class VuexMacros
 									return context.$commitString(ns+$v{namespacedValue}, payload, opts);
 								}
 								else {
-									return context.$commitString(type, payload, opts);
+									return context.$commitString($v{namespacedValue}, payload, opts);
 								}
 							} 
 						:  macro {
 								if (ns !="") {
-									return context.$commitString(ns+type, null, opts);
+									return context.$commitString(ns+$v{namespacedValue}, null, opts);
 								}
 								else {
-									return context.$commitString(type, null, opts);
+									return context.$commitString($v{namespacedValue}, null, opts);
 								}
 							}; 
 					}

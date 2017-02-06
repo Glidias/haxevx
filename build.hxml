@@ -1,7 +1,6 @@
-# production build
+# development build 
 
 -cp src
 -js bin/HaxeVX.js
 -D vue_global
--D production
 -main Main

@@ -26,15 +26,16 @@ With HaxeVx, you get the benefit of massive access-control/type-hinting/type-che
 
 
 Here is a guide/spec of features that are supported in HaxeVx for Vue.
+
 https://github.com/Glidias/haxevx/wiki/Vue---HaxeVX-Draft-version-guide
-	
-A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
-	
-https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingcart
 	
 A guide to using HaxeVx for Vuex.
 
 https://github.com/Glidias/haxevx/wiki/Vuex---HaxeVX-Draft-version-guide
+
+A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
+	
+https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingcart
 	
 ____________
 
@@ -44,9 +45,7 @@ _______
 
 Versioning:
 	
-HaxeVx was developed under Haxe version 3.3.0.
-
-At the moment, there are some issues with Vuex under Haxe Version 3.4 with regards to production build and typehinting in HaxeDevelop over macro-generated fields. 
+HaxeVx was developed for Haxe version 3.3.0 or later.
 
 _____
 

@@ -1,5 +1,6 @@
 package haxevx.vuex.examples.shoppingcart.modules;
 import haxevx.vuex.core.IAction;
+import haxevx.vuex.core.IMutator;
 import haxevx.vuex.core.IPrefixedState;
 import haxevx.vuex.core.IVxStoreContext;
 import haxevx.vuex.core.NoneT;
@@ -53,7 +54,7 @@ class ProductListDispatcher implements IAction<ProductListModel, NoneT> {
 }
 
 
-class ProductListMutator extends AppMutator<ProductListModel> {
+class ProductListMutator extends AppMutator<ProductListModel> implements IMutator<ProductListModel> {
 	override function receiveProducts(state:ProductListModel, payload:Array<ProductInStore>):Void {
 	
 		state.all = payload;
