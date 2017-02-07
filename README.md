@@ -45,7 +45,8 @@ _______
 
 Versioning:
 	
-HaxeVx was developed for Haxe version 3.3.0 or later.
+HaxeVx was developed for Haxe version 3.3.0 or later. 
+Note that if you are using version 3.4, make sure you have the very latest version from year 2017 onwards.
 
 _____
 

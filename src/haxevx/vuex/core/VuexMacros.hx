@@ -234,7 +234,7 @@ class VuexMacros
 								kind: FieldType.FFun({
 									args:[],
 									ret:f.ret,
-									expr: macro return $i{fieldName}(state)
+									expr: macro return untyped this._stg[_ +$v{addFieldName+clsSuffix}] //$i{fieldName}(state)
 								}),
 								pos:contextPos
 							});
@@ -244,6 +244,8 @@ class VuexMacros
 				default:
 					
 			}
+			
+			
 			
 			
 		}
@@ -259,7 +261,25 @@ class VuexMacros
 		
 		var cls1 = Context.getLocalClass().toString();
 		
+		
+		if (!isStoreGetters && isBase) {
+			fieldsToAdd.push({
+				name:"_",
+				kind:FieldType.FProp("default", "never", strType ),
+				access: [Access.APublic],
+				pos:classPos
+			});
+			
+			initBlock.push(macro {
+				
+				untyped this._ = ns;
+				haxevx.vuex.core.VxBoot.ModuleStack.stack.push(this);
+			});
+		}
+		
+		
 		initBlock.push(macro {
+			
 			var cls:Dynamic = untyped $p{cls1.split('.')};
 		});
 		
@@ -279,6 +299,22 @@ class VuexMacros
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
 			pos:classPos
 		});
+		
+		if (!isStoreGetters && isBase) {
+			fieldsToAdd.push({
+				name:"_InjNative",
+				kind: FieldType.FFun({
+					args:[{name:"g", type:MacroStringTools.toComplex("Dynamic") }],
+					ret:null,
+					expr: macro {
+						
+						untyped this._stg = g;
+					}
+				}),
+				access: [Access.APublic, Access.AInline],
+				pos:classPos
+			});
+		}
 		
 		
 		return fields.concat(fieldsToAdd);
@@ -510,7 +546,14 @@ class VuexMacros
 								Context.warning("State type mismatch:"+stateTypes, field.pos);
 							}
 							*/
-							getterAssignments.push( macro  $e{autoInstantiateNewExprOf(field)}._SetInto(untyped d, untyped useNS) );
+							var fieldName:String = field.name;
+							getterAssignments.push( macro  { this.$fieldName = $e{autoInstantiateNewExprOf(field)}; this.$fieldName._SetInto(untyped d, untyped useNS); } );
+						}
+						else if (hasMetaTag(field.meta, ":mutator")) {
+							Context.error(":mutator fields must be static", field.pos);
+						}
+						else if (hasMetaTag(field.meta, ":action")) {
+							Context.error(":action fields must be static", field.pos);
 						}
 						
 				}
@@ -614,6 +657,7 @@ class VuexMacros
 		}
 		if (isBase) initBlock.push( macro untyped this._ = ns );
 		if (isBase) {
+			initBlock.push( macro haxevx.vuex.core.VxBoot.ModuleStack.stack.push(this) );
 			initBlock.push( macro if (this.state != null) untyped this.state._ = ns else untyped this.state = {_:ns} );
 			
 		}
@@ -1168,6 +1212,4 @@ class VuexMacros
 
 
 }
-
-
 

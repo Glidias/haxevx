@@ -41,18 +41,24 @@ class VxBoot
 			//Reflect.field(opts.storeParams.getters
 			var storeGetters:Dynamic = store.getters;
 			//GetterFactory.hookupGettersFromPropsOver(storeParams.getters, storeGetters);
+			var stack = ModuleStack.stack;
+			var i:Int = stack.length;
+			while (--i > -1) {
+				stack[i]._InjNative(storeGetters);
 			
+			}
+			stack = [];
 				
+			// below should be depcirated, ie. avoid recursion into tree 
+			
 			if (storeParams.modules != null) {  // todo: modules and fractal depth first traversal
-				var moduleNameStack:Array<String> = [];
+				//var moduleNameStack:Array<String> = [];
 				
 				for (p in Reflect.fields((o = storeParams.modules))) {
-					moduleNameStack.push(p);
+					//moduleNameStack.push(p);
 					
 					var m:NativeModule<Dynamic,Dynamic> = Reflect.field(o, p);
-					md = Reflect.field(storeParams, p); //VModule<Dynamic>
-					
-					
+					md = untyped storeParams[p];// Reflect.field(storeParams, p); //VModule<Dynamic>
 					untyped store[p] = md;
 
 					//if (m.getters != null) {
@@ -60,11 +66,11 @@ class VxBoot
 					//	noNamespaceGetterProps = GetterFactory.setupGettersFromInstance(md);
 						
 						//untyped md._stg = storeGetters;
-						md._InjNative(storeGetters);
+					//	md._InjNative(storeGetters);
 
 					//}
 			
-					moduleNameStack.pop();
+					//moduleNameStack.pop();
 					
 				}
 			}
@@ -102,8 +108,11 @@ class VxBoot
 			return h(nativeComp,null,null);
 		}
 	}
-	
-	
 
-	
+}
+
+
+
+class ModuleStack {
+	public static var stack:Array<Dynamic> = [];
 }
