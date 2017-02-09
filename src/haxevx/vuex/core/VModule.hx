@@ -10,7 +10,7 @@ package haxevx.vuex.core;
 class VModule<S, RS> implements IModule<S, RS>
 {
 	private var state:S;
-	public function _InjNative(g:Dynamic) {
+	@:keep public function _InjNative(g:Dynamic) {
 		untyped this._stg = g;
 	}
 
