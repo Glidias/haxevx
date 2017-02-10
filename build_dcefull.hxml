@@ -1,0 +1,9 @@
+# development build for testing dce full
+
+-cp src
+-js bin/HaxeVX.js
+-D vue_global
+
+# For testig dce full
+-dce full
+-main Main

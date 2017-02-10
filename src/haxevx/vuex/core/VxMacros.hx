@@ -30,7 +30,8 @@ class VxMacros
 		var classModule:String = Context.getLocalClass().get().module;
 		if (classModule == "haxevx.vuex.core.VxComponent"  || classModule == "haxevx.vuex.core.VComponent") return fields;
 	
-	
+		
+		
 		var funcLookup:StringMap<Function> = new StringMap<Function>();
 		var watchableFields:StringMap<ComplexType> = new StringMap<ComplexType>();
 		var classTypeParams  = Context.getLocalClass().get().superClass.params;
@@ -119,8 +120,10 @@ class VxMacros
 		if (noneT == null) Context.error("Could not resolve macro NoneT", Context.currentPos() );
 		
 		
+		Context.getLocalClass().get().meta.add(":keep", [], Context.getLocalClass().get().pos  );	
 		
 		for (field in fields) {
+			//field.meta.push(  {name:":keep", pos:field.pos  } );
 			switch (field.kind)
 			{
 				case FieldType.FFun(f):
@@ -569,7 +572,8 @@ class VxMacros
 			name: "_Init",
 			access: isOverriding ? [Access.APrivate, Access.AOverride] :  [Access.APrivate],
 			pos: Context.currentPos() ,
-			kind:  FieldType.FFun({ret:null, args:[], expr:theInitExpr } )
+			kind:  FieldType.FFun({ret:null, args:[], expr:theInitExpr } ),
+			meta: [{name:":keep", pos:Context.getLocalClass().get().pos }]
 		});
 		
 		return fields;

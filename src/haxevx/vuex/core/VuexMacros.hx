@@ -150,7 +150,7 @@ class VuexMacros
 			return fields;
 		}
 		
-		
+		Context.getLocalClass().get().meta.add(":keep", [], Context.getLocalClass().get().pos  );	
 		
 
 		var isBase:Bool = localClasse.superClass == null ||  MODULE_CLASSES.exists( localClasse.superClass.t.get().module);
@@ -312,7 +312,8 @@ class VuexMacros
 					}
 				}),
 				access: [Access.APublic, Access.AInline],
-				pos:classPos
+				pos:classPos,
+				meta: [{name:":keep", pos:classPos }]
 			});
 		}
 		
@@ -426,6 +427,7 @@ class VuexMacros
 		var isVModule:Bool = Context.getLocalClass().get().superClass != null && Context.getLocalClass().get().superClass.t + "" == "haxevx.vuex.core.VModule";
 		var noneT:ComplexType = NONE_T;//  MacroStringTools.toComplex(NONE_T);
 		
+		Context.getLocalClass().get().meta.add(":keep", [], Context.getLocalClass().get().pos  );	
 		
 		var stateTypes:Array<ComplexType> = getModuleStateTypes(Context.getLocalClass().get());
 		var moduleStateTypeMatch:Array<ComplexType> = [ANY_T, stateTypes[1]];
@@ -757,7 +759,8 @@ class VuexMacros
 				expr: macro $b{initBlock}
 			}),
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
-			pos:classPos
+			pos:classPos,
+			meta: [{name:":keep", pos:classPos }]
 		});
 		
 		if (isBase) {
@@ -773,7 +776,8 @@ class VuexMacros
 						}
 					}),
 					access: [Access.APublic, Access.AInline],
-					pos:classPos
+					pos:classPos,
+					meta: [{name:":keep", pos:classPos }]
 				});
 			}
 			// Call Init from constructor if required
@@ -933,6 +937,8 @@ class VuexMacros
 	
 	 static function buildActionCalls(prefix:String, fields:Array<Field>, commitString:String, isActionContext:Bool):Array<Field>  {
 
+		 Context.getLocalClass().get().meta.add(":keep", [], Context.getLocalClass().get().pos  );	
+		 
 		 var cls1 = Context.getLocalClass().toString();
 		var theMap:StringMap<Bool> = DISPATCH_STRINGS.exists(cls1) ? DISPATCH_STRINGS.get(cls1) : null;
 		if (theMap != null) return fields;
@@ -1191,7 +1197,8 @@ class VuexMacros
 				expr: macro $b{initBlock}
 			}),
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
-			pos:classPos
+			pos:classPos,
+			meta: [{name:":keep", pos:classPos }]
 		});
 		
 		if (!gotConstructor) {
