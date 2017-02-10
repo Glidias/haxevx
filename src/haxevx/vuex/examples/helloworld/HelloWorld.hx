@@ -16,6 +16,7 @@ class HelloWorld extends VComponent<HelloWorldData, NoneT>
 	{
 		__el = el;
 		super();
+		
 	}
 	
 	override function Render(c:CreateElement):VNode {

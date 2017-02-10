@@ -573,7 +573,6 @@ class VxMacros
 			access: isOverriding ? [Access.APrivate, Access.AOverride] :  [Access.APrivate],
 			pos: Context.currentPos() ,
 			kind:  FieldType.FFun({ret:null, args:[], expr:theInitExpr } ),
-			meta: [{name:":keep", pos:Context.getLocalClass().get().pos }]
 		});
 		
 		return fields;
