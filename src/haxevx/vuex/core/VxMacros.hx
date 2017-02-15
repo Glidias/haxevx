@@ -595,6 +595,8 @@ class VxMacros
 			case EObjectDecl(fields):
 				
 				 return getMetaStrValueFromExpr(findValueByName(fields, "name"), defaultedValue);  // a bit lazy here, will capture recursive values
+			case EConst(CIdent(s)):
+				return s;
 			default:
 				//trace(xpression.expr);
 			
@@ -676,8 +678,15 @@ class VxMacros
 			case Type.TAbstract(t, _):
 				var tName:String = t.get().name;
 				return tName == "Float" || tName == "Int"  || tName == "UInt" ? "Number" : tName == "Bool" ? "Boolean" : "Object";
+			case Type.TType(t, params):
+				if (t.toString() == "Null") {
+					return params.length > 0 ?  getTypeString(params[0], pos) : null;
+				}
+				else {
+					return null;
+				}
 			default:
-				//Context.warning("todo: Not yet resolve given type atm: "+type, pos);
+				Context.warning("todo: Not yet resolve given type atm: "+type, pos);
 				return null;
 		}
 	}
@@ -852,7 +861,7 @@ class VxMacros
 				default:
 					ct = TypeTools.toComplexType( f.type );
 			}
-	
+			
 			watchableFields.set(f.name,ct);
 			if (f.name.charAt(0) == "_") {
 			
