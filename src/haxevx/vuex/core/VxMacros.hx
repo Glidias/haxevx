@@ -678,7 +678,7 @@ class VxMacros
 				var tName:String = t.get().name;
 				return tName == "Float" || tName == "Int"  || tName == "UInt" ? "Number" : tName == "Bool" ? "Boolean" : "Object";
 			default:
-				Context.warning("todo: Not yet resolve given type atm: "+type, pos);
+				//Context.warning("todo: Not yet resolve given type atm: "+type, pos);
 				return null;
 		}
 	}
@@ -807,10 +807,24 @@ class VxMacros
 	static function getClassFieldArrayToAdd(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>):Array<ClassField> {
 		var refArr:Array<ClassField> = [];
 		for (f in arr) {
+			var ct:ComplexType;
+
 			switch( f.kind) {
+
 			
 				case FVar(VarAccess.AccNormal, _):
-					watchableFields.set(f.name, TypeTools.toComplexType(f.type));
+					switch( f.type ) {
+					case Type.TType(t, params):
+							if (t.toString() == "Null" ) {
+								//ct=params[0];
+								ct = TypeTools.toComplexType( params[0] );
+							}
+							else ct = TypeTools.toComplexType( f.type );
+						default:
+							ct = TypeTools.toComplexType( f.type );
+					}
+					
+					watchableFields.set(f.name, ct);
 					if (f.name.charAt(0) == "_") {	
 						continue;
 					}
@@ -828,9 +842,19 @@ class VxMacros
 	static function classFieldArrayToStrMap(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>):StringMap<ClassField> {
 		var strMap:StringMap<ClassField> = new StringMap<ClassField>();
 		for (f in arr) {
-			
+			var ct:ComplexType;
+			switch( f.type ) {
+				case Type.TType(t, params):
+					if (t.toString() == "Null" ) {
+						//ct=params[0];
+						ct = TypeTools.toComplexType( params[0] );
+ 					}
+					else ct = TypeTools.toComplexType( f.type );
+				default:
+					ct = TypeTools.toComplexType( f.type );
+			}
 	
-			watchableFields.set(f.name, TypeTools.toComplexType(f.type));
+			watchableFields.set(f.name,ct);
 			if (f.name.charAt(0) == "_") {
 			
 				Context.error('Prop field: "$f.name" cannot start with underscore', f.pos);
