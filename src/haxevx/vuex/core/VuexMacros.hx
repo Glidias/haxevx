@@ -313,7 +313,6 @@ class VuexMacros
 				}),
 				access: [Access.APublic, Access.AInline],
 				pos:classPos,
-				meta: [{name:":keep", pos:classPos }]
 			});
 		}
 		
@@ -760,7 +759,6 @@ class VuexMacros
 			}),
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
 			pos:classPos,
-			meta: [{name:":keep", pos:classPos }]
 		});
 		
 		if (isBase) {
@@ -777,7 +775,6 @@ class VuexMacros
 					}),
 					access: [Access.APublic, Access.AInline],
 					pos:classPos,
-					meta: [{name:":keep", pos:classPos }]
 				});
 			}
 			// Call Init from constructor if required
@@ -1198,7 +1195,6 @@ class VuexMacros
 			}),
 			access: isBase ?  [Access.APublic] : [Access.APublic, Access.AOverride],
 			pos:classPos,
-			meta: [{name:":keep", pos:classPos }]
 		});
 		
 		if (!gotConstructor) {
