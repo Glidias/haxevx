@@ -23,8 +23,205 @@ class VxMacros
 	static inline var FLAG_PROP_DEFAULTVAL_CUSTOM:Int = 1;
 	static inline var FLAG_PROPSETTING_CUSTOM:Int = 2;
 	
+	static var BUILDED_LIST:StringMap<Array<Field>> = new StringMap<Array<Field>>();
+	
+	
+	macro public static function buildRegisterListed():Array<Field> {
+		var fields = Context.getBuildFields();
+		var classeName:String = Context.getLocalClass().toString();
+		
+
+
+		BUILDED_LIST.set(classeName, fields.concat([]));
+		
+		return fields;
+	}
+	
+	static function resolveGenericArgsIfAny(args:Array<FunctionArg>, paramList:Array<Type>, typeParamIndexHash:StringMap<Int>):Array<FunctionArg> {
+		if (args == null) return null;
+		
+		var arr:Array<FunctionArg> = args.concat([]);
+		for ( i in 0...args.length) {
+			var a = args[i];
+			var newTypeCheck = resolveGenericTypeIfAny( a.type, paramList, typeParamIndexHash);
+			if (newTypeCheck != args[i].type) {
+			
+				arr[i] = {
+					name:a.name,
+					meta:a.meta,
+					opt:a.opt,
+					type:newTypeCheck,
+					value:a.value
+				};
+			}
+		
+		}
+		
+		return arr;
+	}
+	
+	
+	static function resolveGenericTypeIfAny(fieldType:ComplexType, paramList:Array<Type>, typeParamIndexHash:StringMap<Int>):ComplexType {
+		if (fieldType == null) return null;
+		
+		
+		switch(fieldType) {
+			case ComplexType.TPath({pack:[], name:name}):
+				if ( typeParamIndexHash.exists(name)) {
+					
+					// attempt to  generic data type ... this might NOT be a perfect solution though...
+					
+					fieldType =TypeTools.toComplexType( paramList[typeParamIndexHash.get(name)] );
+					
+					//continue;
+				}
+
+			default:
+				trace("Failed to resolve given field type:" + fieldType);
+				
+		}
+					
+		return fieldType;
+	}
+	
+	static function argsToArrayCIdent(args:Array<FunctionArg>, pos:Position):Array<Expr> {
+		var arr:Array<Expr> = [];
+		for ( i in 0...args.length) {
+			arr.push({pos:pos, expr:ExprDef.EConst(CIdent(args[i].name)) });
+		}
+		return arr;
+	}
+	
+	static function getVueIncludeDataFieldsOf(t:Ref<ClassType>, paramList:Array<Type>):Array<Field> {
+		var classType:ClassType = t.get();
+		var clsName:String = t.toString();
+		if (!BUILDED_LIST.exists(clsName)) {
+			Context.error("vueIncludeDataMethods. IBuildListed not found for: " + clsName, classType.pos);
+		}
+		
+		var collector:Array<Field> = [];
+		var fields:Array<Field> = BUILDED_LIST.get(clsName);
+		
+		var typeParamIndexHash:StringMap<Int> = new StringMap<Int>();
+		if (classType.params != null) {
+			for ( i in  0...classType.params.length) {
+				var p = classType.params[i];
+				typeParamIndexHash.set(p.name, i);
+			}
+		}
+
+		//trace("....."+clsName);
+		for (f in fields) {
+			//trace(f.name);
+			if ( f.access.indexOf(Access.APublic) < 0 || f.access.indexOf(Access.AStatic) >= 0 || f.access.indexOf(Access.AOverride) >= 0 || f.name == "_new" || f.name == "new" ) {
+				continue;
+			}
+			switch (f.kind)
+			{
+				case FieldType.FFun(func):
+					var prefix:String = f.name.split("_")[0];
+					if (prefix == "get" || prefix == "set") {
+						continue;
+					}
+				
+					//trace("to add:" + f.name);
+			
+					var fieldRetType:ComplexType = resolveGenericTypeIfAny(func.ret, paramList, typeParamIndexHash);
+					var fieldArgs = resolveGenericArgsIfAny(func.args, paramList, typeParamIndexHash);
+		
+					var eaxpr:Expr;
+					eaxpr = {
+						expr:ECall({pos:f.pos, expr:ExprDef.EField( {expr:EConst(CIdent("_vData")),pos:f.pos} , f.name)}, argsToArrayCIdent(func.args, f.pos)),
+						pos:f.pos,
+					}
+					//trace("ADding:" + f.name);
+				//	/*
+					collector.push({
+						name:f.name,
+						kind:FieldType.FFun(
+							{
+								args:fieldArgs,
+								ret:fieldRetType,		// func.ret
+								expr: fieldRetType != null ? macro { return $e{eaxpr} ; } 
+															: macro { $e{eaxpr};  } ,		// todo: generate proxying function call from func.args
+								params:func.params
+							}
+						),
+						access:[Access.AInline],
+						pos:f.pos,
+						meta: f.meta,
+					});
+				//	*/
+					
+					
+				case FieldType.FProp("get", set, t, exp):
+					var fieldName:String = f.name;
+					
+					//trace(f.name);
+					//if (f.name == "items") continue;
+					
+					var fieldType:ComplexType = resolveGenericTypeIfAny(t, paramList, typeParamIndexHash);
+
+					
+					collector.push({
+						name:f.name,
+						kind:FieldType.FProp("get", set, fieldType, exp),
+						access:[Access.AInline],
+						pos:f.pos
+						
+					});
+					
+					collector.push({
+						name:"get_"+f.name,
+						kind:FieldType.FFun(
+							{
+								args:[],
+								ret:fieldType,		// func.ret
+								expr:macro { return _vData.$fieldName; },		// todo: generate proxying function call from func.args
+								
+							}
+						),
+						access:[Access.AInline],
+						pos:f.pos,
+						meta:f.meta
+					});
+					
+					
+					
+					if (set == "set") {
+			
+						collector.push({
+							name:"set_"+f.name,
+							kind:FieldType.FFun(
+								{	
+									args:[{name:"val", type:fieldType }],
+									ret:fieldType,		// func.ret
+									expr:macro { _vData.$fieldName = val;  return val; },		// todo: generate proxying function call from func.args
+									
+								}
+							),
+							access:[Access.AInline],
+							pos:f.pos,
+							meta:f.meta
+						});
+					}
+					
+					
+				default:
+			}
+		}
+		
+		if (classType.superClass != null) {
+
+			collector = collector.concat( getVueIncludeDataFieldsOf( classType.superClass.t, classType.superClass.params ) );
+		}
+		
+		return collector;
+	}
+	
 	macro public static function buildComponent():Array<Field>  {
 		var fields = Context.getBuildFields();
+		
 		
 		
 		var classModule:String = Context.getLocalClass().get().module;
@@ -63,6 +260,19 @@ class VxMacros
 			typeParamProps = classTypeParams[1];
 		}
 		
+		if (  hasMetaTag( Context.getLocalClass().get().meta.get(), ":vueIncludeDataMethods") ) {
+			
+			switch( typeParamData) {
+				case TInst(t, params):
+					//trace( "to build from:" + );
+					fields = fields.concat(getVueIncludeDataFieldsOf(t, params) );
+				default: 
+					Context.fatalError("Could not resolve data type for vueIncludeDataMethods: " + typeParamData, Context.getLocalClass().get().pos);
+
+			}
+			//BUILDED_LIST
+		}
+		
 		var fg;
 		var requireProps:Bool = false;
 		var requireData:Bool = false;
@@ -70,6 +280,7 @@ class VxMacros
 		
 		var propFieldsToAdd:StringMap<ClassField> = null;
 		var dataFieldsToAdd:Array<ClassField> = null;
+
 		
 		var cls1 = Context.getLocalClass().toString();
 		var initBlock:Array<Expr> = [];
@@ -295,6 +506,7 @@ class VxMacros
 						
 					}
 					else if ( (metadataEntry = getMetaTagEntry(field.meta, ":propValidate")) != null) {
+
 						if (field.access.indexOf(Access.APublic) >= 0) {
 							Context.error("Prop validator functions must be private", field.pos);
 						}
@@ -898,6 +1110,8 @@ class VxMacros
 	
 	
 	static private function getMetaTagEntry(metaData:Metadata, tag:String):MetadataEntry {
+		if (metaData == null) return null;
+		
 		for ( m in metaData) {
 			if (m.name == tag) return m;
 		}
@@ -936,7 +1150,7 @@ class VxMacros
 			
 			case "Render": arr.push( {field:"render", expr:macro clsP.$f } );
 			case "Template": arr.push( {field:"template", expr:macro clsP.$f } );
-			case "El": arr.push( {field:"el", expr:macro clsP.$f() } );
+			case "El": arr.push( {field:"el", expr:macro this.$f() } );
 			case "Components": arr.push( {field:"components", expr:macro clsP.$f() } );
 			default:
 		}
