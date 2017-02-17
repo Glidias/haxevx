@@ -72,27 +72,39 @@ class PaginationOf<T> implements IBuildListed
 	}
 	
 	public static inline function getStartItemIndexOfPageIndex(pageIndex:Int, totalItemsPerPage:Int):Int {
-		return pageIndex * totalItemsPerPage - 1;
+		return pageIndex * totalItemsPerPage;
 	}
 	
-	public static inline function getLastItemIndexOfPageIndex(pageIndex:Int, totalItemsPerPage:Int):Int {
-		return getStartItemIndexOfPageIndex(pageIndex,totalItemsPerPage) + totalItemsPerPage -1;
+	public static function getLastItemIndexOfPageIndex(pageIndex:Int, totalItemsPerPage:Int, totalItems:Int):Int {
+	
+		var startI:Int =  getStartItemIndexOfPageIndex(pageIndex, totalItemsPerPage);
+		var endI:Int = startI + totalItemsPerPage -1;
+		if (endI  > totalItems ) {
+			endI = totalItemsPerPage;
+		}
+		return endI;
 	}
 	
-	public static inline function getLenIndexOfPageIndex(pageIndex:Int, totalItemsPerPage:Int):Int {
-		return  getStartItemIndexOfPageIndex(pageIndex, totalItemsPerPage) + totalItemsPerPage;
+	public static function getLenIndexOfPageIndex(pageIndex:Int, totalItemsPerPage:Int, totalItems:Int):Int {
+		var startI:Int =  getStartItemIndexOfPageIndex(pageIndex, totalItemsPerPage);
+		var endI:Int = startI + totalItemsPerPage;
+		if (endI  >= totalItems ) {
+			endI = totalItemsPerPage - 1;
+		}
+		return endI;
 	}
 	
 	
-	public static function getPaginatedList<T>(curPageIndex:Int, refArray:Array<T>, itemsPerPage:Int):Array<T> {
+	public static function getPaginatedList<T>(curPageIndex:Int, refArray:Array<T>, itemsPerPage:Int, totalItems:Int):Array<T> {
 		var newArr:Array<T> = [];
-		for (i in getStartItemIndexOfPageIndex(curPageIndex, itemsPerPage)...getLenIndexOfPageIndex(curPageIndex, itemsPerPage)) {
+		for (i in getStartItemIndexOfPageIndex(curPageIndex, itemsPerPage)...getLenIndexOfPageIndex(curPageIndex, itemsPerPage, totalItems)) {
 			newArr.push(refArray[i]);
 		}
 		return newArr;
 	}
 	
-	public function getMyPaginatedList<U>(curPageIndex:Int):Array<U> {
+	
+	public function getMyPaginatedList<U>():Array<U> {
 		var newArr:Array<U>;
 		if (!isArrayType) {
 			throw("dynItems Needs to be array type for this function to work!");
@@ -102,9 +114,15 @@ class PaginationOf<T> implements IBuildListed
 			*/
 		}
 		var refArr:Array<U> = dynItems;
-		return getPaginatedList(curPageIndex, refArr, itemsPerPage);
+		return getPaginatedList(curPageIndex, refArr, itemsPerPage,totalItems);
 		
 	}
+	
+	public var itemsPaginated(get, never):Array<Dynamic>;
+	inline function get_itemsPaginated():Array<Dynamic> {
+		return getMyPaginatedList();
+	}
+	
 
 	public function new(items:T, itemsPerPage:Int=0) 
 	{

@@ -34,18 +34,20 @@ class ItemsVue extends VComponent<PaginationOf<Array<MyItem>>, NoneT>
 	function getDefaultTemplate():String {
 		return '
 			<ul class="items">
-				<li v-for="paginatedItems" :data-id="item.id">
+				<li v-for="item in paginatedItems" :data-id="item.id">
 					<h3>{{ item.title }}</h3>
-					<img :src="item.image.src"></img>
+					<img :src="item.image != null ? item.image.src : item.image"></img>
 					<div class="tags">{{ item.tags }}</div>
 				</li>
 			</ul>
 		';
 	}
 	
+	var paginatedItems(get, never):Array<MyItem>;
+	
 	function get_paginatedItems():Array<MyItem> {
 		// return computed list of paginated items based on curPageIndex
-		return  _vData.getMyPaginatedList(this.curPageIndex);
+		return  _vData.getMyPaginatedList();
 	}
 
 	override public function Template():String {
