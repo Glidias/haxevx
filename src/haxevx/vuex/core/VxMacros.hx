@@ -1078,7 +1078,7 @@ class VxMacros
 		
 		var typeParamIndexHash:StringMap<Int> = null;
 
-		if (classType.params != null) {
+		if (classType != null && classType.params != null) {
 			
 			typeParamIndexHash = new StringMap<Int>();
 			for ( i in  0...classType.params.length) {
@@ -1134,7 +1134,7 @@ class VxMacros
 
 		var typeParamIndexHash:StringMap<Int> = null;
 
-		if (classType.params != null) {
+		if (classType!=null && classType.params != null) {
 			
 			typeParamIndexHash = new StringMap<Int>();
 			for ( i in  0...classType.params.length) {
