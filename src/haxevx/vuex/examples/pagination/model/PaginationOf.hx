@@ -62,6 +62,13 @@ class PaginationOf<T> implements IBuildListed
 	
 	var isArrayType(default,null):Bool = false;
     var curPaginateViewIndex(default, null):Int = 0;  // the current item view index starting from first item listed
+	public function setCurPaginateViewIndex(val:Int):Void {
+		if (val >= totalItems) {
+			val  = totalItems - 1;
+		}
+		curPaginateViewIndex = val;
+		validate();
+	}
 	
 	// useful for setting setCurPageIndex based on selected item
 	public static inline function getPageIndexOfItemIndex(itemIndex:Int, totalItemsPerPage:Int):Int {
@@ -79,8 +86,8 @@ class PaginationOf<T> implements IBuildListed
 	
 		var startI:Int =  getStartItemIndexOfPageIndex(pageIndex, totalItemsPerPage);
 		var endI:Int = startI + totalItemsPerPage -1;
-		if (endI  > totalItems ) {
-			endI = totalItemsPerPage;
+		if (endI  >= totalItems ) {
+			endI = totalItemsPerPage -1;
 		}
 		return endI;
 	}
@@ -88,8 +95,8 @@ class PaginationOf<T> implements IBuildListed
 	public static function getLenIndexOfPageIndex(pageIndex:Int, totalItemsPerPage:Int, totalItems:Int):Int {
 		var startI:Int =  getStartItemIndexOfPageIndex(pageIndex, totalItemsPerPage);
 		var endI:Int = startI + totalItemsPerPage;
-		if (endI  >= totalItems ) {
-			endI = totalItemsPerPage - 1;
+		if (endI  > totalItems ) {
+			endI = totalItems;
 		}
 		return endI;
 	}
@@ -143,6 +150,26 @@ class PaginationOf<T> implements IBuildListed
 	
 	@:watch(itemsPerPage) public function notifyItemsPerPageChange(val:Int):Void {
 		validate();
+	}
+	
+	public var curItemsPerPage(get, never):Int;
+	public function get_curItemsPerPage():Int {
+		return this.curLenItemIndex - this.curStartItemIndex;
+	}
+	
+	public var curStartItemIndex(get, never):Int;
+	public function get_curStartItemIndex():Int {
+		return getStartItemIndexOfPageIndex(curPageIndex, itemsPerPage);
+	}
+	
+	public var curLastItemIndex(get, never):Int;
+	public function get_curLastItemIndex():Int {
+		return getLastItemIndexOfPageIndex(curPageIndex, itemsPerPage, totalItems);
+	}
+	
+	public var curLenItemIndex(get, never):Int;
+	public function get_curLenItemIndex():Int {
+		return getLenIndexOfPageIndex(curPageIndex, itemsPerPage, totalItems);
 	}
 	
 	public function validate():Void {
