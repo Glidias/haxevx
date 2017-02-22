@@ -48,7 +48,7 @@ class VxMacros
 			
 				arr[i] = {
 					name:a.name,
-					meta:a.meta,
+					//meta:a.meta,  // this is no longer found in latest 3.4.0 version?
 					opt:a.opt,
 					type:newTypeCheck,
 					value:a.value
@@ -219,45 +219,52 @@ class VxMacros
 		return collector;
 	}
 	
+	static var MODULE_CLASSES:StringMap<Bool> = [
+		"haxevx.vuex.core.VxComponent" => true,
+		"haxevx.vuex.core.VComponent" => true,
+	];
+	
 	macro public static function buildComponent():Array<Field>  {
 		var fields = Context.getBuildFields();
 		
 		
+		var localClasse = Context.getLocalClass().get();
+		var classModule:String = localClasse.module;
+		if ( MODULE_CLASSES.exists(classModule) ) return fields;
 		
-		var classModule:String = Context.getLocalClass().get().module;
-		if (classModule == "haxevx.vuex.core.VxComponent"  || classModule == "haxevx.vuex.core.VComponent") return fields;
-	
-		
+		var isBase:Bool = localClasse.superClass == null ||  MODULE_CLASSES.exists( localClasse.superClass.t.get().module);
 		
 		var funcLookup:StringMap<Function> = new StringMap<Function>();
 		var watchableFields:StringMap<ComplexType> = new StringMap<ComplexType>();
 		var classTypeParams  = Context.getLocalClass().get().superClass.params;
-		var typeParamData:Type;
-		var typeParamProps:Type;
+		var typeParamData:Type = null;
+		var typeParamProps:Type = null;
 		var typeParamStore:Type = null;
 		var retTypeStore:ComplexType = null;
 	
 		
-		
-		if (classTypeParams.length == 3) {  // assumed extending VxComponent
-			typeParamStore = TypeTools.follow( classTypeParams[0] );
-			typeParamData = classTypeParams[1];
-			typeParamProps = classTypeParams[2];
-			switch( typeParamStore) {
-				case TInst(t, params):
-					retTypeStore = MacroStringTools.toComplex( t.get().module);
-					if (retTypeStore == null) {
-						Context.fatalError("Could not resolve store data by path: " +  t.get().module, Context.getLocalClass().get().pos);
-					}
-					//trace( t.get(). );// .getParameters()[0];
-					//trace();
-				default: 
-					Context.fatalError("Could not resolve store data type: " + typeParamStore, Context.getLocalClass().get().pos);
+		if (isBase) {
+			if (classTypeParams.length == 3) {  // assumed extending VxComponent
+				typeParamStore = TypeTools.follow( classTypeParams[0] );
+				typeParamData = classTypeParams[1];
+				typeParamProps = classTypeParams[2];
+				
+				switch( typeParamStore) {
+					case TInst(t, params):
+						retTypeStore = MacroStringTools.toComplex( t.get().module);
+						if (retTypeStore == null) {
+							Context.fatalError("Could not resolve store data by path: " +  t.get().module, Context.getLocalClass().get().pos);
+						}
+						//trace( t.get(). );// .getParameters()[0];
+						//trace();
+					default: 
+						Context.fatalError("Could not resolve store data type: " + typeParamStore, Context.getLocalClass().get().pos);
+				}
 			}
-		}
-		else {  // assumed extending VComponent
-			typeParamData = classTypeParams[0];
-			typeParamProps = classTypeParams[1];
+			else {  // assumed extending VComponent
+				typeParamData = classTypeParams[0];
+				typeParamProps = classTypeParams[1];
+			}
 		}
 		
 		if (  hasMetaTag( Context.getLocalClass().get().meta.get(), ":vueIncludeDataMethods") ) {
@@ -284,6 +291,9 @@ class VxMacros
 		
 		var cls1 = Context.getLocalClass().toString();
 		var initBlock:Array<Expr> = [];
+		if (!isBase) {
+			initBlock.push( macro super._Init() );
+		}
 		var injectBlock:Array<Expr> = [];
 		var computedAssignments:Array<FieldExprPair> = [];
 		var propAssignments:Array<FieldExprPair> = [];
@@ -294,35 +304,57 @@ class VxMacros
 		var setPropValidators:StringMap< Bool> = new StringMap<Bool>();
 		//var data
 		
-		switch ( fg=TypeTools.follow(typeParamData) ) {
-			case TInst(t, params):		
-				requireData = t.get().name != "NoneT";
-				if (requireData) dataFieldsToAdd = getClassFieldArrayToAdd( t.get().fields.get(), watchableFields );
-			case Type.TAnonymous(a):
-				requireData = true;
-				dataFieldsToAdd  = getClassFieldArrayToAdd( a.get().fields, watchableFields );
-				
-			default:
-				Context.fatalError("Type not supported for Data (class, interface or typedef only):" + fg, Context.currentPos() );
+		if (typeParamData != null) {
+			switch ( fg=TypeTools.follow(typeParamData) ) {
+				case TInst(t, params):		
+					requireData = t.get().name != "NoneT";
+					if (requireData) {
+						var nt:Ref<ClassType> = t;
+						var prm = params;
+						while( nt != null) {
+							dataFieldsToAdd = getClassFieldArrayToAdd( nt.get().fields.get(), watchableFields, nt.get(), prm, dataFieldsToAdd );
+							var sc =  nt.get().superClass;
+							nt = sc != null ? sc.t : null;
+							prm = sc != null ? sc.params : null;
+						}
+						
+					}
+				case Type.TAnonymous(a):
+					requireData = true;
+					dataFieldsToAdd  = getClassFieldArrayToAdd( a.get().fields, watchableFields, null, null );
+					
+				default:
+					Context.fatalError("Type not supported for Data (class, interface or typedef only):" + fg, Context.currentPos() );
+			}
 		}
 		
-		switch ( fg=TypeTools.follow(typeParamProps) ) {
-			case Type.TInst(t, params):
-				requireProps = t.get().name != "NoneT";
-				
-				if (requireProps) {
-					propFieldsToAdd = classFieldArrayToStrMap( t.get().fields.get(), watchableFields );
-				}
-				
-			case Type.TAnonymous(a):
-				requireProps = true;
-				propFieldsToAdd = classFieldArrayToStrMap(  a.get().fields, watchableFields);
-			//case Type.TAbstract(t, params):
-				//requireProps = true;
-				
-			default:
-				Context.fatalError("Type not supported for Props (class, interface or  typedef only):" + fg, Context.currentPos() );
-				
+		if (typeParamProps != null) {
+			switch ( fg=TypeTools.follow(typeParamProps) ) {
+				case Type.TInst(t, params):
+					requireProps = t.get().name != "NoneT";
+					
+					if (requireProps) {
+						var nt:Ref<ClassType> = t;
+						var prm = params;
+						while ( nt != null) {
+							
+							propFieldsToAdd = classFieldArrayToStrMap( nt.get().fields.get(), watchableFields, nt.get(), prm,  propFieldsToAdd );
+							var sc =  nt.get().superClass;
+							nt = sc != null ? sc.t : null;
+							prm = sc != null ? sc.params : null;
+						}
+					}
+					
+				case Type.TAnonymous(a):
+					requireProps = true;
+					propFieldsToAdd = classFieldArrayToStrMap(  a.get().fields, watchableFields, null, null);
+				//case Type.TAbstract(t, params):
+					//requireProps = true;
+					
+				default:
+					Context.fatalError("Type not supported for Props (class, interface or  typedef only):" + fg, Context.currentPos() );
+					
+			}
 		}
 
 		//Context.getClassPath();
@@ -633,7 +665,7 @@ class VxMacros
 							doc: f.doc,
 							access: [Access.APrivate],
 							pos: p ,
-							kind:  FieldType.FProp("null", "null",  TypeTools.toComplexType( f.type) ),
+							kind:  FieldType.FProp("null", "null",  watchableFields.get(f.name) ),
 							
 						});
 					default:
@@ -664,13 +696,13 @@ class VxMacros
 						}
 						
 						var p = Context.currentPos();
-						propAssignments.push({field:f.name, expr:getPropMetadata(f.meta.get(), f.type, f.pos, p )});
+						propAssignments.push({field:f.name, expr:getPropMetadata(f.meta.get(), ComplexTypeTools.toType(watchableFields.get(f.name)), f.pos, p )});
 						fields.push({
 							name: f.name,
 							doc: f.doc,
 							access: [Access.APrivate],
 							pos: p ,
-							kind:  FieldType.FProp("null", "never",  TypeTools.toComplexType( f.type) )
+							kind:  FieldType.FProp("null", "never",  watchableFields.get(f.name) )
 						});
 					default:
 						// suppress?
@@ -683,16 +715,18 @@ class VxMacros
 		// Set up _Init() generated macro
 		var pos:Position = Context.currentPos();
 
+		/*		// This is no longer applicable
 		var isOverriding:Bool = Context.getLocalClass().get().superClass != null;
-		
-		
+	
 		// Call Init from constructor if required
 		if (!isOverriding) {
+			
 			// inject _Init() call into constructor
 			if (constructorFieldExpr != null) {
 				switch( constructorFieldExpr.expr) {
 					case EBlock(exprs):
-						exprs.push(macro _Init());
+						if (isBase) exprs.push(macro _Init());
+						//else exprs.push( macro super() );
 					default:
 						Context.error("Failed to resolve constructor field expr type: " + constructorFieldExpr.expr, constructorFieldPos);
 				}
@@ -702,16 +736,23 @@ class VxMacros
 			
 			}
 		}
+		*/
+		
 		
 		if (computedAssignments.length != 0) {
-			initBlock.push( macro  untyped this.computed = ${ {expr:EObjectDecl(computedAssignments), pos:pos} } );
+			if (isBase) initBlock.push( macro  untyped this.computed = ${ {expr:EObjectDecl(computedAssignments), pos:pos} } );
+			else {
+				initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropSettingInto( this.computed != null ? this.computed : this.computed = {}, ${ {expr:EObjectDecl(computedAssignments), pos:pos} }) );
+			}
 		}
 		if (methodAssignments.length != 0) {
-			initBlock.push( macro  untyped this.methods = ${ {expr:EObjectDecl(methodAssignments), pos:pos} } );
+			if (isBase) initBlock.push( macro  untyped this.methods = ${ {expr:EObjectDecl(methodAssignments), pos:pos} } );
+			else initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropSettingInto( this.methods != null ? this.methods : this.methods={}, ${ {expr:EObjectDecl(methodAssignments), pos:pos} }) );
 		}
 		if (propAssignments.length != 0) {
 			
-			initBlock.push( macro  untyped this.props = ${ {expr:EObjectDecl(propAssignments), pos:pos} } );
+			if (isBase) initBlock.push( macro  untyped this.props = ${ {expr:EObjectDecl(propAssignments), pos:pos} } );
+			else initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropSettingInto( this.props != null ? this.props : this.props={}, ${ {expr:EObjectDecl(propAssignments), pos:pos} }) );
 			if ((propSettingFlags & FLAG_PROPSETTING_CUSTOM) != 0) {
 				// todo: does it return plain object as only statement? if so, can inline assignments
 				if (propSettingKVs != null) {
@@ -782,7 +823,7 @@ class VxMacros
 		
 		fields.push({
 			name: "_Init",
-			access: isOverriding ? [Access.APrivate, Access.AOverride] :  [Access.APrivate],
+			access: [Access.APrivate, Access.AOverride] ,   // isBase ?  //:  [Access.APrivate]  // VComponent now has _Init by deffault
 			pos: Context.currentPos() ,
 			kind:  FieldType.FFun({ret:null, args:[], expr:theInitExpr } ),
 		});
@@ -1023,9 +1064,29 @@ class VxMacros
 		return retExpr;
 	}
 	
+	static function typeParamsToParamArray(ref:Array<TypeParameter>):Array<Type> {
+		var arr = [];
+		for (i in 0...ref.length) {
+			arr.push( ref[i].t);
+		}
+		return arr;
+	}
+	
 	// for data
-	static function getClassFieldArrayToAdd(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>):Array<ClassField> {
-		var refArr:Array<ClassField> = [];
+	static function getClassFieldArrayToAdd(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>,  classType:ClassType, paramList:Array<Type>, refArr:Array<ClassField>=null):Array<ClassField> {
+		if (refArr == null) refArr =  [];
+		
+		var typeParamIndexHash:StringMap<Int> = null;
+
+		if (classType != null && classType.params != null) {
+			
+			typeParamIndexHash = new StringMap<Int>();
+			for ( i in  0...classType.params.length) {
+				var p = classType.params[i];
+				typeParamIndexHash.set(p.name, i);
+			}
+		}
+		
 		for (f in arr) {
 			var ct:ComplexType;
 
@@ -1037,11 +1098,18 @@ class VxMacros
 					case Type.TType(t, params):
 							if (t.toString() == "Null" ) {
 								//ct=params[0];
+								
 								ct = TypeTools.toComplexType( params[0] );
 							}
-							else ct = TypeTools.toComplexType( f.type );
+							else {
+								
+								ct = TypeTools.toComplexType( f.type );
+								if (typeParamIndexHash != null) ct = resolveGenericTypeIfAny(ct, paramList, typeParamIndexHash);
+							}
 						default:
 							ct = TypeTools.toComplexType( f.type );
+							
+							if (typeParamIndexHash != null)  ct = resolveGenericTypeIfAny(ct, paramList, typeParamIndexHash);
 					}
 					
 					watchableFields.set(f.name, ct);
@@ -1059,8 +1127,22 @@ class VxMacros
 
 	
 	// for props
-	static function classFieldArrayToStrMap(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>):StringMap<ClassField> {
-		var strMap:StringMap<ClassField> = new StringMap<ClassField>();
+	static function classFieldArrayToStrMap(arr:Array<ClassField>, watchableFields:StringMap<ComplexType>, classType:ClassType, paramList:Array<Type>, strMap:StringMap<ClassField>=null):StringMap<ClassField> {
+		if (strMap == null) strMap =  new StringMap<ClassField>();
+		
+		
+
+		var typeParamIndexHash:StringMap<Int> = null;
+
+		if (classType!=null && classType.params != null) {
+			
+			typeParamIndexHash = new StringMap<Int>();
+			for ( i in  0...classType.params.length) {
+				var p = classType.params[i];
+				typeParamIndexHash.set(p.name, i);
+			}
+		}
+		
 		for (f in arr) {
 			var ct:ComplexType;
 			switch( f.type ) {
@@ -1069,9 +1151,17 @@ class VxMacros
 						//ct=params[0];
 						ct = TypeTools.toComplexType( params[0] );
  					}
-					else ct = TypeTools.toComplexType( f.type );
+					else {
+						ct = TypeTools.toComplexType( f.type );
+						
+						if (typeParamIndexHash != null) ct = resolveGenericTypeIfAny(ct, paramList, typeParamIndexHash);
+					}
+			
+					
 				default:
 					ct = TypeTools.toComplexType( f.type );
+					var lastCT = ct;
+					if (typeParamIndexHash != null) ct = resolveGenericTypeIfAny(ct, paramList, typeParamIndexHash);
 			}
 			
 			watchableFields.set(f.name,ct);
