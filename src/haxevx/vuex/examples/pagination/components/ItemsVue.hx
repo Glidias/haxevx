@@ -26,28 +26,24 @@ class ItemsVue extends VComponent<PaginationOf<Array<MyItem>>, NoneT>
 		
 		__injectTemplate = injectTemplate;
 		if (injectTemplate == null) {
-			__injectTemplate = getDefaultTemplate();
+			__injectTemplate = getExampleTemplate();
 		}
 		super();
 	}
 	
-	function getDefaultTemplate():String {
+	// without back ticks, Haxe truly sucks when it comes to string-based templating within .hx files!!
+	// Use of "${"   and  "}"  is done  to escape v-bindings of attributes within single quoted template....
+	//  ...and tab-spacings between them are used for "slightly-better" clarity.
+	public static function getExampleTemplate():String {
 		return '
-			<ul class="items">
-				<li v-for="item in paginatedItems" :data-id="item.id">
-					<h3>{{ item.title }}</h3>
-					<img :src="item.image != null ? item.image.src : item.image"></img>
-					<div class="tags">{{ item.tags }}</div>
-				</li>
-			</ul>
+			<div class="itemlist-holder">
+				<ul class="items" :style="${"	{'transform':'translateX('+(-clampDownPaginateViewIndex*100/itemsPerPage)+'%)'}		"}">
+					<li v-for="item in items">
+						Item goes here
+					</li>
+				</ul>
+			</div>
 		';
-	}
-	
-	var paginatedItems(get, never):Array<MyItem>;
-	
-	function get_paginatedItems():Array<MyItem> {
-		// return computed list of paginated items based on curPageIndex
-		return  _vData.getMyPaginatedList();
 	}
 
 	override public function Template():String {

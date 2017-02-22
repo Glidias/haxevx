@@ -233,7 +233,7 @@ class PaginationOf<T> implements IBuildListed
         return true;
     }
 	
-	var clampDownPaginateViewIndex(get,never):Int;
+	public var clampDownPaginateViewIndex(get,never):Int;
     function get_clampDownPaginateViewIndex () { 
         var totalPages = this.totalPages;
         var curPageIndex = this.curPageIndex;
@@ -241,7 +241,8 @@ class PaginationOf<T> implements IBuildListed
      
     }
 	
-    inline function getClampDownScrollFloatingIndex()  {
+	public var clampDownScrollFloatingIndex(get,never):Float;
+    inline function get_clampDownScrollFloatingIndex():Float  {
         return this.clampDownPaginateViewIndex /  this.itemsPerPage;
     }
 	

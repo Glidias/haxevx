@@ -10,7 +10,7 @@ import haxevx.vuex.examples.pagination.model.PaginationOf;
  */
 @:expose("haxevx.awesome.vue.PageNumbersVue")
 @:vueIncludeDataMethods
-class PageNumbersVue extends VComponent<PaginationOf<Int>, PaginateScrollVueProps>
+class PageNumbersVue extends VComponent<PaginationOf<Int>,NoneT>
 {
 	var __injectTemplate:String;
 	var __injectData:PaginationOf<Int>;
@@ -21,16 +21,20 @@ class PageNumbersVue extends VComponent<PaginationOf<Int>, PaginateScrollVueProp
 		
 		__injectTemplate = injectTemplate;
 		if (injectTemplate == null) {
-			__injectTemplate = getDefaultTemplate();
+			__injectTemplate = getExampleTemplate();
+		}
+		else if (__injectTemplate == "") {
+			__injectTemplate = null;
 		}
 		super();
 	}
 	
 	
-	function getDefaultTemplate():String {
+	// without back ticks, Haxe truly sucks when it comes to string-based templating within .hx files!!
+	public static function getExampleTemplate():String { 
 		return '
 			<div class="page-numbers">
-				<a v-for="n in totalItems" href="http://www.google.com/?page={{n}}" style="display:inline-block;"></a>
+				<a v-for="n in totalItems" :href="${"	'http://www.google.com/?page='+n	"}" style="display:inline-block;"></a>
 			</div>
 		';
 		
@@ -45,8 +49,4 @@ class PageNumbersVue extends VComponent<PaginationOf<Int>, PaginateScrollVueProp
 		return untyped _vOptions.__injectData != null ? _vOptions.__injectData : new PaginationOf(0, 5);
 	}
 	
-}
-
-typedef PaginateScrollVueProps = {
-	var numbersPerScroll:Int;
 }
