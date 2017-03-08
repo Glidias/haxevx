@@ -1043,13 +1043,13 @@ class VuexMacros
 					
 					
 					switch(f.ret) {
-						case TPath({name:void , pack:_, params:_}):
+						case TPath({name:"Void" , pack:_, params:_}):
 							
 						default:
 							gotRetType = true;
 					}
 					
-		
+					
 					var contextType:ComplexType = ComplexType.TPath({pack:["haxevx", "vuex", "core"], name:"IVxContext", params:[] });
 					var contextArg:FunctionArg = {
 						name: "context",
@@ -1086,7 +1086,7 @@ class VuexMacros
 						Context.error("Mutation context handlers should not have return value!", field.pos);
 					}
 					
-
+					
 					// commit/dispatch options + namespacings
 					if (gotRetType) {
 						funcExpr = payload != null ?  macro {
