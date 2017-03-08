@@ -635,6 +635,7 @@ class VxMacros
 					}
 					else if (field.name.charAt(0) != "_") {
 						var fName:String = field.name;
+						
 						methodAssignments.push({field:field.name, expr:macro clsP.$fName } );
 					}
 				default:
@@ -742,17 +743,17 @@ class VxMacros
 		if (computedAssignments.length != 0) {
 			if (isBase) initBlock.push( macro  untyped this.computed = ${ {expr:EObjectDecl(computedAssignments), pos:pos} } );
 			else {
-				initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropSettingInto( this.computed != null ? this.computed : this.computed = {}, ${ {expr:EObjectDecl(computedAssignments), pos:pos} }) );
+				initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetOverwrite( this.computed != null ? this.computed : this.computed = {}, ${ {expr:EObjectDecl(computedAssignments), pos:pos} }) );
 			}
 		}
 		if (methodAssignments.length != 0) {
 			if (isBase) initBlock.push( macro  untyped this.methods = ${ {expr:EObjectDecl(methodAssignments), pos:pos} } );
-			else initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropSettingInto( this.methods != null ? this.methods : this.methods={}, ${ {expr:EObjectDecl(methodAssignments), pos:pos} }) );
+			else initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetOverwrite( this.methods != null ? this.methods : this.methods={}, ${ {expr:EObjectDecl(methodAssignments), pos:pos} }) );
 		}
 		if (propAssignments.length != 0) {
 			
 			if (isBase) initBlock.push( macro  untyped this.props = ${ {expr:EObjectDecl(propAssignments), pos:pos} } );
-			else initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetPropSettingInto( this.props != null ? this.props : this.props={}, ${ {expr:EObjectDecl(propAssignments), pos:pos} }) );
+			else initBlock.push( macro  untyped  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSetOverwrite( this.props != null ? this.props : this.props={}, ${ {expr:EObjectDecl(propAssignments), pos:pos} }) );
 			if ((propSettingFlags & FLAG_PROPSETTING_CUSTOM) != 0) {
 				// todo: does it return plain object as only statement? if so, can inline assignments
 				if (propSettingKVs != null) {
@@ -1332,6 +1333,14 @@ class VxMacroUtil {
 			else {
 				Reflect.setField(into, f, setting);
 			}
+		}
+	}
+	
+	public static function dynamicSetOverwrite(into:Dynamic, from:Dynamic):Void {
+		for (f in Reflect.fields(from)) {
+
+			Reflect.setField(into, f, Reflect.field(from, f));
+			
 		}
 	}
 }
