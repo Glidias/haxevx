@@ -33,7 +33,7 @@ A guide to using HaxeVx for Vuex.
 
 https://github.com/Glidias/haxevx/wiki/Vuex---HaxeVX-Draft-version-guide
 
-Examples:
+### Examples:
 
 A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
 	
