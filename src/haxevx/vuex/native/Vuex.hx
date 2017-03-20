@@ -34,8 +34,11 @@ extern class Store<S>
 	//  watch<T>(getter: (state: S) => T, cb: (value: T, oldValue: T) => void, options?: WatchOptions): void;
 
 
+	@:overload(function(path:Array<String>, module:Dynamic):Void {} )
+	@:overload(function(path:String, module:Dynamic):Void {} )
 	@:overload(function<T>(path:Array<String>, module:Module<T,S>):Void {} )
 	public function registerModule<T>(path:String, module:Module<T,S>):Void;
+	
 		
 
 	@:overload(function<T>(path:Array<String>):Void {} )

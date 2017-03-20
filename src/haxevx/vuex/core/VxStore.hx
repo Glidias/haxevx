@@ -28,8 +28,6 @@ class VxStore<S> implements IVxStoreContext<S>
 	{
 		
 	}
-	
-	
-	
+
 	
 }
