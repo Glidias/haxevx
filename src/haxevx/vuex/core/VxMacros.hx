@@ -371,7 +371,19 @@ class VxMacros
 			{
 				case FieldType.FFun(f):
 					if (field.name.indexOf("get_") == 0) {
-						funcLookup.set( field.name.substr(4), f);
+						var fName:String = field.name.substr(4);
+				
+						funcLookup.set( fName, f);
+						if (hasMetaTag(field.meta, ":computed")) {
+							
+							fields.push( {
+								name:fName,
+								access:[],
+								kind: FieldType.FProp("get", "never", f.ret ),
+								pos:field.pos
+							});
+							watchableFields.set(fName, f.ret);
+						}
 					}
 				case FieldType.FProp("get", "set", t, _):
 					watchableFields.set(field.name, t);

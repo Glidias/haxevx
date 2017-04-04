@@ -48,12 +48,12 @@ class CartVue extends VxComponent<AppStore, NoneT, NoneT>
 		return store.getters.cartProducts;
 	}
 	
-	var checkoutStatus(get, never):String;
-	public inline function get_checkoutStatus():String {
+	
+	// Alternatively, you annotate getter function with `@:computed`  to auto-declare `var fieldName(get,never)`.
+	@:computed public inline function get_checkoutStatus():String {
 		return store.cart.checkoutStatus;
 	}
-	
-	
+
 	
 	// Methods
 	public function checkout (products:Array<ProductInCart>) {
