@@ -127,7 +127,7 @@ extern class Vue		// For simplicity, Native Vue will consider _vData as Dynamic,
 	 @:overload(function(id:String, definition: AsyncComponentRetVoid): Vue {} )
 	 public static function component(id:String, ?definition:Component):Vue; 
 	 
-	 public static function use(extension:Dynamic):Void; 
+	 public static function use(extension:Dynamic, ?params:Dynamic):Void; 
 	
 	 @:overload(function(mixin:ComponentOptions):Void {})  // ComponentOptions<Vue>
 	 public static function mixin(mixin:Vue): Void;

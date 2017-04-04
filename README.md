@@ -33,9 +33,17 @@ A guide to using HaxeVx for Vuex.
 
 https://github.com/Glidias/haxevx/wiki/Vuex---HaxeVX-Draft-version-guide
 
+### Examples:
+
 A Vuex example (ie. the port of Vuex' Shopping Cart Example), can be found here:
 	
 https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingcart
+
+Or you can view the examples package for anything else: 
+https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/
+
+Others online: https://github.com/Glidias/haxevx/wiki/Gallery-Links
+
 	
 ____________
 
