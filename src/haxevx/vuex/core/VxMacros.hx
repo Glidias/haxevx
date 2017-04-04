@@ -1027,34 +1027,33 @@ class VxMacros
 	}
 	
 	static function convertStrMapToObjectSetup(values:Array<Expr>):Expr {
-		//var blockExpr:ExprDef.EBlock
-		var statement:Expr =  macro var macroGeneratedObj = {};
-		var initBlock:Array<Expr> = [];
-		var fields:Array<{field:String, exprDef:ExprDef}> = [];
-			//${ {expr:EObjectDecl(computedAssignments), pos:pos} }
+	
+		var myFields:Array<{field:ExprDef, exprDef:ExprDef, strField:String, keyPos:Position, valuePos:Position}> = [];
 		for (i in 0...values.length) {
 			switch( values[i].expr ) {
-				case EBinop(OpArrow, {expr:key, pos:keyPos }, {expr:value, pos:_}):
-				//	trace(  Context.getPosInfos(keyPos) );
-		
-					switch( key) {
+				case EBinop(OpArrow, {expr:key, pos:keyPos }, {expr:value, pos:valuePos}):
+					//	trace(  Context.getPosInfos(keyPos) );
+						
+					switch( key ) {
 						case EConst(CString(keyStr)):
-							fields.push({field:keyStr, exprDef:value } );
-						case EConst(CIdent(s)):
-							fields.push({field:"$"+s, exprDef:value } );
+							myFields.push({ field:key, exprDef:value, strField:keyStr, keyPos:keyPos, valuePos:valuePos});
+						
 						default:
-							Context.fatalError("Only accept string keys for String Map!", values[i].pos );
+							myFields.push({ field:key, exprDef:value, strField:null, keyPos:keyPos, valuePos:valuePos});
 					}
 				default:
 					Context.fatalError("Couldn't resolve string map keys to ObjDecl! Please use OpArrow for String map!", values[i].pos );
-					
 			}	
 		}
 		
-		var assignments = [for (f in fields) {
-			var field_name:String = f.field;
-			var val:Expr = {expr:f.exprDef, pos:Context.currentPos()};
-			macro  untyped _m_['$field_name'] = ${val}; // _m_.awfawff =  ${val};    
+		var assignments = [for (f in myFields) {
+			var val:Expr = {expr:f.exprDef, pos:f.valuePos};
+			var keyer:Expr = {expr:f.field, pos:f.keyPos};
+			if (f.strField != null) {
+				var strField:String = f.strField;
+				macro  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSet(_m_, '$strField', ${val}); // _m_.awfawff =  ${val};    
+			}
+			else macro  haxevx.vuex.core.VxMacros.VxMacroUtil.dynamicSet(_m_, ${keyer}, ${val}); // _m_.awfawff =  ${val};    
 		}];
 		
 		var retExpr:Expr = macro {
