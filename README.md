@@ -2,7 +2,7 @@
 
 ## HaxeVX - Haxe-powered VueJS/Vuex development
 
-Pre-release is available on Haxelib. 
+Official release of core library is available on Haxelib.
 
 	haxelib install haxevx
 	
@@ -42,9 +42,8 @@ https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/shoppingc
 Or you can view the examples package for anything else: 
 https://github.com/Glidias/haxevx/tree/master/src/haxevx/vuex/examples/
 
-Others online: https://github.com/Glidias/haxevx/wiki/Gallery-Links
+Other full-fledged examples online: https://github.com/Glidias/haxevx/wiki/Gallery-Links
 
-	
 ____________
 
 Roadmap can be found [here](https://github.com/Glidias/haxevx/issues/2)
