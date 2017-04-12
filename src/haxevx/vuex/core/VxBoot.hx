@@ -24,19 +24,6 @@ class VxBoot
 		clearModuleInjStack(store);
 		
 	 }
-	 
-	 // TODO: allow deeply nested module initialization
-	 /*
-	  public static inline function registerModulePathWithStore(path:Array<String>, mod:Dynamic, store:Store<Dynamic>):Void {
-		mod._Init(path.join("/"));
-		
-		
-		//untyped store[name] = mod; // Reflect.setField(store, name, mod);
-		store.registerModule(path, mod);
-		clearModuleInjStack(store);
-		
-	 }
-	 */
 	
 	
 	public function startStore<T>(storeParams:Dynamic):Store<Dynamic>  {
@@ -112,7 +99,7 @@ class VxBoot
 			stack[i]._InjNative(storeGetters);
 		
 		}
-		stack = [];
+		ModuleStack.stack = [];
 	}
 	
 	public function startVueWithRootComponent<T>(el:String, rootComponent:VComponent<Dynamic, Dynamic>):Vue {
