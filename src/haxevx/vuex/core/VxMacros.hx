@@ -66,7 +66,7 @@ class VxMacros
 		
 		
 		switch(fieldType) {
-			case ComplexType.TPath({pack:[], name:name}):
+			case ComplexType.TPath({name:name}):
 				if ( typeParamIndexHash.exists(name)) {
 					
 					// attempt to  generic data type ... this might NOT be a perfect solution though...
